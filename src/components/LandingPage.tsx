@@ -1,108 +1,22 @@
 import { useState, useEffect } from 'react'
 import * as styles from './LandingPage.css'
 import Header from './Header'
-
-
-// ============================================
-// ICONS
-// ============================================
-
-const GitHubIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className={styles.icon}>
-    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-  </svg>
-)
-
-const ArrowRightIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.icon}>
-    <path d="M5 12h14M12 5l7 7-7 7" />
-  </svg>
-)
-
-const CheckIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={styles.iconSmall}>
-    <path d="M20 6L9 17l-5-5" />
-  </svg>
-)
-
-const XIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={styles.iconSmall}>
-    <path d="M18 6L6 18M6 6l12 12" />
-  </svg>
-)
-
-const CodeIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.iconMedium}>
-    <polyline points="16 18 22 12 16 6" />
-    <polyline points="8 6 2 12 8 18" />
-  </svg>
-)
-
-const CpuIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.iconMedium}>
-    <rect x="4" y="4" width="16" height="16" rx="2" />
-    <rect x="9" y="9" width="6" height="6" />
-    <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" />
-  </svg>
-)
-
-const TargetIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.iconMedium}>
-    <circle cx="12" cy="12" r="10" />
-    <circle cx="12" cy="12" r="6" />
-    <circle cx="12" cy="12" r="2" />
-  </svg>
-)
-
-
-const FileIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.iconSmall}>
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-    <polyline points="14 2 14 8 20 8" />
-  </svg>
-)
-
-const CitationIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={styles.iconMedium}>
-    <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
-    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
-    <path d="M8 7h8M8 11h8M8 15h4" />
-  </svg>
-)
-
-const ParameterIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={styles.iconMedium}>
-    <circle cx="12" cy="12" r="3" />
-    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-  </svg>
-)
-
-const FormulaIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={styles.iconMedium}>
-    <polyline points="16 18 22 12 16 6" />
-    <polyline points="8 6 2 12 8 18" />
-  </svg>
-)
-
-const TestIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={styles.iconMedium}>
-    <path d="M9 11l3 3L22 4" />
-    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-  </svg>
-)
-
-const ImportIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={styles.iconMedium}>
-    <path d="M12 5v14M5 12l7 7 7-7" />
-  </svg>
-)
-
-const VersionIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={styles.iconMedium}>
-    <circle cx="12" cy="12" r="10" />
-    <polyline points="12 6 12 12 16 14" />
-  </svg>
-)
+import {
+  GitHubIcon,
+  ArrowRightIcon,
+  CheckIcon,
+  XIcon,
+  CodeIcon,
+  CpuIcon,
+  TargetIcon,
+  FileIcon,
+  CitationIcon,
+  ParameterIcon,
+  FormulaIcon,
+  TestIcon,
+  ImportIcon,
+  VersionIcon,
+} from './Icons'
 
 // ============================================
 // CODE EXAMPLES
@@ -711,7 +625,7 @@ function TabbedCodeExamples() {
       <div className={styles.codeBlock}>
         <div className={styles.codeHeader}>
           <span className={styles.codeFilename}>
-            <FileIcon />
+            <FileIcon className={styles.iconSmall} />
             {filename}
           </span>
           <span className={styles.codeNote}>{getNote(activeTab)}</span>
@@ -768,10 +682,10 @@ export default function LandingPage() {
           <div className={styles.heroActions}>
             <a href="#about" className={styles.btnPrimary}>
               Learn More
-              <ArrowRightIcon />
+              <ArrowRightIcon className={styles.icon} />
             </a>
             <a href="https://github.com/rac-foundation/rac" className={styles.btnSecondary}>
-              <GitHubIcon />
+              <GitHubIcon className={styles.icon} />
               View on GitHub
             </a>
           </div>
@@ -795,7 +709,7 @@ export default function LandingPage() {
           <div className={styles.features}>
             <div className={styles.feature}>
               <div className={styles.featureIcon}>
-                <CodeIcon />
+                <CodeIcon className={styles.iconMedium} />
               </div>
               <h3 className={styles.featureTitle}>Self-contained</h3>
               <p className={styles.featureDesc}>
@@ -806,7 +720,7 @@ export default function LandingPage() {
 
             <div className={styles.feature}>
               <div className={styles.featureIcon}>
-                <CheckIcon />
+                <CheckIcon className={styles.iconSmall} />
               </div>
               <h3 className={styles.featureTitle}>Legally grounded</h3>
               <p className={styles.featureDesc}>
@@ -817,7 +731,7 @@ export default function LandingPage() {
 
             <div className={styles.feature}>
               <div className={styles.featureIcon}>
-                <CpuIcon />
+                <CpuIcon className={styles.iconMedium} />
               </div>
               <h3 className={styles.featureTitle}>Temporal versioning</h3>
               <p className={styles.featureDesc}>
@@ -926,7 +840,7 @@ export default function LandingPage() {
           {/* Features Grid */}
           <div className={styles.featuresGrid}>
             <div className={styles.featureCard}>
-              <div className={styles.featureCardIcon}><CitationIcon /></div>
+              <div className={styles.featureCardIcon}><CitationIcon className={styles.iconMedium} /></div>
               <h3>Legal citations</h3>
               <p>
                 Filepath mirrors statute citation. <code>26/24/d/1/B.rac</code> encodes
@@ -935,7 +849,7 @@ export default function LandingPage() {
             </div>
 
             <div className={styles.featureCard}>
-              <div className={styles.featureCardIcon}><ParameterIcon /></div>
+              <div className={styles.featureCardIcon}><ParameterIcon className={styles.iconMedium} /></div>
               <h3>Time-varying parameters</h3>
               <p>
                 Policy values change over time. Parameters track every historical value
@@ -944,7 +858,7 @@ export default function LandingPage() {
             </div>
 
             <div className={styles.featureCard}>
-              <div className={styles.featureCardIcon}><FormulaIcon /></div>
+              <div className={styles.featureCardIcon}><FormulaIcon className={styles.iconMedium} /></div>
               <h3>No magic numbers</h3>
               <p>
                 Only small integers (-1 to 3) allowed in formulas. All policy values
@@ -953,7 +867,7 @@ export default function LandingPage() {
             </div>
 
             <div className={styles.featureCard}>
-              <div className={styles.featureCardIcon}><ImportIcon /></div>
+              <div className={styles.featureCardIcon}><ImportIcon className={styles.iconMedium} /></div>
               <h3>Cross-references</h3>
               <p>
                 Import variables from other statutes using <code>path#variable</code> syntax.
@@ -962,7 +876,7 @@ export default function LandingPage() {
             </div>
 
             <div className={styles.featureCard}>
-              <div className={styles.featureCardIcon}><TestIcon /></div>
+              <div className={styles.featureCardIcon}><TestIcon className={styles.iconMedium} /></div>
               <h3>Inline tests</h3>
               <p>
                 Test cases live next to the code. Verify against official calculators
@@ -971,7 +885,7 @@ export default function LandingPage() {
             </div>
 
             <div className={styles.featureCard}>
-              <div className={styles.featureCardIcon}><VersionIcon /></div>
+              <div className={styles.featureCardIcon}><VersionIcon className={styles.iconMedium} /></div>
               <h3>Temporal formulas</h3>
               <p>
                 When laws change, track different formula versions with effective dates
@@ -1040,8 +954,8 @@ export default function LandingPage() {
                   <p><code>rac pytest</code> — instant, free</p>
                   <p className={styles.tierDetail}>Catches syntax errors, format issues, missing imports</p>
                   <div className={styles.tierBranch}>
-                    <span className={styles.tierFail}><XIcon /> Fail → Fix errors, retry (max 3)</span>
-                    <span className={styles.tierPass}><CheckIcon /> Pass → Proceed to oracles</span>
+                    <span className={styles.tierFail}><XIcon className={styles.iconSmall} /> Fail - Fix errors, retry (max 3)</span>
+                    <span className={styles.tierPass}><CheckIcon className={styles.iconSmall} /> Pass - Proceed to oracles</span>
                   </div>
                 </div>
               </div>
@@ -1082,15 +996,15 @@ export default function LandingPage() {
 
           <div className={styles.autoracFeatures}>
             <div className={styles.autoracFeature}>
-              <CheckIcon />
+              <CheckIcon className={styles.iconSmall} />
               <span>Validated against PolicyEngine + TAXSIM</span>
             </div>
             <div className={styles.autoracFeature}>
-              <CheckIcon />
+              <CheckIcon className={styles.iconSmall} />
               <span>Full encoding journey logged for audit</span>
             </div>
             <div className={styles.autoracFeature}>
-              <CheckIcon />
+              <CheckIcon className={styles.iconSmall} />
               <span>Parallel batch encoding via Agent SDK</span>
             </div>
           </div>
@@ -1300,29 +1214,29 @@ statute/26/24/d/1/B.rac   → 26 USC § 24(d)(1)(B)
           <div className={styles.rlvrGrid}>
             <div className={styles.rlvrCard}>
               <div className={styles.rlvrCardIcon}>
-                <TargetIcon />
+                <TargetIcon className={styles.iconMedium} />
               </div>
               <h3>Training datasets</h3>
               <p>
                 Millions of (situation, correct_answer) pairs grounded in actual statute.
-                Not synthetic—legally verified.
+                Not synthetic - legally verified.
               </p>
             </div>
 
             <div className={styles.rlvrCard}>
               <div className={styles.rlvrCardIcon}>
-                <CpuIcon />
+                <CpuIcon className={styles.iconMedium} />
               </div>
               <h3>Verifier API</h3>
               <p>
-                LLM generates answer → RAC API checks correctness → binary reward signal.
+                LLM generates answer, RAC API checks correctness, binary reward signal.
                 Real-time RLVR for policy rule accuracy.
               </p>
             </div>
 
             <div className={styles.rlvrCard}>
               <div className={styles.rlvrCardIcon}>
-                <CheckIcon />
+                <CheckIcon className={styles.iconSmall} />
               </div>
               <h3>Evaluation benchmarks</h3>
               <p>
@@ -1350,7 +1264,7 @@ statute/26/24/d/1/B.rac   → 26 USC § 24(d)(1)(B)
           <div className={styles.labGrid}>
             <a href="/lab" className={styles.labCard} style={{ textDecoration: 'none' }}>
               <div className={styles.labCardIcon}>
-                <CpuIcon />
+                <CpuIcon className={styles.iconMedium} />
               </div>
               <h3>Encoding runs</h3>
               <p>
@@ -1364,7 +1278,7 @@ statute/26/24/d/1/B.rac   → 26 USC § 24(d)(1)(B)
 
             <a href="/lab" className={styles.labCard} style={{ textDecoration: 'none' }}>
               <div className={styles.labCardIcon}>
-                <CodeIcon />
+                <CodeIcon className={styles.iconMedium} />
               </div>
               <h3>Agent transcripts</h3>
               <p>
@@ -1378,7 +1292,7 @@ statute/26/24/d/1/B.rac   → 26 USC § 24(d)(1)(B)
 
             <a href="/lab" className={styles.labCard} style={{ textDecoration: 'none' }}>
               <div className={styles.labCardIcon}>
-                <TargetIcon />
+                <TargetIcon className={styles.iconMedium} />
               </div>
               <h3>SDK sessions</h3>
               <p>
@@ -1395,7 +1309,7 @@ statute/26/24/d/1/B.rac   → 26 USC § 24(d)(1)(B)
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>
             <a href="/lab" className={styles.btnPrimary}>
               Open experiment lab
-              <ArrowRightIcon />
+              <ArrowRightIcon className={styles.icon} />
             </a>
           </div>
         </div>
@@ -1412,7 +1326,7 @@ statute/26/24/d/1/B.rac   → 26 USC § 24(d)(1)(B)
 
           <div className={styles.ctaActions}>
             <a href="https://github.com/rac-foundation" className={styles.btnPrimary}>
-              <GitHubIcon />
+              <GitHubIcon className={styles.icon} />
               Contribute on GitHub
             </a>
             <a href="mailto:hello@rac.foundation" className={styles.btnSecondary}>

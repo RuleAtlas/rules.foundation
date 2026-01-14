@@ -1,6 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import * as styles from '../styles/lab.css'
 import Header from '../components/Header'
+import {
+  CheckIcon,
+  XIcon,
+  WarningIcon,
+  RocketIcon,
+  FolderIcon,
+  CodeIcon,
+  TerminalIcon,
+} from '../components/Icons'
 import {
   getEncodingRuns,
   getAgentTranscripts,
@@ -10,58 +19,8 @@ import {
   EncodingRun,
   AgentTranscript,
   SDKSession,
-  SDKSessionEvent,
   DataSource,
 } from '../lib/supabase'
-
-// ============================================
-// ICONS
-// ============================================
-
-const CheckIcon = ({ size = 16 }: { size?: number }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width={size} height={size}>
-    <path d="M20 6L9 17l-5-5" />
-  </svg>
-)
-
-const XIcon = ({ size = 16 }: { size?: number }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width={size} height={size}>
-    <path d="M18 6L6 18M6 6l12 12" />
-  </svg>
-)
-
-const WarningIcon = ({ size = 20 }: { size?: number }) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size}>
-    <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z" />
-  </svg>
-)
-
-const RocketIcon = ({ size = 48 }: { size?: number }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width={size} height={size}>
-    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
-    <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
-  </svg>
-)
-
-const FolderIcon = ({ size = 20 }: { size?: number }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
-    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-  </svg>
-)
-
-const CodeIcon = ({ size = 20 }: { size?: number }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
-    <polyline points="16 18 22 12 16 6" />
-    <polyline points="8 6 2 12 8 18" />
-  </svg>
-)
-
-const TerminalIcon = ({ size = 20 }: { size?: number }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
-    <polyline points="4 17 10 11 4 5" />
-    <line x1="12" y1="19" x2="20" y2="19" />
-  </svg>
-)
 
 // ============================================
 // MOCK DATA - ⚠️ NOT REAL ⚠️
@@ -232,7 +191,6 @@ function transformToUIFormat(run: EncodingRun): ExperimentRun {
 
 export default function LabPage() {
   const [activeTab, setActiveTab] = useState<'experiments' | 'transcripts' | 'sdk' | 'plugin' | 'issues'>('experiments')
-  const [expandedCard, setExpandedCard] = useState<string | null>(null)
   const [expandedTranscript, setExpandedTranscript] = useState<number | null>(null)
   const [showTimestamps, setShowTimestamps] = useState(false)
   const [selectedRun, setSelectedRun] = useState<ExperimentRun | null>(null)
@@ -243,8 +201,6 @@ export default function LabPage() {
   const [transcripts, setTranscripts] = useState<AgentTranscript[]>([])
   const [sdkSessions, setSdkSessions] = useState<SDKSession[]>([])
   const [selectedSDKSession, setSelectedSDKSession] = useState<SDKSession | null>(null)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_sdkSessionEvents, setSdkSessionEvents] = useState<SDKSessionEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [usingMockData, setUsingMockData] = useState(false)
@@ -287,16 +243,15 @@ export default function LabPage() {
     fetchData()
   }, [])
 
-  // Handler to select SDK session and load its events
+  // Handler to select SDK session
   const handleSelectSDKSession = async (session: SDKSession) => {
     if (selectedSDKSession?.id === session.id) {
       setSelectedSDKSession(null)
-      setSdkSessionEvents([])
       return
     }
     setSelectedSDKSession(session)
-    const events = await getSDKSessionEvents(session.id, 500)
-    setSdkSessionEvents(events)
+    // Events could be loaded here if needed in the future
+    await getSDKSessionEvents(session.id, 500)
   }
 
   // Handler to select a run and load its transcripts
@@ -461,9 +416,8 @@ export default function LabPage() {
                   const sourceInfo = DATA_SOURCE_INFO[run.dataSource]
 
                   return (
-                    <>
+                    <Fragment key={run.id}>
                       <tr
-                        key={run.id}
                         onClick={() => handleSelectRun(run)}
                         style={{
                           cursor: 'pointer',
@@ -514,7 +468,7 @@ export default function LabPage() {
                       </tr>
                       {/* Inline Detail Panel */}
                       {selectedRun?.id === run.id && (
-                        <tr key={`${run.id}-detail`}>
+                        <tr>
                           <td colSpan={10} style={{ padding: 0, border: 'none' }}>
                             <div className={styles.detailPanel}>
                               <div className={styles.detailHeader}>
@@ -620,7 +574,7 @@ export default function LabPage() {
                           </td>
                         </tr>
                       )}
-                    </>
+                    </Fragment>
                   )
                 })}
               </tbody>
@@ -773,11 +727,7 @@ export default function LabPage() {
                   Agents ({PLUGIN_COMPONENTS.agents.length})
                 </h3>
                 {PLUGIN_COMPONENTS.agents.map((agent) => (
-                  <div
-                    key={agent.name}
-                    className={styles.pluginItem}
-                    onClick={() => setExpandedCard(expandedCard === agent.name ? null : agent.name)}
-                  >
+                  <div key={agent.name} className={styles.pluginItem}>
                     <div className={styles.pluginItemHeader}>
                       <span className={styles.pluginItemName}>{agent.name}</span>
                       <span className={styles.pluginItemLines}>{agent.lines} lines</span>
