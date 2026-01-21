@@ -42,8 +42,7 @@ export default function Header({ variant = 'landing' }: HeaderProps) {
     <header className={styles.header}>
       <div className={styles.headerContent}>
         <Link to="/" className={styles.logo}>
-          <span className={styles.logoMark}>RAC</span>
-          <span className={styles.logoText}>Foundation</span>
+          <img src="/logos/rac-foundation.svg" alt="RAC Foundation" className={styles.logoImage} />
         </Link>
         <nav className={styles.nav}>
           <NavLink href="#about">About</NavLink>

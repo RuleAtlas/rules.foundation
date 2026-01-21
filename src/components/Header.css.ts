@@ -43,6 +43,11 @@ export const logoText = style({
   fontStyle: 'italic',
 })
 
+export const logoImage = style({
+  height: '32px',
+  width: 'auto',
+})
+
 export const nav = style({
   display: 'flex',
   alignItems: 'center',
