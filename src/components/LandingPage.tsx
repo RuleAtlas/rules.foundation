@@ -663,7 +663,7 @@ export default function LandingPage() {
             </div>
             <div className={styles.autoracFeature}>
               <CheckIcon className={styles.iconSmall} />
-              <span>REST API — query by citation, keyword, or path</span>
+              <span>Full-text search — query by citation, keyword, or path</span>
             </div>
             <div className={styles.autoracFeature}>
               <CheckIcon className={styles.iconSmall} />
@@ -1213,9 +1213,9 @@ statute/26/24/d/1/B.rac   → 26 USC § 24(d)(1)(B)
               <div className={styles.rlvrCardIcon}>
                 <CpuIcon className={styles.iconMedium} />
               </div>
-              <h3>Verifier API</h3>
+              <h3>Verifier</h3>
               <p>
-                LLM generates answer, RAC API checks correctness, binary reward signal.
+                LLM generates answer, RAC executor checks correctness, binary reward signal.
                 Real-time RLVR for policy rule accuracy.
               </p>
             </div>
