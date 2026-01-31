@@ -10,8 +10,7 @@ const renderWithRouter = (ui: React.ReactElement) => {
 describe('LandingPage', () => {
   it('renders the hero section with mission statement', () => {
     renderWithRouter(<LandingPage />)
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/encode every rule/i)
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/every jurisdiction/i)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/encoding the world's rules/i)
   })
 
   it('renders the RAC DSL section', () => {
