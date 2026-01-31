@@ -684,7 +684,7 @@ export default function LandingPage() {
               Learn More
               <ArrowRightIcon className={styles.icon} />
             </a>
-            <a href="https://github.com/rules-foundation/rac" className={styles.btnSecondary}>
+            <a href="https://github.com/RulesFoundation/rac" className={styles.btnSecondary}>
               <GitHubIcon className={styles.icon} />
               View on GitHub
             </a>
@@ -1325,7 +1325,7 @@ statute/26/24/d/1/B.rac   → 26 USC § 24(d)(1)(B)
           </p>
 
           <div className={styles.ctaActions}>
-            <a href="https://github.com/rules-foundation" className={styles.btnPrimary}>
+            <a href="https://github.com/RulesFoundation" className={styles.btnPrimary}>
               <GitHubIcon className={styles.icon} />
               Contribute on GitHub
             </a>
@@ -1338,10 +1338,10 @@ statute/26/24/d/1/B.rac   → 26 USC § 24(d)(1)(B)
             <a href="#spec">
               RAC specification
             </a>
-            <a href="https://github.com/rules-foundation/autorac">
+            <a href="https://github.com/RulesFoundation/autorac">
               AutoRAC repository
             </a>
-            <a href="https://github.com/rules-foundation/rac-us">
+            <a href="https://github.com/RulesFoundation/rac-us">
               US jurisdiction models
             </a>
           </div>
@@ -1359,7 +1359,7 @@ statute/26/24/d/1/B.rac   → 26 USC § 24(d)(1)(B)
             Open infrastructure for encoded law.
           </p>
           <div className={styles.footerLinks}>
-            <a href="https://github.com/rules-foundation">GitHub</a>
+            <a href="https://github.com/RulesFoundation">GitHub</a>
             <a href="mailto:hello@rules.foundation">Contact</a>
             <a href="/privacy">Privacy</a>
           </div>

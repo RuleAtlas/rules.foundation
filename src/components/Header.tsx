@@ -50,7 +50,7 @@ export default function Header({ variant = 'landing' }: HeaderProps) {
           <NavLink href="#autorac">AutoRAC</NavLink>
           <NavLink href="/lab">Lab</NavLink>
           <NavLink href="#spec">Spec</NavLink>
-          <a href="https://github.com/rules-foundation" className={styles.navLink} target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/RulesFoundation" className={styles.navLink} target="_blank" rel="noopener noreferrer">
             <GitHubIcon className={styles.icon} />
           </a>
         </nav>
