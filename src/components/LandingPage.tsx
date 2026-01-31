@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import * as styles from './LandingPage.css'
 import Header from './Header'
+import CodeBlock from './CodeBlock'
 import {
   GitHubIcon,
   ArrowRightIcon,
@@ -81,10 +82,8 @@ const getNote = (format: FormatTab): string => {
 
 // RAC code examples
 const RacCode = ({ example }: { example: ExampleType }) => {
-  if (example === 'niit') {
-    return (
-      <pre className={styles.codePre}>
-{`# 26 USC § 1411(a) - Net Investment Income Tax
+  const racExamples: Record<ExampleType, string> = {
+    'niit': `# 26 USC § 1411(a) - Net Investment Income Tax
 
 text: |
   (a) In general.— There is hereby imposed a tax equal to 3.8 percent
@@ -110,14 +109,8 @@ variable net_investment_income_tax:
   tests:
     - inputs: {modified_agi: 300000, threshold_amount: 250000,
                net_investment_income: 80000}
-      expect: 1900  # 3.8% × min(80k, 50k)`}
-      </pre>
-    )
-  }
-  if (example === 'aca-ptc') {
-    return (
-      <pre className={styles.codePre}>
-{`# 26 USC § 36B(b)(3)(A) - ACA Premium Tax Credit
+      expect: 1900  # 3.8% × min(80k, 50k)`,
+    'aca-ptc': `# 26 USC § 36B(b)(3)(A) - ACA Premium Tax Credit
 
 text: |
   The applicable percentage for any taxpayer whose household
@@ -141,14 +134,8 @@ variable applicable_percentage:
   dtype: Rate
   formula: |
     # Linear interpolation within tier
-    return interpolate(ptc_applicable_pct, household_income_pct_fpl)`}
-      </pre>
-    )
-  }
-  if (example === 'std-ded') {
-    return (
-      <pre className={styles.codePre}>
-{`# 26 USC § 63(c)(2)(A) - Standard deduction (joint)
+    return interpolate(ptc_applicable_pct, household_income_pct_fpl)`,
+    'std-ded': `# 26 USC § 63(c)(2)(A) - Standard deduction (joint)
 
 text: |
   (A) 200 percent of the dollar amount in effect under
@@ -168,14 +155,8 @@ variable basic_std_ded_joint:
     return basic_std_ded_other * joint_multiplier
   tests:
     - inputs: {basic_std_ded_other: 6350}
-      expect: 12700  # 200% × 6350`}
-      </pre>
-    )
-  }
-  // ny-eitc
-  return (
-    <pre className={styles.codePre}>
-{`# NY Tax Law § 606(d) - NY Earned Income Credit
+      expect: 12700  # 200% × 6350`,
+    'ny-eitc': `# NY Tax Law § 606(d) - NY Earned Income Credit
 
 text: |
   § 606(d) For taxable years beginning after 2002, a resident
@@ -196,17 +177,18 @@ variable ny_eitc:
     return federal_eitc * ny_eitc_rate
   tests:
     - inputs: {federal_eitc: 5000}
-      expect: 1500  # 30% × 5000`}
-    </pre>
+      expect: 1500  # 30% × 5000`,
+  }
+
+  return (
+    <CodeBlock code={racExamples[example]} language="rac" className={styles.codePre} />
   )
 }
 
 // DMN code examples
 const DmnCode = ({ example }: { example: ExampleType }) => {
-  if (example === 'niit') {
-    return (
-      <pre className={styles.codePre}>
-{`<?xml version="1.0" encoding="UTF-8"?>
+  const dmnExamples: Record<ExampleType, string> = {
+    'niit': `<?xml version="1.0" encoding="UTF-8"?>
 <definitions name="NIIT">
   <inputData id="modified_agi"/>
   <inputData id="net_investment_income"/>
@@ -223,14 +205,8 @@ const DmnCode = ({ example }: { example: ExampleType }) => {
 
   <!-- Where does 0.038 come from? When did it take effect?
        What's the legal citation? DMN doesn't say. -->
-</definitions>`}
-      </pre>
-    )
-  }
-  if (example === 'aca-ptc') {
-    return (
-      <pre className={styles.codePre}>
-{`<?xml version="1.0" encoding="UTF-8"?>
+</definitions>`,
+    'aca-ptc': `<?xml version="1.0" encoding="UTF-8"?>
 <definitions name="ACA_PTC">
   <inputData id="fpl"/>
 
@@ -251,14 +227,8 @@ const DmnCode = ({ example }: { example: ExampleType }) => {
 
   <!-- Where do 150, 200, 250, 300, 0.02, 0.04, 0.06, 0.085 come from?
        DMN has no temporal versioning or legal citations. -->
-</definitions>`}
-      </pre>
-    )
-  }
-  if (example === 'std-ded') {
-    return (
-      <pre className={styles.codePre}>
-{`<?xml version="1.0" encoding="UTF-8"?>
+</definitions>`,
+    'std-ded': `<?xml version="1.0" encoding="UTF-8"?>
 <definitions name="StandardDeduction">
   <inputData id="basic_std_ded_other"/>
 
@@ -270,14 +240,8 @@ const DmnCode = ({ example }: { example: ExampleType }) => {
 
   <!-- Where does 2 come from? "200 percent" from statute.
        DMN has no way to cite the source. -->
-</definitions>`}
-      </pre>
-    )
-  }
-  // ny-eitc
-  return (
-    <pre className={styles.codePre}>
-{`<?xml version="1.0" encoding="UTF-8"?>
+</definitions>`,
+    'ny-eitc': `<?xml version="1.0" encoding="UTF-8"?>
 <definitions name="NY_EITC">
   <inputData id="federal_eitc"/>
 
@@ -289,17 +253,18 @@ const DmnCode = ({ example }: { example: ExampleType }) => {
 
   <!-- Magic number 0.30 with no citation.
        What if NY changes their rate? No history. -->
-</definitions>`}
-    </pre>
+</definitions>`,
+  }
+
+  return (
+    <CodeBlock code={dmnExamples[example]} language="xml" className={styles.codePre} />
   )
 }
 
 // OpenFisca/PolicyEngine code examples
 const OpenFiscaCode = ({ example }: { example: ExampleType }) => {
-  if (example === 'niit') {
-    return (
-      <pre className={styles.codePre}>
-{`# File 1: variables/gov/irs/.../net_investment_income_tax.py
+  const openfiscaExamples: Record<ExampleType, string> = {
+    'niit': `# File 1: variables/gov/irs/.../net_investment_income_tax.py
 class net_investment_income_tax(Variable):
     value_type = float
     entity = TaxUnit
@@ -329,14 +294,8 @@ values:
     rental_income: 205_000
     filing_status: "SINGLE"
   output:
-    net_investment_income_tax: 190`}
-      </pre>
-    )
-  }
-  if (example === 'aca-ptc') {
-    return (
-      <pre className={styles.codePre}>
-{`# File 1: variables/gov/aca/.../aca_required_contribution_percentage.py
+    net_investment_income_tax: 190`,
+    'aca-ptc': `# File 1: variables/gov/aca/.../aca_required_contribution_percentage.py
 class aca_required_contribution_percentage(Variable):
     value_type = float
     entity = TaxUnit
@@ -360,14 +319,8 @@ brackets:
       2021-01-01: 1.50
     amount:
       2021-01-01: 0.0     # ARPA: 0% at 150%
-      2026-01-01: 0.0419  # Revert`}
-      </pre>
-    )
-  }
-  if (example === 'std-ded') {
-    return (
-      <pre className={styles.codePre}>
-{`# File 1: variables/.../basic_standard_deduction.py
+      2026-01-01: 0.0419  # Revert`,
+    'std-ded': `# File 1: variables/.../basic_standard_deduction.py
 class basic_standard_deduction(Variable):
     value_type = float
     entity = TaxUnit
@@ -389,14 +342,8 @@ JOINT:
   2024-01-01: 29_200
   2025-01-01: 31_500
 metadata:
-  unit: "currency-USD"`}
-      </pre>
-    )
-  }
-  // ny-eitc
-  return (
-    <pre className={styles.codePre}>
-{`# File 1: variables/gov/states/ny/.../ny_eitc.py
+  unit: "currency-USD"`,
+    'ny-eitc': `# File 1: variables/gov/states/ny/.../ny_eitc.py
 class ny_eitc(Variable):
     value_type = float
     entity = TaxUnit
@@ -417,17 +364,18 @@ values:
   1995-01-01: 0.1
   1996-01-01: 0.2
   2000-01-01: 0.225
-  2003-01-01: 0.3`}
-    </pre>
+  2003-01-01: 0.3`,
+  }
+
+  return (
+    <CodeBlock code={openfiscaExamples[example]} language="python" className={styles.codePre} />
   )
 }
 
 // Catala code examples
 const CatalaCode = ({ example }: { example: ExampleType }) => {
-  if (example === 'niit') {
-    return (
-      <pre className={styles.codePre}>
-{`@@26 USC § 1411(a) - Net Investment Income Tax@@
+  const catalaExamples: Record<ExampleType, string> = {
+    'niit': `@@26 USC § 1411(a) - Net Investment Income Tax@@
 
 /*
 (a) In general.— There is hereby imposed a tax equal to
@@ -449,14 +397,8 @@ scope NIIT:
     in niit_rate * min(net_investment_income, excess)
 
 # Literate style, but no temporal versioning:
-# When did 3.8% take effect? What's the legal history?`}
-      </pre>
-    )
-  }
-  if (example === 'aca-ptc') {
-    return (
-      <pre className={styles.codePre}>
-{`@@26 USC § 36B(b)(3)(A) - ACA Premium Tax Credit@@
+# When did 3.8% take effect? What's the legal history?`,
+    'aca-ptc': `@@26 USC § 36B(b)(3)(A) - ACA Premium Tax Credit@@
 
 /*
 The applicable percentage... shall increase on a
@@ -478,14 +420,8 @@ scope PremiumTaxCredit:
       0.04 + (0.06 - 0.04) * (fpl - 250) / 50
     else 0.085
 
-# Values hardcoded - no temporal versioning`}
-      </pre>
-    )
-  }
-  if (example === 'std-ded') {
-    return (
-      <pre className={styles.codePre}>
-{`@@26 USC § 63(c)(2)(A) - Standard Deduction (Joint)@@
+# Values hardcoded - no temporal versioning`,
+    'std-ded': `@@26 USC § 63(c)(2)(A) - Standard Deduction (Joint)@@
 
 /*
 (A) 200 percent of the dollar amount in effect under
@@ -503,14 +439,8 @@ scope StandardDeduction:
     basic_std_ded_other * joint_multiplier
 
 # Clean, but when did "200 percent" take effect?
-# What was it before 1988? Catala doesn't track this.`}
-      </pre>
-    )
-  }
-  // ny-eitc
-  return (
-    <pre className={styles.codePre}>
-{`@@NY Tax Law § 606(d) - NY Earned Income Credit@@
+# What was it before 1988? Catala doesn't track this.`,
+    'ny-eitc': `@@NY Tax Law § 606(d) - NY Earned Income Credit@@
 
 /*
 § 606(d) A resident individual allowed the federal EITC
@@ -528,8 +458,11 @@ scope NYEITC:
   definition ny_eitc equals federal_eitc * ny_eitc_rate
 
 # What if NY changes their rate? No temporal history.
-# When did "thirty percent" start? Need external tracking.`}
-    </pre>
+# When did "thirty percent" start? Need external tracking.`,
+  }
+
+  return (
+    <CodeBlock code={catalaExamples[example]} language="catala" className={styles.codePre} />
   )
 }
 
@@ -565,7 +498,7 @@ variable niit:
           <span className={styles.codePanelDot} />
           <span className={styles.codePanelLabel}>26 USC § 1411(a)</span>
         </div>
-        <pre className={styles.codePanelContent}>{statuteText}</pre>
+        <CodeBlock code={statuteText} language="plain" className={styles.codePanelContent} />
       </div>
 
       <div className={styles.codeArrow}>
@@ -580,7 +513,7 @@ variable niit:
           <span className={`${styles.codePanelDot} ${styles.codePanelDotRac}`} />
           <span className={styles.codePanelLabel}>statute/26/1411/a.rac</span>
         </div>
-        <pre className={styles.codePanelContent}>{racCode}</pre>
+        <CodeBlock code={racCode} language="rac" className={styles.codePanelContent} />
       </div>
     </div>
   )
@@ -1089,8 +1022,7 @@ export default function LandingPage() {
             </div>
 
             <div className={`${styles.specContent} ${specExpanded ? styles.specContentExpanded : ''}`}>
-              <pre className={styles.specPre}>
-{`# RAC file specification
+              <CodeBlock code={`# RAC file specification
 
 Self-contained statute encoding format for tax and benefit rules.
 
@@ -1247,8 +1179,7 @@ Filepath = legal citation:
 \`\`\`
 statute/7/2017/a.rac      → 7 USC § 2017(a)
 statute/26/24/d/1/B.rac   → 26 USC § 24(d)(1)(B)
-\`\`\``}
-              </pre>
+\`\`\``} language="rac" className={styles.specPre} />
             </div>
           </div>
         </div>
