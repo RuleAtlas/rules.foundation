@@ -1551,3 +1551,51 @@ globalStyle(`${labIssueContent} code`, {
   borderRadius: '4px',
   color: '#ffaa00',
 });
+
+// Arch section styles
+export const archGrid = style({
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+  gap: vars.space.lg,
+  marginTop: vars.space['2xl'],
+  marginBottom: vars.space['2xl'],
+});
+
+export const archCard = style({
+  background: `linear-gradient(135deg, ${vars.color.voidLight} 0%, ${vars.color.void} 100%)`,
+  border: `1px solid ${vars.color.border}`,
+  borderRadius: vars.radius.lg,
+  padding: vars.space.xl,
+  transition: `all ${vars.duration.base} ${vars.ease.out}`,
+  ':hover': {
+    borderColor: vars.color.precision,
+    transform: 'translateY(-2px)',
+  },
+});
+
+globalStyle(`${archCard} h4`, {
+  fontFamily: vars.font.display,
+  fontSize: '1.1rem',
+  color: vars.color.text,
+  marginBottom: vars.space.sm,
+});
+
+globalStyle(`${archCard} p`, {
+  fontFamily: vars.font.body,
+  fontSize: '0.9rem',
+  color: vars.color.textSecondary,
+  lineHeight: 1.5,
+  margin: 0,
+});
+
+export const archFeatures = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: vars.space.md,
+  marginBottom: vars.space['2xl'],
+});
+
+export const archCta = style({
+  display: 'flex',
+  justifyContent: 'center',
+});

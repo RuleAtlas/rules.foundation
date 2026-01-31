@@ -48,6 +48,7 @@ export default function Header({ variant = 'landing' }: HeaderProps) {
           <NavLink href="#about">About</NavLink>
           <NavLink href="#format">.rac</NavLink>
           <NavLink href="#autorac">AutoRAC</NavLink>
+          <NavLink href="#arch">Arch</NavLink>
           <NavLink href="/lab">Lab</NavLink>
           <NavLink href="#spec">Spec</NavLink>
           <a href="https://github.com/RulesFoundation" className={styles.navLink} target="_blank" rel="noopener noreferrer">
