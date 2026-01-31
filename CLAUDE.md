@@ -1,0 +1,12 @@
+# rules.foundation
+
+RF website. Deploys to Vercel.
+
+## After pushing changes
+
+**Always verify Vercel deploy succeeded:**
+```bash
+vercel ls 2>&1 | head -5
+```
+
+If status is "Error", run `bun run build` locally to see the issue.
