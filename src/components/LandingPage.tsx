@@ -651,8 +651,8 @@ export default function LandingPage() {
               <p>NY Open Legislation API, more states coming</p>
             </div>
             <div className={styles.archCard}>
-              <h4>Microdata</h4>
-              <p>CPS ASEC, IRS PUF, SIPP via microplex integration</p>
+              <h4>Regulations</h4>
+              <p>CFR titles, Treasury regulations, agency rules</p>
             </div>
           </div>
 
