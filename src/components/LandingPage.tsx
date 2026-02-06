@@ -610,13 +610,13 @@ export default function LandingPage() {
           </div>
 
           <h1 className={styles.heroTitle}>
-            AI can't reliably answer{' '}
-            <span className={styles.heroTitleAccent}>legal questions</span>
+            Encoding the{' '}
+            <span className={styles.heroTitleAccent}>world's rules</span>
           </h1>
 
           <p className={styles.heroSubtitle}>
-            Statutes aren't machine-readable. We're fixing that. Rules Foundation encodes tax law, benefits policy,
-            and regulations into verified, executable code — ground truth for AI systems.
+            The Rules Foundation builds open, machine-readable encodings of statutes, regulations, and policy rules.
+            Ground truth for AI systems. Verifiable by design.
           </p>
 
           <div className={styles.heroActions}>
