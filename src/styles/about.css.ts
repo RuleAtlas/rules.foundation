@@ -125,6 +125,36 @@ export const cardText = style({
 })
 
 // ============================================
+// FOUNDER
+// ============================================
+
+export const founder = style({
+  display: 'flex',
+  gap: vars.space['2xl'],
+  alignItems: 'flex-start',
+  '@media': {
+    '(max-width: 600px)': {
+      flexDirection: 'column',
+      alignItems: 'center',
+      textAlign: 'center',
+    },
+  },
+})
+
+export const founderPhoto = style({
+  width: '140px',
+  height: '140px',
+  borderRadius: '50%',
+  objectFit: 'cover',
+  border: `3px solid ${vars.color.border}`,
+  flexShrink: 0,
+})
+
+export const founderInfo = style({
+  flex: 1,
+})
+
+// ============================================
 // LINK BOX
 // ============================================
 

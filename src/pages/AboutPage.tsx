@@ -10,7 +10,7 @@ export default function AboutPage() {
 
       <div className={styles.container}>
         <header className={styles.pageHeader}>
-          <h1 className={styles.title}>About Rules Foundation</h1>
+          <h1 className={styles.title}>About the Rules Foundation</h1>
           <p className={styles.subtitle}>
             Open infrastructure for encoded law. We build machine-readable encodings of statutes, regulations,
             and policy rules to serve as ground truth for AI systems.
@@ -57,19 +57,30 @@ export default function AboutPage() {
 
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Team</h2>
-          <p className={styles.sectionText}>
-            This is an open-source community project. We welcome contributors from all backgrounds —
-            developers, policy experts, legal researchers, and anyone passionate about making rules
-            more transparent and accessible.
-          </p>
-          <div className={styles.linkBox}>
-            <CheckIcon className={styles.checkIcon} />
-            <span>
-              Join us on{' '}
-              <a href="https://github.com/RulesFoundation" className={styles.link}>
-                github.com/RulesFoundation
-              </a>
-            </span>
+          <div className={styles.founder}>
+            <img
+              src="https://maxghenis.com/images/headshot.png"
+              alt="Max Ghenis"
+              className={styles.founderPhoto}
+            />
+            <div className={styles.founderInfo}>
+              <p className={styles.sectionText}>
+                The Rules Foundation is led by{' '}
+                <a href="https://maxghenis.com" target="_blank" rel="noopener noreferrer">Max Ghenis</a>,
+                who also founded PolicyEngine. We're an open-source community project and welcome contributors
+                from all backgrounds — developers, policy experts, legal researchers, and anyone passionate
+                about making rules more transparent and accessible.
+              </p>
+              <div className={styles.linkBox}>
+                <CheckIcon className={styles.checkIcon} />
+                <span>
+                  Join us on{' '}
+                  <a href="https://github.com/RulesFoundation" className={styles.link}>
+                    github.com/RulesFoundation
+                  </a>
+                </span>
+              </div>
+            </div>
           </div>
         </section>
 
