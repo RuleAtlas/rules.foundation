@@ -28,7 +28,7 @@ import {
 
 // MOCK DATA - Placeholder values for UI development only.
 // Real data should come from Supabase.
-const MOCK_CALIBRATION_DATA: ExperimentRun[] = [
+const MOCK_ENCODING_DATA: EncodingRunUI[] = [
   {
     id: '3aedd4db',
     timestamp: '2025-12-31T10:36:22',
@@ -87,7 +87,7 @@ const MOCK_CALIBRATION_DATA: ExperimentRun[] = [
   },
 ]
 
-interface ExperimentRun {
+interface EncodingRunUI {
   id: string
   timestamp: string
   citation: string
@@ -99,24 +99,49 @@ interface ExperimentRun {
   sessionId?: string
 }
 
-const PLUGIN_COMPONENTS = {
+const RF_PLUGIN = {
+  name: 'rules-foundation',
+  version: '0.3.0',
+  description: 'Atlas, RAC encoding pipeline, and development tools',
   agents: [
+    { name: 'Encoding Orchestrator', file: 'encoding-orchestrator.md', description: 'Orchestrates full 5-phase encoding workflow.', lines: 110 },
     { name: 'RAC Encoder', file: 'encoder.md', description: 'Encodes tax/benefit rules into RAC format.', lines: 380 },
-    { name: 'RAC Reviewer', file: 'rac-reviewer.md', description: 'Reviews .rac encodings for quality and accuracy.', lines: 120 },
-    { name: 'Formula Reviewer', file: 'formula-reviewer.md', description: 'Audits formula logic for statutory fidelity.', lines: 95 },
-    { name: 'Parameter Reviewer', file: 'parameter-reviewer.md', description: 'Audits parameter values and effective dates.', lines: 88 },
-    { name: 'Integration Reviewer', file: 'integration-reviewer.md', description: 'Audits file connections and dependencies.', lines: 72 },
-    { name: 'Encoding Validator', file: 'validator.md', description: 'Validates against PolicyEngine and TAXSIM.', lines: 156 },
-    { name: 'Statute Analyzer', file: 'statute-analyzer.md', description: 'Pre-flight analysis of statutes.', lines: 98 },
-    { name: 'Fixer', file: 'fixer.md', description: 'Makes surgical fixes to .rac files.', lines: 64 },
+    { name: 'Statute Analyzer', file: 'statute-analyzer.md', description: 'Pre-flight analysis of statutes before encoding.', lines: 150 },
+    { name: 'Encoding Validator', file: 'validator.md', description: 'Validates against PolicyEngine and TAXSIM.', lines: 180 },
+    { name: 'RAC Reviewer', file: 'rac-reviewer.md', description: 'Reviews .rac encodings for quality and accuracy.', lines: 180 },
+    { name: 'Formula Reviewer', file: 'formula-reviewer.md', description: 'Audits formula logic for statutory fidelity.', lines: 80 },
+    { name: 'Parameter Reviewer', file: 'parameter-reviewer.md', description: 'Audits parameter values and effective dates.', lines: 100 },
+    { name: 'Integration Reviewer', file: 'integration-reviewer.md', description: 'Audits file connections and dependencies.', lines: 80 },
+    { name: 'Document Archiver', file: 'document-archiver.md', description: 'Downloads legal documents for atlas archive.', lines: 100 },
   ],
   skills: [
-    { name: 'policy-encoding', file: 'policy-encoding/SKILL.md', description: 'Encoding tax/benefit statutes into executable code.', lines: 450 },
-    { name: 'microplex', file: 'microplex/SKILL.md', description: 'Evaluating synthetic microdata quality.', lines: 280 },
+    { name: 'rac-encoding', file: 'rac-encoding.md', description: 'RAC DSL patterns, validation, and encoding workflow.', lines: 120 },
+    { name: 'atlas-development', file: 'atlas-development.md', description: 'Crawler, converter, and R2 storage patterns.', lines: 120 },
+    { name: 'rf-architecture', file: 'rf-architecture.md', description: 'Repo layout and cross-repo relationships.', lines: 40 },
   ],
   commands: [
-    { name: '/encode', file: 'encode.md', description: 'Encode a statute into RAC format with validation.', lines: 85 },
-    { name: '/validate', file: 'validate.md', description: 'Validate encoded policy against multiple systems.', lines: 62 },
+    { name: '/encode', file: 'encode.md', description: 'Encode a statute into RAC format with validation.', lines: 40 },
+    { name: '/validate', file: 'validate.md', description: 'Validate encoded policy against multiple systems.', lines: 40 },
+    { name: '/file-bug', file: 'file-bug.md', description: 'File upstream bug when validation finds discrepancies.', lines: 50 },
+  ],
+}
+
+const COSILICO_PLUGIN = {
+  name: 'cosilico',
+  version: '0.4.0',
+  description: 'Microplex, design system, and experiment tracking hooks',
+  agents: [] as { name: string; file: string; description: string; lines: number }[],
+  skills: [
+    { name: 'microplex', file: 'microplex/SKILL.md', description: 'Evaluating synthetic microdata quality.', lines: 280 },
+    { name: 'design-system', file: 'design-system/SKILL.md', description: 'cosilico.ai vanilla-extract styling.', lines: 120 },
+    { name: 'encoding-log', file: 'encoding-log/SKILL.md', description: 'AutoRAC experiment logging.', lines: 80 },
+  ],
+  commands: [] as { name: string; file: string; description: string; lines: number }[],
+  hooks: [
+    { name: 'session-start', description: 'Initialize tracking session' },
+    { name: 'session-end', description: 'Finalize session' },
+    { name: 'log-subagent-transcript', description: 'Capture agent transcripts' },
+    { name: 'log-encoding-events', description: 'Track file changes during encoding' },
   ],
 }
 
@@ -171,7 +196,7 @@ const getScoreColor = (score: number) => {
 }
 
 // Transform Supabase data to UI format
-function transformToUIFormat(run: EncodingRun): ExperimentRun {
+function transformToEncodingRunUI(run: EncodingRun): EncodingRunUI {
   return {
     id: run.id,
     timestamp: run.timestamp,
@@ -190,14 +215,14 @@ function transformToUIFormat(run: EncodingRun): ExperimentRun {
 // ============================================
 
 export default function LabPage() {
-  const [activeTab, setActiveTab] = useState<'experiments' | 'transcripts' | 'sdk' | 'plugin' | 'issues'>('experiments')
+  const [activeTab, setActiveTab] = useState<'encodings' | 'transcripts' | 'sdk' | 'plugin' | 'issues'>('encodings')
   const [expandedTranscript, setExpandedTranscript] = useState<number | null>(null)
   const [showTimestamps, setShowTimestamps] = useState(false)
-  const [selectedRun, setSelectedRun] = useState<ExperimentRun | null>(null)
+  const [selectedRun, setSelectedRun] = useState<EncodingRunUI | null>(null)
   const [selectedRunTranscripts, setSelectedRunTranscripts] = useState<AgentTranscript[]>([])
 
   // State for Supabase data
-  const [liveData, setLiveData] = useState<ExperimentRun[]>([])
+  const [liveData, setLiveData] = useState<EncodingRunUI[]>([])
   const [transcripts, setTranscripts] = useState<AgentTranscript[]>([])
   const [sdkSessions, setSdkSessions] = useState<SDKSession[]>([])
   const [selectedSDKSession, setSelectedSDKSession] = useState<SDKSession | null>(null)
@@ -219,11 +244,11 @@ export default function LabPage() {
         ])
 
         if (runs.length > 0) {
-          setLiveData(runs.map(transformToUIFormat))
+          setLiveData(runs.map(transformToEncodingRunUI))
           setUsingMockData(false)
         } else {
           // No data in Supabase yet, fall back to mock data
-          setLiveData(MOCK_CALIBRATION_DATA)
+          setLiveData(MOCK_ENCODING_DATA)
           setUsingMockData(true)
         }
 
@@ -233,7 +258,7 @@ export default function LabPage() {
         console.error('Failed to fetch data:', err)
         setError('Failed to load data from database')
         // Fall back to mock data on error
-        setLiveData(MOCK_CALIBRATION_DATA)
+        setLiveData(MOCK_ENCODING_DATA)
         setUsingMockData(true)
       } finally {
         setIsLoading(false)
@@ -255,7 +280,7 @@ export default function LabPage() {
   }
 
   // Handler to select a run and load its transcripts
-  const handleSelectRun = async (run: ExperimentRun) => {
+  const handleSelectRun = async (run: EncodingRunUI) => {
     if (selectedRun?.id === run.id) {
       setSelectedRun(null)
       setSelectedRunTranscripts([])
@@ -272,7 +297,7 @@ export default function LabPage() {
     }
   }
 
-  const data = liveData.length > 0 ? liveData : MOCK_CALIBRATION_DATA
+  const data = liveData.length > 0 ? liveData : MOCK_ENCODING_DATA
 
   const totalRuns = data.length
   const successRuns = data.filter((d) => d.iterations[d.iterations.length - 1]?.success).length
@@ -294,8 +319,8 @@ export default function LabPage() {
         {/* Page title section */}
         <header className={styles.pageHeader}>
           <div className={styles.headerTop}>
-            <span className={styles.labBadge}>Experiment Lab</span>
-            <h1 className={styles.headerTitle}>AutoRAC calibration</h1>
+            <span className={styles.labBadge}>Encoding lab</span>
+            <h1 className={styles.headerTitle}>AutoRAC</h1>
           </div>
           <div className={styles.headerMeta}>
             <span className={styles.metaItem}>
@@ -312,7 +337,7 @@ export default function LabPage() {
             </span>
             <span className={styles.metaItem}>
               <span className={styles.metaLabel}>Plugin:</span>
-              <span className={styles.metaValue}>cosilico@0.2.1</span>
+              <span className={styles.metaValue}>rules-foundation@0.3.0</span>
             </span>
           </div>
         </header>
@@ -352,14 +377,14 @@ export default function LabPage() {
 
         {/* Data Note */}
         <div className={styles.dataNote}>
-          <span className={styles.dataNoteBold}>Data architecture note:</span> Plugin content is NOT currently stored with each experiment run.
+          <span className={styles.dataNoteBold}>Data architecture note:</span> Plugin content is NOT currently stored with each encoding run.
           Recommend SCD2 table for <code>plugin_versions</code> with hash-based versioning to track which plugin state produced each result.
         </div>
 
         {/* Tabs */}
         <div className={styles.tabs}>
-          <button className={`${styles.tab} ${activeTab === 'experiments' ? styles.tabActive : ''}`} onClick={() => setActiveTab('experiments')}>
-            Experiment runs
+          <button className={`${styles.tab} ${activeTab === 'encodings' ? styles.tabActive : ''}`} onClick={() => setActiveTab('encodings')}>
+            Encoding runs
           </button>
           <button className={`${styles.tab} ${activeTab === 'transcripts' ? styles.tabActive : ''}`} onClick={() => setActiveTab('transcripts')}>
             Agent transcripts
@@ -385,8 +410,8 @@ export default function LabPage() {
           </button>
         </div>
 
-        {/* Experiments Tab */}
-        {activeTab === 'experiments' && (
+        {/* Encoding runs Tab */}
+        {activeTab === 'encodings' && (
           <section className={styles.tableSection}>
             <h2 className={styles.sectionTitle}>
               Encoding runs
@@ -719,56 +744,106 @@ export default function LabPage() {
           <section className={styles.tableSection}>
             <h2 className={styles.sectionTitle}>Plugin content</h2>
 
-            <div className={styles.pluginGrid}>
-              {/* Agents */}
-              <div className={styles.pluginCategory}>
-                <h3 className={styles.pluginCategoryTitle}>
-                  <CodeIcon size={20} />
-                  Agents ({PLUGIN_COMPONENTS.agents.length})
-                </h3>
-                {PLUGIN_COMPONENTS.agents.map((agent) => (
-                  <div key={agent.name} className={styles.pluginItem}>
-                    <div className={styles.pluginItemHeader}>
-                      <span className={styles.pluginItemName}>{agent.name}</span>
-                      <span className={styles.pluginItemLines}>{agent.lines} lines</span>
-                    </div>
-                    <p className={styles.pluginItemDesc}>{agent.description}</p>
-                  </div>
-                ))}
+            {/* Rules Foundation Plugin */}
+            <div style={{ marginBottom: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <span style={{ background: 'rgba(0, 212, 255, 0.15)', color: '#00d4ff', padding: '4px 12px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em' }}>
+                  {RF_PLUGIN.name} v{RF_PLUGIN.version}
+                </span>
+                <span style={{ color: '#888', fontSize: '0.85rem' }}>{RF_PLUGIN.description}</span>
               </div>
 
-              {/* Skills */}
-              <div className={styles.pluginCategory}>
-                <h3 className={styles.pluginCategoryTitle}>
-                  <FolderIcon size={20} />
-                  Skills ({PLUGIN_COMPONENTS.skills.length})
-                </h3>
-                {PLUGIN_COMPONENTS.skills.map((skill) => (
-                  <div key={skill.name} className={styles.pluginItem}>
-                    <div className={styles.pluginItemHeader}>
-                      <span className={styles.pluginItemName}>{skill.name}</span>
-                      <span className={styles.pluginItemLines}>{skill.lines} lines</span>
+              <div className={styles.pluginGrid}>
+                <div className={styles.pluginCategory}>
+                  <h3 className={styles.pluginCategoryTitle}>
+                    <CodeIcon size={20} />
+                    Agents ({RF_PLUGIN.agents.length})
+                  </h3>
+                  {RF_PLUGIN.agents.map((agent) => (
+                    <div key={agent.name} className={styles.pluginItem}>
+                      <div className={styles.pluginItemHeader}>
+                        <span className={styles.pluginItemName}>{agent.name}</span>
+                        <span className={styles.pluginItemLines}>{agent.lines} lines</span>
+                      </div>
+                      <p className={styles.pluginItemDesc}>{agent.description}</p>
                     </div>
-                    <p className={styles.pluginItemDesc}>{skill.description}</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
+
+                <div className={styles.pluginCategory}>
+                  <h3 className={styles.pluginCategoryTitle}>
+                    <FolderIcon size={20} />
+                    Skills ({RF_PLUGIN.skills.length})
+                  </h3>
+                  {RF_PLUGIN.skills.map((skill) => (
+                    <div key={skill.name} className={styles.pluginItem}>
+                      <div className={styles.pluginItemHeader}>
+                        <span className={styles.pluginItemName}>{skill.name}</span>
+                        <span className={styles.pluginItemLines}>{skill.lines} lines</span>
+                      </div>
+                      <p className={styles.pluginItemDesc}>{skill.description}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className={styles.pluginCategory}>
+                  <h3 className={styles.pluginCategoryTitle}>
+                    <TerminalIcon size={20} />
+                    Commands ({RF_PLUGIN.commands.length})
+                  </h3>
+                  {RF_PLUGIN.commands.map((cmd) => (
+                    <div key={cmd.name} className={styles.pluginItem}>
+                      <div className={styles.pluginItemHeader}>
+                        <span className={styles.pluginItemName}>{cmd.name}</span>
+                        <span className={styles.pluginItemLines}>{cmd.lines} lines</span>
+                      </div>
+                      <p className={styles.pluginItemDesc}>{cmd.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Cosilico Plugin */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <span style={{ background: 'rgba(167, 139, 250, 0.15)', color: '#a78bfa', padding: '4px 12px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em' }}>
+                  {COSILICO_PLUGIN.name} v{COSILICO_PLUGIN.version}
+                </span>
+                <span style={{ color: '#888', fontSize: '0.85rem' }}>{COSILICO_PLUGIN.description}</span>
               </div>
 
-              {/* Commands */}
-              <div className={styles.pluginCategory}>
-                <h3 className={styles.pluginCategoryTitle}>
-                  <TerminalIcon size={20} />
-                  Commands ({PLUGIN_COMPONENTS.commands.length})
-                </h3>
-                {PLUGIN_COMPONENTS.commands.map((cmd) => (
-                  <div key={cmd.name} className={styles.pluginItem}>
-                    <div className={styles.pluginItemHeader}>
-                      <span className={styles.pluginItemName}>{cmd.name}</span>
-                      <span className={styles.pluginItemLines}>{cmd.lines} lines</span>
+              <div className={styles.pluginGrid}>
+                <div className={styles.pluginCategory}>
+                  <h3 className={styles.pluginCategoryTitle}>
+                    <FolderIcon size={20} />
+                    Skills ({COSILICO_PLUGIN.skills.length})
+                  </h3>
+                  {COSILICO_PLUGIN.skills.map((skill) => (
+                    <div key={skill.name} className={styles.pluginItem}>
+                      <div className={styles.pluginItemHeader}>
+                        <span className={styles.pluginItemName}>{skill.name}</span>
+                        <span className={styles.pluginItemLines}>{skill.lines} lines</span>
+                      </div>
+                      <p className={styles.pluginItemDesc}>{skill.description}</p>
                     </div>
-                    <p className={styles.pluginItemDesc}>{cmd.description}</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
+
+                <div className={styles.pluginCategory}>
+                  <h3 className={styles.pluginCategoryTitle}>
+                    <TerminalIcon size={20} />
+                    Hooks ({COSILICO_PLUGIN.hooks.length})
+                  </h3>
+                  {COSILICO_PLUGIN.hooks.map((hook) => (
+                    <div key={hook.name} className={styles.pluginItem}>
+                      <div className={styles.pluginItemHeader}>
+                        <span className={styles.pluginItemName}>{hook.name}</span>
+                      </div>
+                      <p className={styles.pluginItemDesc}>{hook.description}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </section>

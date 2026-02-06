@@ -466,16 +466,23 @@ scope NYEITC:
   )
 }
 
-// Animated code transformation for hero
+// Animated code transformation for hero - interactive
 function CodeTransform() {
   const [phase, setPhase] = useState(0)
+  const [isPaused, setIsPaused] = useState(false)
 
   useEffect(() => {
+    if (isPaused) return
     const interval = setInterval(() => {
       setPhase(p => (p + 1) % 3)
     }, 3000)
     return () => clearInterval(interval)
-  }, [])
+  }, [isPaused])
+
+  const handleClick = () => {
+    setIsPaused(true)
+    setPhase(p => (p + 1) % 3)
+  }
 
   const statuteText = `(a) In general.— There is hereby
 imposed a tax equal to 3.8 percent
@@ -492,7 +499,7 @@ variable niit:
     niit_rate * min(nii, excess_magi)`
 
   return (
-    <div className={styles.codeTransform}>
+    <div className={styles.codeTransform} onClick={handleClick} style={{ cursor: 'pointer' }} title="Click to advance">
       <div className={`${styles.codePanel} ${phase === 0 ? styles.codePanelActive : ''}`}>
         <div className={styles.codePanelHeader}>
           <span className={styles.codePanelDot} />
@@ -603,13 +610,13 @@ export default function LandingPage() {
           </div>
 
           <h1 className={styles.heroTitle}>
-            Encoding the{' '}
-            <span className={styles.heroTitleAccent}>world's rules</span>
+            AI can't reliably answer{' '}
+            <span className={styles.heroTitleAccent}>legal questions</span>
           </h1>
 
           <p className={styles.heroSubtitle}>
-            The Rules Foundation builds open, machine-readable encodings of statutes, regulations, and policy rules.
-            Ground truth for AI systems. Verifiable by design.
+            Statutes aren't machine-readable. We're fixing that. Rules Foundation encodes tax law, benefits policy,
+            and regulations into verified, executable code — ground truth for AI systems.
           </p>
 
           <div className={styles.heroActions}>
@@ -640,19 +647,19 @@ export default function LandingPage() {
           <div className={styles.archGrid}>
             <div className={styles.archCard}>
               <h4>Federal statutes</h4>
-              <p>All 54 titles of the US Code from official USLM XML</p>
+              <p>53 USC titles • 82,854 sections • 160,360 cross-references</p>
             </div>
             <div className={styles.archCard}>
               <h4>IRS guidance</h4>
-              <p>Revenue Procedures, Rulings, Notices — 570+ documents</p>
+              <p>148 Rev. Procs • 105 Rev. Rulings • 317 Notices</p>
             </div>
             <div className={styles.archCard}>
               <h4>State codes</h4>
-              <p>NY Open Legislation API, more states coming</p>
+              <p>48 states archived • NY, CA, DC with full section data</p>
             </div>
             <div className={styles.archCard}>
-              <h4>Regulations</h4>
-              <p>CFR titles, Treasury regulations, agency rules</p>
+              <h4>RAC encodings</h4>
+              <p>44 .rac files • Federal + CA + NY tax code • Canada benefits</p>
             </div>
           </div>
 
@@ -766,17 +773,17 @@ export default function LandingPage() {
                 <tbody>
                   <tr>
                     <td>Legal citations</td>
-                    <td className={styles.noSupport}>Comments</td>
-                    <td className={styles.neutralSupport}>Metadata</td>
-                    <td className={styles.neutralSupport}>Literate</td>
-                    <td className={styles.hasSupport}>Filepath</td>
+                    <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
+                    <td className={styles.neutralSupport}>Partial</td>
+                    <td className={styles.neutralSupport}>Partial</td>
+                    <td className={styles.hasSupport}><CheckIcon className={styles.iconSmall} /></td>
                   </tr>
                   <tr>
                     <td>Temporal versioning</td>
-                    <td className={styles.noSupport}>External</td>
-                    <td className={styles.hasSupport}>Built-in</td>
-                    <td className={styles.noSupport}>Manual</td>
-                    <td className={styles.hasSupport}>Built-in</td>
+                    <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
+                    <td className={styles.hasSupport}><CheckIcon className={styles.iconSmall} /></td>
+                    <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
+                    <td className={styles.hasSupport}><CheckIcon className={styles.iconSmall} /></td>
                   </tr>
                   <tr>
                     <td>Formula language</td>
@@ -794,31 +801,31 @@ export default function LandingPage() {
                   </tr>
                   <tr>
                     <td>Self-contained</td>
-                    <td className={styles.noSupport}>No</td>
-                    <td className={styles.noSupport}>3+ files</td>
-                    <td className={styles.hasSupport}>Yes</td>
-                    <td className={styles.hasSupport}>Yes</td>
+                    <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
+                    <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
+                    <td className={styles.hasSupport}><CheckIcon className={styles.iconSmall} /></td>
+                    <td className={styles.hasSupport}><CheckIcon className={styles.iconSmall} /></td>
                   </tr>
                   <tr>
                     <td>Inline tests</td>
-                    <td className={styles.noSupport}>Separate</td>
-                    <td className={styles.noSupport}>Separate</td>
-                    <td className={styles.noSupport}>Separate</td>
-                    <td className={styles.hasSupport}>Co-located</td>
+                    <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
+                    <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
+                    <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
+                    <td className={styles.hasSupport}><CheckIcon className={styles.iconSmall} /></td>
                   </tr>
                   <tr>
                     <td>No magic numbers</td>
-                    <td className={styles.noSupport}>Allowed</td>
-                    <td className={styles.noSupport}>Allowed</td>
-                    <td className={styles.noSupport}>Allowed</td>
-                    <td className={styles.hasSupport}>Enforced</td>
+                    <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
+                    <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
+                    <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
+                    <td className={styles.hasSupport}><CheckIcon className={styles.iconSmall} /></td>
                   </tr>
                   <tr>
                     <td>LLM-friendly</td>
-                    <td className={styles.noSupport}>XML verbose</td>
-                    <td className={styles.neutralSupport}>Python</td>
-                    <td className={styles.neutralSupport}>Custom</td>
-                    <td className={styles.hasSupport}>YAML simple</td>
+                    <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
+                    <td className={styles.neutralSupport}>Partial</td>
+                    <td className={styles.neutralSupport}>Partial</td>
+                    <td className={styles.hasSupport}><CheckIcon className={styles.iconSmall} /></td>
                   </tr>
                 </tbody>
               </table>
@@ -1234,8 +1241,68 @@ statute/26/24/d/1/B.rac   → 26 USC § 24(d)(1)(B)
         </div>
       </section>
 
+      {/* Coverage Dashboard Section */}
+      <section id="coverage" className={styles.sectionAlt}>
+        <div className={styles.sectionContent}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionLabel}>Progress</span>
+            <h2 className={styles.sectionTitle}>Encoding coverage</h2>
+            <p className={styles.sectionSubtitle}>
+              Current state of statute encoding across jurisdictions.
+            </p>
+          </div>
+
+          <div className={styles.rlvrGrid}>
+            <div className={styles.rlvrCard}>
+              <div className={styles.rlvrCardIcon}>
+                <TargetIcon className={styles.iconMedium} />
+              </div>
+              <h3>Federal (rac-us)</h3>
+              <p>
+                14 .rac files • IRC §1(j) tax tables • §63 standard deduction • TCJA provisions
+              </p>
+            </div>
+
+            <div className={styles.rlvrCard}>
+              <div className={styles.rlvrCardIcon}>
+                <CodeIcon className={styles.iconMedium} />
+              </div>
+              <h3>California (rac-us-ca)</h3>
+              <p>
+                23 .rac files • RTC §17041 income tax • CalEITC • Young Child Tax Credit • Mental Health surtax
+              </p>
+            </div>
+
+            <div className={styles.rlvrCard}>
+              <div className={styles.rlvrCardIcon}>
+                <CpuIcon className={styles.iconMedium} />
+              </div>
+              <h3>New York (rac-us-ny)</h3>
+              <p>
+                7 .rac files • Tax Law §601 rates • NY EITC • Empire State Child Credit • NYC income tax
+              </p>
+            </div>
+          </div>
+
+          <div className={styles.autoracFeatures}>
+            <div className={styles.autoracFeature}>
+              <CheckIcon className={styles.iconSmall} />
+              <span>44 total .rac files across 3 US jurisdictions</span>
+            </div>
+            <div className={styles.autoracFeature}>
+              <CheckIcon className={styles.iconSmall} />
+              <span>Canada benefits also encoded (.cosilico format)</span>
+            </div>
+            <div className={styles.autoracFeature}>
+              <CheckIcon className={styles.iconSmall} />
+              <span>All encodings validated against external oracles</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Experiment Lab Section */}
-      <section id="lab" className={styles.sectionAlt}>
+      <section id="lab" className={styles.section}>
         <div className={styles.sectionContent}>
           <div className={styles.sectionHeader}>
             <span className={styles.sectionLabel}>Development</span>
@@ -1306,32 +1373,34 @@ statute/26/24/d/1/B.rac   → 26 USC § 24(d)(1)(B)
         <div className={styles.ctaContent}>
           <h2 className={styles.ctaTitle}>Get involved</h2>
           <p className={styles.ctaSubtitle}>
-            Help us encode the world's rules.
-            Contribute encodings, validate implementations, or fund the mission.
+            Rules Foundation builds open infrastructure for AI safety in legal domains.
           </p>
 
           <div className={styles.ctaActions}>
-            <a href="https://github.com/RulesFoundation" className={styles.btnPrimary}>
-              <GitHubIcon className={styles.icon} />
-              Contribute on GitHub
+            <a href="https://github.com/RulesFoundation/rac-us" className={styles.btnPrimary}>
+              <CodeIcon className={styles.icon} />
+              Encode your jurisdiction
+            </a>
+            <a href="https://github.com/RulesFoundation/rac/issues" className={styles.btnSecondary}>
+              Validate our work
             </a>
             <a href="mailto:hello@rules.foundation" className={styles.btnSecondary}>
-              Contact Us
+              Fund the mission
             </a>
           </div>
 
           <div className={styles.ctaLinks}>
-            <a href="https://github.com/RulesFoundation/atlas">
-              Atlas
-            </a>
-            <a href="#spec">
+            <a href="https://github.com/RulesFoundation/rac">
               RAC specification
+            </a>
+            <a href="https://github.com/RulesFoundation/atlas">
+              Atlas archive
             </a>
             <a href="https://github.com/RulesFoundation/autorac">
               AutoRAC encoder
             </a>
-            <a href="https://github.com/RulesFoundation/rac-us">
-              US encodings
+            <a href="/about">
+              About us
             </a>
           </div>
         </div>
@@ -1348,6 +1417,7 @@ statute/26/24/d/1/B.rac   → 26 USC § 24(d)(1)(B)
             Open infrastructure for encoded law.
           </p>
           <div className={styles.footerLinks}>
+            <a href="/about">About</a>
             <a href="https://github.com/RulesFoundation">GitHub</a>
             <a href="mailto:hello@rules.foundation">Contact</a>
             <a href="/privacy">Privacy</a>
