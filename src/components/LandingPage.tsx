@@ -644,26 +644,26 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className={styles.archGrid}>
-            <div className={styles.archCard}>
+          <div className={styles.atlasGrid}>
+            <div className={styles.atlasCard}>
               <h4>Federal statutes</h4>
               <p>53 USC titles • 82,854 sections • 160,360 cross-references</p>
             </div>
-            <div className={styles.archCard}>
+            <div className={styles.atlasCard}>
               <h4>IRS guidance</h4>
               <p>148 Rev. Procs • 105 Rev. Rulings • 317 Notices</p>
             </div>
-            <div className={styles.archCard}>
+            <div className={styles.atlasCard}>
               <h4>State codes</h4>
               <p>48 states archived • NY, CA, DC with full section data</p>
             </div>
-            <div className={styles.archCard}>
+            <div className={styles.atlasCard}>
               <h4>Regulations</h4>
               <p>CFR titles, Treasury regulations, agency rules — coming soon</p>
             </div>
           </div>
 
-          <div className={styles.archFeatures}>
+          <div className={styles.atlasFeatures}>
             <div className={styles.autoracFeature}>
               <CheckIcon className={styles.iconSmall} />
               <span>Provenance tracking — fetch date, source URL, checksums</span>
@@ -678,7 +678,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className={styles.archCta}>
+          <div className={styles.atlasCta}>
             <a href="https://github.com/RulesFoundation/atlas" className={styles.btnSecondary}>
               <GitHubIcon className={styles.icon} />
               View Atlas on GitHub
@@ -898,8 +898,9 @@ export default function LandingPage() {
             <span className={styles.sectionLabel}>AI encoding</span>
             <h2 className={styles.sectionTitle}>AutoRAC</h2>
             <p className={styles.sectionSubtitle}>
-              AI agents that read statutes and produce validated RAC encodings.
-              100% AI-created. Humans build the harness.
+              Point it at a statute. Get validated RAC. Here's what happens when you
+              run <code>autorac encode "26 USC 32"</code> — the Earned Income Tax Credit,
+              81,000 characters across 14 subsections.
             </p>
           </div>
 
@@ -907,32 +908,32 @@ export default function LandingPage() {
             <div className={styles.pipelineStep}>
               <div className={styles.pipelineStepNumber}>1</div>
               <div className={styles.pipelineStepContent}>
-                <h4>Encode</h4>
-                <p>AI agent reads statute, produces .rac file</p>
+                <h4>Split</h4>
+                <p>Atlas breaks the statute into its subsection tree — (a) through (n). Each subsection gets extracted with its full text, not a truncated excerpt.</p>
               </div>
             </div>
             <div className={styles.pipelineConnector} />
             <div className={styles.pipelineStep}>
               <div className={styles.pipelineStepNumber}>2</div>
               <div className={styles.pipelineStepContent}>
-                <h4>Validate</h4>
-                <p>3-tier pipeline: CI, oracles, LLM review</p>
+                <h4>Encode</h4>
+                <p>14 AI agents launch in parallel. Each one reads its subsection and writes a .rac file — focused context means better output.</p>
               </div>
             </div>
             <div className={styles.pipelineConnector} />
             <div className={styles.pipelineStep}>
               <div className={styles.pipelineStepNumber}>3</div>
               <div className={styles.pipelineStepContent}>
-                <h4>Learn</h4>
-                <p>Calibrate predictions from results</p>
+                <h4>Validate</h4>
+                <p>Each encoding is tested: syntax checks first, then comparison against PolicyEngine and TAXSIM, then AI reviewers diagnose any gaps.</p>
               </div>
             </div>
             <div className={styles.pipelineConnector} />
             <div className={styles.pipelineStep}>
               <div className={styles.pipelineStepNumber}>4</div>
               <div className={styles.pipelineStepContent}>
-                <h4>Improve</h4>
-                <p>Better prompts from learned patterns</p>
+                <h4>Learn</h4>
+                <p>Results feed back. What worked, what broke, what to try differently — each run improves the next.</p>
               </div>
             </div>
           </div>
@@ -992,15 +993,19 @@ export default function LandingPage() {
           <div className={styles.autoracFeatures}>
             <div className={styles.autoracFeature}>
               <CheckIcon className={styles.iconSmall} />
-              <span>Validated against PolicyEngine + TAXSIM</span>
+              <span>14 subsections → 14 parallel agents → 14 .rac files</span>
             </div>
             <div className={styles.autoracFeature}>
               <CheckIcon className={styles.iconSmall} />
-              <span>Full encoding journey logged for audit</span>
+              <span>Each agent sees only its subsection — no wasted context</span>
             </div>
             <div className={styles.autoracFeature}>
               <CheckIcon className={styles.iconSmall} />
-              <span>Parallel batch encoding via Agent SDK</span>
+              <span>Validated against real-world calculators, not just syntax</span>
+            </div>
+            <div className={styles.autoracFeature}>
+              <CheckIcon className={styles.iconSmall} />
+              <span>Every encoding decision logged for audit</span>
             </div>
           </div>
         </div>
