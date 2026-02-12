@@ -6,8 +6,6 @@ import Prism from 'prismjs'
 
 const sectionKeywords = [
   'text',
-  'parameter',
-  'variable',
   'input',
   'enum',
   'function',
@@ -24,15 +22,12 @@ const attributeKeys = [
   'unit',
   'source',
   'reference',
-  'values',
   'imports',
   'entity',
   'period',
   'dtype',
   'label',
   'default',
-  'formula',
-  'tests',
   'name',
   'inputs',
   'expect',
@@ -45,6 +40,7 @@ const attributeKeys = [
   'defined_for',
   'private',
   'internal',
+  'from',
 ]
 
 const formulaKeywords = [
@@ -89,8 +85,7 @@ const racGrammar: Prism.Grammar = {
     },
   ],
 
-  // Section keyword + declaration name (e.g., "parameter niit_rate:")
-  // Must be matched as a single pattern to capture the declaration name
+  // Section keyword + optional declaration name (e.g., "text:", "input name:")
   'section-declaration': {
     pattern: new RegExp(
       `^(?:${sectionKeywords.join('|')})(?:\\s+[\\w]+)?\\s*:`,
@@ -104,6 +99,24 @@ const racGrammar: Prism.Grammar = {
       },
       punctuation: /:/,
     },
+  },
+
+  // Bare top-level declaration (e.g., "niit_rate:" without parameter/variable keyword)
+  'bare-declaration': {
+    pattern: /^[\w]+\s*:/m,
+    inside: {
+      'declaration-name': {
+        pattern: /^[\w]+/,
+      },
+      punctuation: /:/,
+    },
+  },
+
+  // Triple-quoted strings ("""...""")
+  'triple-string': {
+    pattern: /"""[\s\S]*?"""/,
+    greedy: true,
+    alias: 'string',
   },
 
   // Attribute keys (indented, followed by colon)
