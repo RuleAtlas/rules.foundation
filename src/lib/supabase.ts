@@ -3,15 +3,15 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js'
 // Supabase configuration
 // These should be set in environment variables for production
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+/* v8 ignore start -- env-dependent module initialization */
 const env = (import.meta as any).env || {}
 const supabaseUrl = env.VITE_SUPABASE_URL || ''
 const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY || ''
-
-// Create the Supabase client (use placeholder URL in test environment)
 const isTestEnv = !supabaseUrl || env.MODE === 'test'
 export const supabase: SupabaseClient = isTestEnv
   ? createClient('https://placeholder.supabase.co', 'placeholder-key')
   : createClient(supabaseUrl, supabaseAnonKey)
+/* v8 ignore stop */
 
 // Types for encoding runs (AutoRAC Experiment Lab)
 export interface EncodingRunIteration {

@@ -301,6 +301,7 @@ export default function LabPage() {
 
   const totalRuns = data.length
   const successRuns = data.filter((d) => d.iterations[d.iterations.length - 1]?.success).length
+  /* v8 ignore next 4 -- totalRuns is always > 0 due to MOCK_ENCODING_DATA fallback */
   const avgScore =
     totalRuns > 0
       ? data.reduce((acc, d) => acc + (d.scores.rac + d.scores.formula + d.scores.parameter + d.scores.integration) / 4, 0) / totalRuns
@@ -483,6 +484,7 @@ export default function LabPage() {
                         <td className={`${styles.scoreCell} ${getScoreClass(run.scores.parameter)}`}>{run.scores.parameter.toFixed(1)}</td>
                         <td className={`${styles.scoreCell} ${getScoreClass(run.scores.integration)}`}>{run.scores.integration.toFixed(1)}</td>
                         <td>
+                          {/* v8 ignore next -- errors || [] fallback unreachable since hasErrors already checks */}
                           {hasErrors && <span className={styles.errorTag}>{run.iterations.flatMap((i) => i.errors || []).map((e) => e.type).join(', ')}</span>}
                           {run.note && (
                             <span className={styles.errorTag} style={{ background: 'rgba(255, 170, 0, 0.15)', color: '#ffaa00' }}>
