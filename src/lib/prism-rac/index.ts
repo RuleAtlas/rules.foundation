@@ -6,8 +6,6 @@ import Prism from 'prismjs'
 
 const sectionKeywords = [
   'text',
-  'parameter',
-  'variable',
   'input',
   'enum',
   'function',
@@ -24,15 +22,12 @@ const attributeKeys = [
   'unit',
   'source',
   'reference',
-  'values',
   'imports',
   'entity',
   'period',
   'dtype',
   'label',
   'default',
-  'formula',
-  'tests',
   'name',
   'inputs',
   'expect',
@@ -45,6 +40,7 @@ const attributeKeys = [
   'defined_for',
   'private',
   'internal',
+  'from',
 ]
 
 const formulaKeywords = [
@@ -69,34 +65,23 @@ const formulaKeywords = [
 
 const formulaBuiltins = ['max', 'min', 'abs', 'round', 'sum', 'len', 'interpolate']
 
-const entityTypes = ['Person', 'TaxUnit', 'Household', 'Family', 'SPMUnit']
+const typeKeywords = [
+  'Person', 'TaxUnit', 'Household', 'Family', 'SPMUnit',
+  'Year', 'Month', 'Day', 'Instant',
+  'Money', 'Rate', 'Boolean', 'Integer', 'String', 'USD',
+]
 
-const periodTypes = ['Year', 'Month', 'Day', 'Instant']
-
-const dataTypes = ['Money', 'Rate', 'Boolean', 'Integer', 'String', 'USD']
-
-// Build the RAC grammar definition
 const racGrammar: Prism.Grammar = {
-  // Comments: # and // style
-  comment: [
-    {
-      pattern: /#.*/,
-      greedy: true,
-    },
-    {
-      pattern: /\/\/.*/,
-      greedy: true,
-    },
-  ],
+  comment: {
+    pattern: /#.*|\/\/.*/,
+    greedy: true,
+  },
 
-  // Section keyword + declaration name (e.g., "parameter niit_rate:")
-  // Must be matched as a single pattern to capture the declaration name
   'section-declaration': {
     pattern: new RegExp(
       `^(?:${sectionKeywords.join('|')})(?:\\s+[\\w]+)?\\s*:`,
       'm'
     ),
-    lookbehind: false,
     inside: {
       'section-keyword': new RegExp(`^(?:${sectionKeywords.join('|')})`),
       'declaration-name': {
@@ -106,7 +91,22 @@ const racGrammar: Prism.Grammar = {
     },
   },
 
-  // Attribute keys (indented, followed by colon)
+  'bare-declaration': {
+    pattern: /^[\w]+\s*:/m,
+    inside: {
+      'declaration-name': {
+        pattern: /^[\w]+/,
+      },
+      punctuation: /:/,
+    },
+  },
+
+  'triple-string': {
+    pattern: /"""[\s\S]*?"""/,
+    greedy: true,
+    alias: 'string',
+  },
+
   'attr-name': {
     pattern: new RegExp(
       `(?:^|\\n)[ \\t]+(?:- )?(?:${attributeKeys.join('|')})(?=\\s*:)`,
@@ -118,89 +118,47 @@ const racGrammar: Prism.Grammar = {
     },
   },
 
-  // Import paths: 26/1411/c#net_investment_income or 26/32#eitc
   'import-path': {
     pattern: /\d+(?:\/[\w]+)+#[\w]+/,
     greedy: true,
   },
 
-  // Dates: YYYY-MM-DD
   date: {
     pattern: /\b\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])\b/,
     greedy: true,
   },
 
-  // Strings
-  string: [
-    {
-      pattern: /"(?:[^"\\]|\\.)*"/,
-      greedy: true,
-    },
-    {
-      pattern: /'(?:[^'\\]|\\.)*'/,
-      greedy: true,
-    },
-  ],
+  string: {
+    pattern: /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/,
+    greedy: true,
+  },
 
-  // Block scalar indicators (| and >)
   'block-scalar': {
     pattern: /[|>](?=\s*$)/m,
   },
 
-  // Entity types
-  'entity-type': {
-    pattern: new RegExp(`\\b(?:${entityTypes.join('|')})\\b`),
+  'type-keyword': {
+    pattern: new RegExp(`\\b(?:${typeKeywords.join('|')})\\b`),
   },
 
-  // Period types
-  'period-type': {
-    pattern: new RegExp(`\\b(?:${periodTypes.join('|')})\\b`),
-  },
-
-  // Data types
-  dtype: {
-    pattern: new RegExp(`\\b(?:${dataTypes.join('|')})\\b`),
-  },
-
-  // Builtins (must come before keyword to avoid "in" matching inside "min")
+  // Must come before keyword to avoid "in" matching inside "min"
   builtin: {
     pattern: new RegExp(`\\b(?:${formulaBuiltins.join('|')})\\b`),
   },
 
-  // Keywords
   keyword: {
     pattern: new RegExp(`\\b(?:${formulaKeywords.join('|')})\\b`),
   },
 
-  // Booleans: YAML-style true/false (case insensitive)
   boolean: /\b(?:true|false)\b/i,
 
-  // Numbers: hex, floats, integers, percentages, negatives
-  number: [
-    // Hex
-    {
-      pattern: /\b0x[\da-fA-F]+\b/,
-    },
-    // Percentage (must come before generic number)
-    {
-      pattern: /-?\b\d+(?:\.\d+)?%/,
-    },
-    // Float or integer (possibly negative)
-    {
-      pattern: /-?\b\d+(?:\.\d+)?\b/,
-    },
-  ],
+  number: /\b0x[\da-fA-F]+\b|-?\b\d+(?:\.\d+)?%|-?\b\d+(?:\.\d+)?\b/,
 
-  // Operators
   operator: /==|!=|<=|>=|=>|[+\-*/<>=!?%]/,
-
-  // Punctuation
   punctuation: /[{}[\](),:\.]/,
 }
 
-// Register the RAC grammar
 Prism.languages.rac = racGrammar
 
-// ─── Exports ──────────────────────────────────────────────────────────────────
 export { racGrammar }
 export default racGrammar

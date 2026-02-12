@@ -72,7 +72,7 @@ const getFilename = (example: ExampleType, format: FormatTab): string => {
 
 const getNote = (format: FormatTab): string => {
   const notes: Record<FormatTab, string> = {
-    rac: 'Single file with everything',
+    rac: 'Single file, tests alongside',
     dmn: 'XML + FEEL expression language',
     openfisca: 'Python + YAML (3 files)',
     catala: 'Literate programming',
@@ -85,99 +85,89 @@ const RacCode = ({ example }: { example: ExampleType }) => {
   const racExamples: Record<ExampleType, string> = {
     'niit': `# 26 USC § 1411(a) - Net Investment Income Tax
 
-text: |
-  (a) In general.— There is hereby imposed a tax equal to 3.8 percent
-  of the lesser of— (1) net investment income, or (2) modified AGI
-  in excess of the threshold amount.
+"""
+(a) In general.— There is hereby imposed a tax equal to 3.8 percent
+of the lesser of— (1) net investment income, or (2) modified AGI
+in excess of the threshold amount.
+"""
 
-parameter niit_rate:
+niit_rate:
   description: "Tax rate on net investment income"
   unit: rate
-  values:
-    2013-01-01: 0.038
+  from 2013-01-01: 0.038
 
-variable net_investment_income_tax:
+net_investment_income_tax:
   imports:
     - 26/1411/c#net_investment_income
     - 26/1411/b#threshold_amount
   entity: TaxUnit
   period: Year
   dtype: Money
-  formula: |
+  from 2013-01-01:
     excess_magi = max(0, modified_agi - threshold_amount)
-    return niit_rate * min(net_investment_income, excess_magi)
-  tests:
-    - inputs: {modified_agi: 300000, threshold_amount: 250000,
-               net_investment_income: 80000}
-      expect: 1900  # 3.8% × min(80k, 50k)`,
+    return niit_rate * min(net_investment_income, excess_magi)`,
     'aca-ptc': `# 26 USC § 36B(b)(3)(A) - ACA Premium Tax Credit
 
-text: |
-  The applicable percentage for any taxpayer whose household
-  income is within an income tier shall increase, on a
-  sliding scale... from the initial percentage to the final
-  percentage for such income tier.
+"""
+The applicable percentage for any taxpayer whose household
+income is within an income tier shall increase, on a
+sliding scale... from the initial percentage to the final
+percentage for such income tier.
+"""
 
-parameter ptc_applicable_pct:
+ptc_applicable_pct:
   description: "Premium contribution % by FPL tier"
-  values:
-    2021-01-01:  # ARPA temporary rates
-      150: [0.00, 0.00]  # up to 150% FPL
-      200: [0.00, 0.02]  # 150-200% FPL
-      250: [0.02, 0.04]
-      300: [0.04, 0.06]
-      400: [0.06, 0.085]
+  from 2021-01-01:  # ARPA temporary rates
+    150: [0.00, 0.00]  # up to 150% FPL
+    200: [0.00, 0.02]  # 150-200% FPL
+    250: [0.02, 0.04]
+    300: [0.04, 0.06]
+    400: [0.06, 0.085]
 
-variable applicable_percentage:
+applicable_percentage:
   imports: [26/36B/d#household_income_pct_fpl]
   entity: TaxUnit
   dtype: Rate
-  formula: |
+  from 2021-01-01:
     # Linear interpolation within tier
     return interpolate(ptc_applicable_pct, household_income_pct_fpl)`,
     'std-ded': `# 26 USC § 63(c)(2)(A) - Standard deduction (joint)
 
-text: |
-  (A) 200 percent of the dollar amount in effect under
-  subparagraph (C) for the taxable year in the case of—
-  (i) a joint return, or (ii) a surviving spouse
+"""
+(A) 200 percent of the dollar amount in effect under
+subparagraph (C) for the taxable year in the case of—
+(i) a joint return, or (ii) a surviving spouse
+"""
 
-parameter joint_multiplier:
+joint_multiplier:
   description: "Multiplier for joint returns"
-  values:
-    1988-01-01: 2  # "200 percent"
+  from 1988-01-01: 2  # "200 percent"
 
-variable basic_std_ded_joint:
+basic_std_ded_joint:
   imports: [26/63/c/2/C#basic_std_ded_other]
   entity: TaxUnit
   dtype: Money
-  formula: |
-    return basic_std_ded_other * joint_multiplier
-  tests:
-    - inputs: {basic_std_ded_other: 6350}
-      expect: 12700  # 200% × 6350`,
+  from 1988-01-01:
+    return basic_std_ded_other * joint_multiplier`,
     'ny-eitc': `# NY Tax Law § 606(d) - NY Earned Income Credit
 
-text: |
-  § 606(d) For taxable years beginning after 2002, a resident
-  individual who is allowed the earned income credit under
-  section 32 of the IRC shall be allowed a credit equal to
-  thirty percent of such federal credit.
+"""
+§ 606(d) For taxable years beginning after 2002, a resident
+individual who is allowed the earned income credit under
+section 32 of the IRC shall be allowed a credit equal to
+thirty percent of such federal credit.
+"""
 
-parameter ny_eitc_rate:
+ny_eitc_rate:
   description: "NY EITC as % of federal"
-  values:
-    2003-01-01: 0.30  # "thirty percent"
+  from 2003-01-01: 0.30  # "thirty percent"
 
-variable ny_eitc:
+ny_eitc:
   imports: [26/32#eitc as federal_eitc]
   entity: TaxUnit
   dtype: Money
-  formula: |
-    return federal_eitc * ny_eitc_rate
-  tests:
-    - inputs: {federal_eitc: 5000}
-      expect: 1500  # 30% × 5000`,
+  from 2003-01-01:
+    return federal_eitc * ny_eitc_rate`,
   }
 
   return (
@@ -490,12 +480,11 @@ of the lesser of net investment
 income or modified AGI in excess
 of the threshold amount.`
 
-  const racCode = `parameter niit_rate:
-  values:
-    2013-01-01: 0.038
+  const racCode = `niit_rate:
+  from 2013-01-01: 0.038
 
-variable niit:
-  formula: |
+niit:
+  from 2013-01-01:
     niit_rate * min(nii, excess_magi)`
 
   return (
@@ -880,7 +869,7 @@ export default function LandingPage() {
               </div>
               <h3 className={styles.featureTitle}>Self-contained</h3>
               <p className={styles.featureDesc}>
-                One file captures everything: statute text, parameters, formulas, and tests.
+                One file captures everything: statute text, parameters, and formulas.
                 No scattered dependencies.
               </p>
             </div>
@@ -918,7 +907,7 @@ export default function LandingPage() {
             <h2 className={styles.sectionTitle}>.rac</h2>
             <p className={styles.sectionSubtitle}>
               Self-contained statute encoding format. One file captures the law:
-              text, parameters, formulas, and tests.
+              text, parameters, and formulas.
             </p>
           </div>
 
@@ -979,7 +968,7 @@ export default function LandingPage() {
                     <td className={styles.hasSupport}><CheckIcon className={styles.iconSmall} /></td>
                   </tr>
                   <tr>
-                    <td>Inline tests</td>
+                    <td>Companion tests</td>
                     <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
                     <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
                     <td className={styles.noSupport}><XIcon className={styles.iconSmall} /></td>
@@ -1044,10 +1033,10 @@ export default function LandingPage() {
 
             <div className={styles.featureCard}>
               <div className={styles.featureCardIcon}><TestIcon className={styles.iconMedium} /></div>
-              <h3>Inline tests</h3>
+              <h3>Companion tests</h3>
               <p>
-                Test cases live next to the code. Verify against official calculators
-                and real-world examples.
+                Test cases live in <code>.rac.test</code> files alongside the code. Verify against
+                official calculators and real-world examples.
               </p>
             </div>
 
@@ -1181,60 +1170,56 @@ Self-contained statute encoding format for tax and benefit rules.
 \`\`\`yaml
 # path/to/section.rac - Title
 
-text: """
+"""
 Statute text here...
 """
 
-parameter param_name:
+param_name:
   description: "..."
   unit: USD
   source: "..."
-  values:
-    2024-01-01: 100
-    2023-01-01: 95
+  from 2024-01-01: 100
+  from 2023-01-01: 95
 
-variable var_name:
+var_name:
   imports: [path#var, path#var2 as alias]
   entity: Household
   period: Month
   dtype: Money
-  formula: |
-    ...
-  tests:
-    - inputs: {...}
-      expect: ...
+  from 2024-01-01:
+    ...formula code...
 \`\`\`
+
+Tests live in separate \`.rac.test\` files.
 
 ## Top-Level Declarations
 
 | Declaration | Syntax | Purpose |
 |-------------|--------|---------|
-| \`text:\` | \`text: """..."""\` | Statute text |
-| \`parameter\` | \`parameter name:\` | Policy value |
-| \`variable\` | \`variable name:\` | Computed value |
+| Statute text | \`"""..."""\` | Verbatim statute text |
+| Named definition | \`name:\` | Parameter, variable, or computed value |
 | \`input\` | \`input name:\` | User-provided input |
 | \`enum\` | \`enum name:\` | Enumeration type |
 | \`function\` | \`function name:\` | Helper function |
 
-## Parameter Attributes
+## Parameters (time-varying values)
 
 \`\`\`yaml
-parameter contribution_rate:
+contribution_rate:
   description: "Household contribution as share of net income"
   unit: USD           # Optional: USD, rate, years, months, persons
   source: "USDA FNS"  # Optional: data source
   reference: "7 USC 2017(a)"  # Optional: legal citation
-  values:
-    2024-01-01: 0.30
-    2023-01-01: 0.30
+  from 2024-01-01: 0.30
+  from 2023-01-01: 0.30
 \`\`\`
 
-Parameters are in scope for all variables in the file.
+Parameters are in scope for all definitions in the file.
 
-## Variable Attributes
+## Variables (computed values)
 
 \`\`\`yaml
-variable snap_allotment:
+snap_allotment:
   imports: [7/2014#household_size, 7/2014/a#snap_eligible]
   entity: Household       # Required: Person, TaxUnit, Household, Family
   period: Month           # Required: Year, Month, Day
@@ -1243,14 +1228,10 @@ variable snap_allotment:
   label: "SNAP Benefit"   # Optional
   description: "..."      # Optional
   default: 0              # Optional
-  formula: |
+  from 2024-01-01:
     if not snap_eligible:
       return 0
     return max_allotment - net_income * contribution_rate
-  tests:
-    - name: "Basic case"  # Optional
-      inputs: {household_size: 4, snap_net_income: 500}
-      expect: 823
 \`\`\`
 
 ## Import Syntax
@@ -1268,9 +1249,9 @@ Path format: \`title/section/subsection#variable_name\`
 
 | Source | In Scope For |
 |--------|--------------|
-| Same-file parameter | All variables in file |
-| Same-file variable | Later variables (dependency order) |
-| Imported variable | That variable's formula only |
+| Same-file parameter | All definitions in file |
+| Same-file variable | Later definitions (dependency order) |
+| Imported variable | That definition's formula only |
 
 ## Formula Syntax
 
@@ -1280,47 +1261,42 @@ Python-like with restrictions:
 - **No numeric literals** except -1, 0, 1, 2, 3 (use parameters)
 
 \`\`\`yaml
-formula: |
+from 2024-01-01:
   if household_size <= minimum_benefit_max_size:
     return minimum_benefit
   return 0
 \`\`\`
 
-## Test Syntax
+## Test Files (.rac.test)
+
+Tests live in separate files alongside \`.rac\` files:
 
 \`\`\`yaml
-tests:
-  - name: "Family of 4"           # Optional name
-    period: 2024-01               # Optional: defaults to current
-    inputs:
-      household_size: 4
-      snap_net_income: 500
-      snap_eligible: true
-    expect: 823                   # Expected output value
+# path/to/section.rac.test
+- name: "Family of 4"           # Optional name
+  period: 2024-01               # Optional: defaults to current
+  inputs:
+    household_size: 4
+    snap_net_income: 500
+    snap_eligible: true
+  expect: 823                   # Expected output value
 \`\`\`
 
-## Versioning (Temporal)
+## Temporal Versioning
 
-For statutes with formula changes over time:
+Parameters and formulas use \`from\` with effective dates:
 
 \`\`\`yaml
-variable additional_ctc:
+additional_ctc:
   entity: TaxUnit
   period: Year
   dtype: Money
-
-  versions:
-    2018-01-01:
-      enacted_by: "P.L. 115-97 § 11022"
-      parameters:
-        threshold: 2500
-        cap: 1400
-      formula: |
-        ...TCJA formula...
-
-    2026-01-01:
-      enacted_by: "P.L. 115-97 sunset"
-      reverts_to: 2001-01-01
+  from 2018-01-01:
+    enacted_by: "P.L. 115-97 § 11022"
+    ...TCJA formula...
+  from 2026-01-01:
+    enacted_by: "P.L. 115-97 sunset"
+    reverts_to: 2001-01-01
 \`\`\`
 
 ## File Naming
