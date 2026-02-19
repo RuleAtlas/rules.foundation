@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/proposal/:path*", "destination": "https://proposal.rules.foundation/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "redirects": [
