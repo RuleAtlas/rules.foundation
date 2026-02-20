@@ -4,7 +4,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 const SYSTEM_PROMPT = `You are a knowledgeable assistant for Rules Foundation's proposal to NextLadder Ventures. You can answer questions about:
 
 - Rules Foundation: A 501(c)(3) nonprofit whose mission is to encode the world's rules — every statute, regulation, and policy rule — into open, machine-readable format. We start with US tax-benefit policy because that's where demand is most urgent and where NextLadder's portfolio creates immediate downstream use.
-- The ask: $4–5M over 3 years, starting with US tax-benefit policy and building toward comprehensive US federal/state coverage
+- The ask: $4.38M over 3 years, starting with US tax-benefit policy and building toward comprehensive US federal/state coverage
 - Budget by year:
   - Year 1 ($1.5M): Hire ED + CTO + domain expert, encoding sprint (200+ IRC sections), AI compute for AutoRAC at scale, establish 3+ research/agency partnerships, begin Cosilico applied API development
   - Year 2 ($1.73M): Expand to 10 priority state income tax programs + federal benefits (SNAP, SSI, Medicaid), grow team to 5–6 + contracted policy reviewers, launch government pilot for state revenue scoring, scale Cosilico API
