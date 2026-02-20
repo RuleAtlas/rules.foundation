@@ -59,8 +59,9 @@ export default function LabPage() {
     setLoadingEvents(false)
   }
 
-  const totalTokens = sdkSessions.reduce((acc, s) => acc + s.input_tokens + s.output_tokens, 0)
-  const totalCost = sdkSessions.reduce((acc, s) => acc + s.estimated_cost_usd, 0)
+  const activeSessions = sdkSessions.filter(s => s.event_count > 0)
+  const totalTokens = activeSessions.reduce((acc, s) => acc + s.input_tokens + s.output_tokens, 0)
+  const totalCost = activeSessions.reduce((acc, s) => acc + s.estimated_cost_usd, 0)
 
   return (
     <div className={styles.page}>
@@ -76,7 +77,7 @@ export default function LabPage() {
           <div className={styles.headerMeta}>
             <span className={styles.metaItem}>
               <span className={styles.metaLabel}>Sessions:</span>
-              <span className={styles.metaValue}>{sdkSessions.length}</span>
+              <span className={styles.metaValue}>{activeSessions.length}</span>
             </span>
             <span className={styles.metaItem}>
               <span className={styles.metaLabel}>Tokens:</span>
@@ -96,7 +97,7 @@ export default function LabPage() {
           </div>
         ) : (
           <section className={styles.tableSection}>
-            {sdkSessions.length === 0 ? (
+            {activeSessions.length === 0 ? (
               <div className={styles.emptyState}>
                 <div className={styles.emptyStateIcon}>
                   <RocketIcon size={48} />
@@ -109,7 +110,7 @@ export default function LabPage() {
               </div>
             ) : (
               <div className={styles.sessionList}>
-                {sdkSessions.map((session) => {
+                {activeSessions.map((session) => {
                   const meta = sessionMeta[session.id]
                   const endTime = session.ended_at || meta?.lastEventAt
                   const duration = endTime ? Math.round((new Date(endTime).getTime() - new Date(session.started_at).getTime()) / 1000) : null
