@@ -165,7 +165,7 @@ export async function getSDKSessions(limit = 50): Promise<SDKSession[]> {
 }
 
 // Fetch events for a specific SDK session
-export async function getSDKSessionEvents(sessionId: string, limit = 100): Promise<SDKSessionEvent[]> {
+export async function getSDKSessionEvents(sessionId: string, limit = 2000): Promise<SDKSessionEvent[]> {
   const { data, error } = await supabase
     .from('sdk_session_events')
     .select('*')
