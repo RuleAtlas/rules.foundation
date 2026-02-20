@@ -91,19 +91,19 @@ const RacCode = ({ example }: { example: ExampleType }) => {
 # threshold amount.
 
 # "3.8 percent"
-variable niit_rate:
+niit_rate:
     from 2013-01-01: 0.038
 
-variable modified_agi:
+modified_agi:
     entity: TaxUnit
     from 2024-01-01: 0
 
 # Lesser of NII or excess MAGI over threshold
-variable excess_magi:
+excess_magi:
     entity: TaxUnit
     from 2013-01-01: max(0, modified_agi - threshold_amount)
 
-variable net_investment_income_tax:
+net_investment_income_tax:
     entity: TaxUnit
     from 2013-01-01: niit_rate * min(net_investment_income, excess_magi)`,
     'aca-ptc': `# 26 USC 36B(b)(3) - Applicable percentage
@@ -116,27 +116,27 @@ variable net_investment_income_tax:
 # 300% to 400%:   Initial: 6.0   Final: 8.5
 
 # IRA temporary table tier thresholds
-variable ira_tier_1_threshold:
+ira_tier_1_threshold:
     from 2021-01-01: 0
 
-variable ira_tier_2_threshold:
+ira_tier_2_threshold:
     from 2021-01-01: 1.50
 
-variable ira_tier_3_threshold:
+ira_tier_3_threshold:
     from 2021-01-01: 2.00
 
 # Initial premium percentages
-variable ira_initial_1:
+ira_initial_1:
     from 2021-01-01: 0.0
 
-variable ira_initial_2:
+ira_initial_2:
     from 2021-01-01: 0.0
 
-variable ira_initial_3:
+ira_initial_3:
     from 2021-01-01: 0.02
 
 # Computed: applicable percentage
-variable applicable_percentage:
+applicable_percentage:
     entity: TaxUnit
     from 2014-01-01: applicable_percentage_base`,
     'std-ded': `# 26 USC 63(c)(2)(A) - Standard deduction (joint)
@@ -146,10 +146,10 @@ variable applicable_percentage:
 # (i) a joint return, or (ii) a surviving spouse
 
 # "200 percent"
-variable joint_multiplier:
+joint_multiplier:
     from 1988-01-01: 2
 
-variable basic_std_ded_joint:
+basic_std_ded_joint:
     entity: TaxUnit
     from 1988-01-01: basic_std_ded_other * joint_multiplier`,
     'ny-eitc': `# NY Tax Law 606(d) - NY Earned Income Credit
@@ -160,10 +160,10 @@ variable basic_std_ded_joint:
 # a credit equal to thirty percent of such federal credit.
 
 # "thirty percent"
-variable ny_eitc_rate:
+ny_eitc_rate:
     from 2003-01-01: 0.30
 
-variable ny_eitc:
+ny_eitc:
     entity: TaxUnit
     from 2003-01-01: federal_eitc * ny_eitc_rate`,
   }
@@ -478,10 +478,10 @@ of the lesser of net investment
 income or modified AGI in excess
 of the threshold amount.`
 
-  const racCode = `variable niit_rate:
+  const racCode = `niit_rate:
     from 2013-01-01: 0.038
 
-variable niit:
+niit:
     entity: TaxUnit
     from 2013-01-01:
         niit_rate * min(nii, excess_magi)`
@@ -890,7 +890,7 @@ export default function LandingPage() {
               </div>
               <h3 className={styles.featureTitle}>Temporal versioning</h3>
               <p className={styles.featureDesc}>
-                Track how law changes over time. Every variable uses
+                Track how law changes over time. Every definition uses
                 <code>from</code> clauses with effective dates.
               </p>
             </div>
@@ -906,7 +906,7 @@ export default function LandingPage() {
             <h2 className={styles.sectionTitle}>.rac</h2>
             <p className={styles.sectionSubtitle}>
               Self-contained statute encoding format. One file captures the law:
-              statute text, parameters, and computed variables.
+              statute text, parameters, and computed values.
             </p>
           </div>
 
@@ -1007,7 +1007,7 @@ export default function LandingPage() {
               <div className={styles.featureCardIcon}><ParameterIcon className={styles.iconMedium} /></div>
               <h3>Time-varying values</h3>
               <p>
-                Policy values change over time. Variables track every historical value
+                Policy values change over time. Definitions track every historical value
                 with <code>from</code> effective dates.
               </p>
             </div>
@@ -1017,7 +1017,7 @@ export default function LandingPage() {
               <h3>No magic numbers</h3>
               <p>
                 Only small integers (-1 to 3) allowed in formulas. All policy values
-                must come from named variables with statute citations.
+                must come from named definitions with statute citations.
               </p>
             </div>
 
@@ -1025,7 +1025,7 @@ export default function LandingPage() {
               <div className={styles.featureCardIcon}><ImportIcon className={styles.iconMedium} /></div>
               <h3>Cross-references</h3>
               <p>
-                Statute sections reference each other by variable name. The compiler
+                Statute sections reference each other by name. The compiler
                 resolves dependencies via topological sort.
               </p>
             </div>
@@ -1034,7 +1034,7 @@ export default function LandingPage() {
               <div className={styles.featureCardIcon}><TestIcon className={styles.iconMedium} /></div>
               <h3>Reform modeling</h3>
               <p>
-                The <code>amend</code> keyword overrides any variable with new values.
+                The <code>amend</code> keyword overrides any definition with new values.
                 Model policy reforms without touching enacted statute files.
               </p>
             </div>
@@ -1173,25 +1173,25 @@ Parsed by a recursive descent parser into a typed AST.
 # Statute text in comments
 # (a) In general.— ...
 
-variable param_name:
+param_name:
     from 2024-01-01: 100
     from 2023-01-01: 95
 
-variable var_name:
+var_name:
     entity: TaxUnit
     from 2024-01-01: param_name * input_value
 \`\`\`
 
-## Top-Level Declarations
+## Top-level declarations
 
 | Declaration | Syntax | Purpose |
 |-------------|--------|---------|
 | Comment | \`# ...\` | Statute text, section headers |
-| \`variable\` | \`variable name:\` | Parameter or computed value |
+| Definition | \`name:\` | Parameter or computed value (inferred from fields) |
 | \`entity\` | \`entity name:\` | Entity type with fields |
 | \`amend\` | \`amend path:\` | Override for reform modeling |
 
-## Entity Declarations
+## Entity declarations
 
 Define entity types with typed fields and relationships:
 
@@ -1205,36 +1205,36 @@ entity TaxUnit:
     members: [Person]
 \`\`\`
 
-## Variables (parameters and computed values)
+## Definitions (parameters and computed values)
 
-All declarations use the \`variable\` keyword. Parameters are
-variables without an \`entity:\` field (pure scalar values).
-Variables with \`entity:\` are computed per-entity.
+No keyword prefix needed — the parser infers type from fields.
+Definitions without \`entity:\` are parameters (pure scalar values).
+Definitions with \`entity:\` are computed per-entity.
 
 Optional metadata fields: \`source\`, \`label\`, \`description\`, \`unit\`.
 
 \`\`\`
 # Parameter: "30 per centum of household income"
-variable income_contribution_rate:
+income_contribution_rate:
     from 1977-10-01: 0.30
 
-# Computed variable
-variable snap_allotment:
+# Computed value
+snap_allotment:
     entity: Household
     from 1977-10-01:
         max(0, thrifty_food_plan_cost -
             snap_net_income * income_contribution_rate)
 \`\`\`
 
-Variables earlier in a file are in scope for later variables.
+Definitions earlier in a file are in scope for later ones.
 
-## Temporal Values
+## Temporal values
 
 Use \`from YYYY-MM-DD:\` for effective dates.
 Use \`from DATE to DATE:\` for sunset provisions:
 
 \`\`\`
-variable ctc_base_amount:
+ctc_base_amount:
     from 1998-01-01: 400
     from 1999-01-01: 500
     from 2001-01-01: 600
@@ -1243,11 +1243,11 @@ variable ctc_base_amount:
     from 2025-01-01: 2200  # P.L. 119-21
 
 # Sunset clause
-variable arpa_bonus:
+arpa_bonus:
     from 2021-01-01 to 2025-12-31: 1600
 \`\`\`
 
-## Expression Syntax
+## Expression syntax
 
 Python-like with restrictions:
 - Conditionals: \`if cond: expr else: expr\`
@@ -1258,12 +1258,12 @@ Python-like with restrictions:
 - **No magic numbers** — only -1, 0, 1, 2, 3 in formulas
 
 \`\`\`
-variable applicable_percentage:
+applicable_percentage:
     entity: TaxUnit
     from 2026-01-01:
         if is_joint_return: joint_rate else: single_rate
 
-variable threshold:
+threshold:
     entity: TaxUnit
     from 2026-01-01:
         match filing_status:
