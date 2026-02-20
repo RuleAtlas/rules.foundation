@@ -2,276 +2,37 @@ import { useState, useEffect, Fragment } from 'react'
 import * as styles from '../styles/lab.css'
 import Header from '../components/Header'
 import {
-  CheckIcon,
-  XIcon,
-  WarningIcon,
   RocketIcon,
-  FolderIcon,
-  CodeIcon,
-  TerminalIcon,
 } from '../components/Icons'
 import {
-  getEncodingRuns,
-  getAgentTranscripts,
-  getTranscriptsBySession,
   getSDKSessions,
   getSDKSessionEvents,
-  EncodingRun,
-  AgentTranscript,
   SDKSession,
   SDKSessionEvent,
-  DataSource,
 } from '../lib/supabase'
 
-// ============================================
-// MOCK DATA - ⚠️ NOT REAL ⚠️
-// ============================================
-
-// MOCK DATA - Placeholder values for UI development only.
-// Real data should come from Supabase.
-const MOCK_ENCODING_DATA: EncodingRunUI[] = [
-  {
-    id: '3aedd4db',
-    timestamp: '2025-12-31T10:36:22',
-    citation: '26 USC 137',
-    iterations: [
-      { attempt: 1, success: false, duration_ms: 499500, errors: [] },
-      { attempt: 2, success: true, duration_ms: 499500, errors: [] },
-    ],
-    scores: { rac: 7.5, formula: 8.5, parameter: 9.5, integration: 7.5 },
-    dataSource: 'mock',
-  },
-  {
-    id: '0900f584',
-    timestamp: '2025-12-31T10:36:22',
-    citation: '26 USC 23',
-    iterations: [{ attempt: 1, success: true, duration_ms: 233000, errors: [] }],
-    scores: { rac: 8.2, formula: 7.5, parameter: 9.5, integration: 8.2 },
-    dataSource: 'mock',
-  },
-  {
-    id: 'cb77655b',
-    timestamp: '2025-12-31T11:02:05',
-    citation: '26 USC 25A',
-    iterations: [{ attempt: 1, success: true, duration_ms: 141000, errors: [] }],
-    scores: { rac: 8.5, formula: 8.5, parameter: 8.0, integration: 7.5 },
-    dataSource: 'mock',
-  },
-  {
-    id: '1d1fee67',
-    timestamp: '2025-12-31T11:13:56',
-    citation: '26 USC 25B',
-    iterations: [{ attempt: 1, success: true, duration_ms: 461000, errors: [] }],
-    scores: { rac: 8.5, formula: 8.5, parameter: 9.5, integration: 7.5 },
-    dataSource: 'mock',
-  },
-  {
-    id: 'a59ef11b',
-    timestamp: '2025-12-31T12:49:52',
-    citation: '26 USC 21',
-    iterations: [{ attempt: 1, success: true, duration_ms: 1053000, errors: [] }],
-    scores: { rac: 7.5, formula: 7.5, parameter: 9.0, integration: 7.5 },
-    dataSource: 'mock',
-  },
-  {
-    id: '62f77e5d',
-    timestamp: '2025-12-31T19:25:07',
-    citation: '26 USC 1',
-    iterations: [
-      { attempt: 1, success: false, duration_ms: 600000, errors: [] },
-      { attempt: 2, success: true, duration_ms: 600000, errors: [] },
-    ],
-    scores: { rac: 8.5, formula: 8.5, parameter: 9.0, integration: 7.5 },
-    hasIssues: true,
-    note: 'IRS guidance values mixed into statute; wrong bracket parameter structure',
-    dataSource: 'mock',
-  },
-]
-
-interface EncodingRunUI {
-  id: string
-  timestamp: string
-  citation: string
-  iterations: { attempt: number; success: boolean; duration_ms: number; errors: { type: string; message: string }[] }[]
-  scores: { rac: number; formula: number; parameter: number; integration: number }
-  hasIssues?: boolean
-  note?: string
-  dataSource: DataSource
-  sessionId?: string
-}
-
-const RF_PLUGIN = {
-  name: 'rules-foundation',
-  version: '0.3.0',
-  description: 'Atlas, RAC encoding pipeline, and development tools',
-  agents: [
-    { name: 'Encoding Orchestrator', file: 'encoding-orchestrator.md', description: 'Orchestrates full 5-phase encoding workflow.', lines: 110 },
-    { name: 'RAC Encoder', file: 'encoder.md', description: 'Encodes tax/benefit rules into RAC format.', lines: 380 },
-    { name: 'Statute Analyzer', file: 'statute-analyzer.md', description: 'Pre-flight analysis of statutes before encoding.', lines: 150 },
-    { name: 'Encoding Validator', file: 'validator.md', description: 'Validates against PolicyEngine and TAXSIM.', lines: 180 },
-    { name: 'RAC Reviewer', file: 'rac-reviewer.md', description: 'Reviews .rac encodings for quality and accuracy.', lines: 180 },
-    { name: 'Formula Reviewer', file: 'formula-reviewer.md', description: 'Audits formula logic for statutory fidelity.', lines: 80 },
-    { name: 'Parameter Reviewer', file: 'parameter-reviewer.md', description: 'Audits parameter values and effective dates.', lines: 100 },
-    { name: 'Integration Reviewer', file: 'integration-reviewer.md', description: 'Audits file connections and dependencies.', lines: 80 },
-    { name: 'Document Archiver', file: 'document-archiver.md', description: 'Downloads legal documents for atlas archive.', lines: 100 },
-  ],
-  skills: [
-    { name: 'rac-encoding', file: 'rac-encoding.md', description: 'RAC DSL patterns, validation, and encoding workflow.', lines: 120 },
-    { name: 'atlas-development', file: 'atlas-development.md', description: 'Crawler, converter, and R2 storage patterns.', lines: 120 },
-    { name: 'rf-architecture', file: 'rf-architecture.md', description: 'Repo layout and cross-repo relationships.', lines: 40 },
-  ],
-  commands: [
-    { name: '/encode', file: 'encode.md', description: 'Encode a statute into RAC format with validation.', lines: 40 },
-    { name: '/validate', file: 'validate.md', description: 'Validate encoded policy against multiple systems.', lines: 40 },
-    { name: '/file-bug', file: 'file-bug.md', description: 'File upstream bug when validation finds discrepancies.', lines: 50 },
-  ],
-}
-
-const COSILICO_PLUGIN = {
-  name: 'cosilico',
-  version: '0.4.0',
-  description: 'Microplex, design system, and experiment tracking hooks',
-  agents: [] as { name: string; file: string; description: string; lines: number }[],
-  skills: [
-    { name: 'microplex', file: 'microplex/SKILL.md', description: 'Evaluating synthetic microdata quality.', lines: 280 },
-    { name: 'design-system', file: 'design-system/SKILL.md', description: 'cosilico.ai vanilla-extract styling.', lines: 120 },
-    { name: 'encoding-log', file: 'encoding-log/SKILL.md', description: 'AutoRAC experiment logging.', lines: 80 },
-  ],
-  commands: [] as { name: string; file: string; description: string; lines: number }[],
-  hooks: [
-    { name: 'session-start', description: 'Initialize tracking session' },
-    { name: 'session-end', description: 'Finalize session' },
-    { name: 'log-subagent-transcript', description: 'Capture agent transcripts' },
-    { name: 'log-encoding-events', description: 'Track file changes during encoding' },
-  ],
-}
-
-const KNOWN_ISSUES = [
-  {
-    id: 'issue-1',
-    title: '26 USC 1 encoding quality',
-    description: 'Despite passing tests, the §1 encoding mixed IRS guidance values into statute parameters and used manual bracket math instead of marginal_agg().',
-    status: 'investigating',
-  },
-  {
-    id: 'issue-2',
-    title: 'Reviewer agent calibration',
-    description: 'Current reviewer scores show high variance. Need to implement calibration dataset with known-quality encodings.',
-    status: 'planned',
-  },
-]
-
-// ============================================
-// HELPERS
-// ============================================
-
-const DATA_SOURCE_INFO: Record<DataSource, { label: string; color: string; warning: boolean }> = {
-  reviewer_agent: { label: 'Reviewer Agent', color: '#00ff88', warning: false },
-  ci_only: { label: 'CI Only', color: '#ffaa00', warning: true },
-  mock: { label: 'MOCK', color: '#ff4466', warning: true },
-  manual_estimate: { label: 'Manual Estimate', color: '#ff6b35', warning: true },
-  unknown: { label: 'Unknown', color: '#ff4466', warning: true },
-}
-
-const formatDuration = (ms: number) => {
-  const minutes = Math.floor(ms / 60000)
-  const seconds = Math.floor((ms % 60000) / 1000)
-  return `${minutes}m ${seconds}s`
-}
-
-const formatTime = (ts: string) => {
-  const date = new Date(ts)
-  return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-}
-
-const getScoreClass = (score: number) => {
-  if (score >= 8.5) return styles.scoreGood
-  if (score >= 7.5) return styles.scoreWarn
-  return styles.scoreBad
-}
-
-const getScoreColor = (score: number) => {
-  if (score >= 8) return '#00ff88'
-  if (score >= 6) return '#ffaa00'
-  return '#ff4466'
-}
-
-// Transform Supabase data to UI format
-function transformToEncodingRunUI(run: EncodingRun): EncodingRunUI {
-  return {
-    id: run.id,
-    timestamp: run.timestamp,
-    citation: run.citation,
-    iterations: run.iterations || [],
-    scores: run.scores || { rac: 0, formula: 0, parameter: 0, integration: 0 },
-    hasIssues: run.has_issues ?? undefined,
-    note: run.note ?? undefined,
-    dataSource: run.data_source || 'unknown',
-    sessionId: run.session_id ?? undefined,
-  }
-}
-
-// ============================================
-// COMPONENT
-// ============================================
-
 export default function LabPage() {
-  const [activeTab, setActiveTab] = useState<'encodings' | 'transcripts' | 'sdk' | 'plugin' | 'issues'>('sdk')
-  const [expandedTranscript, setExpandedTranscript] = useState<number | null>(null)
-  const [showTimestamps, setShowTimestamps] = useState(false)
-  const [selectedRun, setSelectedRun] = useState<EncodingRunUI | null>(null)
-  const [selectedRunTranscripts, setSelectedRunTranscripts] = useState<AgentTranscript[]>([])
-
-  // State for Supabase data
-  const [liveData, setLiveData] = useState<EncodingRunUI[]>([])
-  const [transcripts, setTranscripts] = useState<AgentTranscript[]>([])
   const [sdkSessions, setSdkSessions] = useState<SDKSession[]>([])
   const [selectedSDKSession, setSelectedSDKSession] = useState<SDKSession | null>(null)
   const [sdkSessionEvents, setSdkSessionEvents] = useState<SDKSessionEvent[]>([])
   const [loadingEvents, setLoadingEvents] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [usingMockData, setUsingMockData] = useState(false)
 
-  // Fetch data from Supabase on mount
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true)
-      setError(null)
-
       try {
-        const [runs, agentTranscripts, sessions] = await Promise.all([
-          getEncodingRuns(100, 0),
-          getAgentTranscripts(100, 0),
-          getSDKSessions(50),
-        ])
-
-        if (runs.length > 0) {
-          setLiveData(runs.map(transformToEncodingRunUI))
-          setUsingMockData(false)
-        } else {
-          // No data in Supabase yet, fall back to mock data
-          setLiveData(MOCK_ENCODING_DATA)
-          setUsingMockData(true)
-        }
-
-        setTranscripts(agentTranscripts)
+        const sessions = await getSDKSessions(50)
         setSdkSessions(sessions)
       } catch (err) {
-        console.error('Failed to fetch data:', err)
-        setError('Failed to load data from database')
-        // Fall back to mock data on error
-        setLiveData(MOCK_ENCODING_DATA)
-        setUsingMockData(true)
+        console.error('Failed to fetch sessions:', err)
       } finally {
         setIsLoading(false)
       }
     }
-
     fetchData()
   }, [])
 
-  // Handler to select SDK session and load its events
   const handleSelectSDKSession = async (session: SDKSession) => {
     if (selectedSDKSession?.id === session.id) {
       setSelectedSDKSession(null)
@@ -286,37 +47,8 @@ export default function LabPage() {
     setLoadingEvents(false)
   }
 
-  // Handler to select a run and load its transcripts
-  const handleSelectRun = async (run: EncodingRunUI) => {
-    if (selectedRun?.id === run.id) {
-      setSelectedRun(null)
-      setSelectedRunTranscripts([])
-      return
-    }
-
-    setSelectedRun(run)
-
-    if (run.sessionId) {
-      const runTranscripts = await getTranscriptsBySession(run.sessionId)
-      setSelectedRunTranscripts(runTranscripts)
-    } else {
-      setSelectedRunTranscripts([])
-    }
-  }
-
-  const data = liveData.length > 0 ? liveData : MOCK_ENCODING_DATA
-
-  const totalRuns = data.length
-  const successRuns = data.filter((d) => d.iterations[d.iterations.length - 1]?.success).length
-  /* v8 ignore next 4 -- totalRuns is always > 0 due to MOCK_ENCODING_DATA fallback */
-  const avgScore =
-    totalRuns > 0
-      ? data.reduce((acc, d) => acc + (d.scores.rac + d.scores.formula + d.scores.parameter + d.scores.integration) / 4, 0) / totalRuns
-      : 0
-
-  // Count runs with untrusted data sources
-  const untrustedRuns = data.filter((d) => d.dataSource !== 'reviewer_agent').length
-  const hasUntrustedData = untrustedRuns > 0
+  const totalTokens = sdkSessions.reduce((acc, s) => acc + s.input_tokens + s.output_tokens, 0)
+  const totalCost = sdkSessions.reduce((acc, s) => acc + s.estimated_cost_usd, 0)
 
   return (
     <div className={styles.page}>
@@ -324,7 +56,6 @@ export default function LabPage() {
       <Header variant="lab" />
 
       <div className={styles.container}>
-        {/* Page title section */}
         <header className={styles.pageHeader}>
           <div className={styles.headerTop}>
             <span className={styles.labBadge}>Encoding lab</span>
@@ -332,371 +63,33 @@ export default function LabPage() {
           </div>
           <div className={styles.headerMeta}>
             <span className={styles.metaItem}>
-              <span className={styles.metaLabel}>Runs:</span>
-              <span className={styles.metaValue}>{totalRuns}</span>
+              <span className={styles.metaLabel}>Sessions:</span>
+              <span className={styles.metaValue}>{sdkSessions.length}</span>
             </span>
             <span className={styles.metaItem}>
-              <span className={styles.metaLabel}>Success:</span>
-              <span className={styles.metaValue}>{((successRuns / totalRuns) * 100).toFixed(0)}%</span>
+              <span className={styles.metaLabel}>Tokens:</span>
+              <span className={styles.metaValue}>{totalTokens.toLocaleString()}</span>
             </span>
             <span className={styles.metaItem}>
-              <span className={styles.metaLabel}>Avg Score:</span>
-              <span className={styles.metaValue}>{avgScore.toFixed(1)}/10</span>
-            </span>
-            <span className={styles.metaItem}>
-              <span className={styles.metaLabel}>Plugin:</span>
-              <span className={styles.metaValue}>rules-foundation@0.3.0</span>
+              <span className={styles.metaLabel}>Cost:</span>
+              <span className={styles.metaValue}>${totalCost.toFixed(2)}</span>
             </span>
           </div>
         </header>
 
-        {/* Data Status Banner */}
         {isLoading ? (
           <div className={`${styles.statusBanner} ${styles.statusBannerLoading}`}>
             <span style={{ fontSize: '1.5rem' }}>⏳</span>
-            <div>Loading data from Supabase...</div>
-          </div>
-        ) : usingMockData ? (
-          <div className={`${styles.statusBanner} ${styles.statusBannerMock}`}>
-            <WarningIcon size={28} />
-            <div>
-              <div style={{ marginBottom: '4px' }}>MOCK DATA - NOT REAL</div>
-              <div style={{ fontWeight: 400, fontSize: '0.85rem', opacity: 0.9 }}>
-                {error ? `Database error: ${error}. Showing placeholder data.` : 'No encoding runs in database yet. Showing placeholder data for UI preview.'}
-              </div>
-            </div>
-          </div>
-        ) : hasUntrustedData ? (
-          <div className={`${styles.statusBanner} ${styles.statusBannerWarning}`}>
-            <WarningIcon size={28} />
-            <div>
-              <div style={{ marginBottom: '4px' }}>DATA SOURCE WARNING</div>
-              <div style={{ fontWeight: 400, fontSize: '0.85rem', opacity: 0.9 }}>
-                {untrustedRuns} of {totalRuns} runs have scores NOT from actual reviewer agents. Check the "Source" column for details.
-              </div>
-            </div>
+            <div>Loading sessions...</div>
           </div>
         ) : (
-          <div className={`${styles.statusBanner} ${styles.statusBannerSuccess}`}>
-            <CheckIcon size={20} />
-            <div>Live data from Supabase ({totalRuns} runs) - All scores verified by reviewer agents</div>
-          </div>
-        )}
-
-        {/* Data Note */}
-        <div className={styles.dataNote}>
-          <span className={styles.dataNoteBold}>Data architecture note:</span> Plugin content is NOT currently stored with each encoding run.
-          Recommend SCD2 table for <code>plugin_versions</code> with hash-based versioning to track which plugin state produced each result.
-        </div>
-
-        {/* Tabs */}
-        <div className={styles.tabs}>
-          <button className={`${styles.tab} ${activeTab === 'encodings' ? styles.tabActive : ''}`} onClick={() => setActiveTab('encodings')}>
-            Encoding runs
-          </button>
-          <button className={`${styles.tab} ${activeTab === 'transcripts' ? styles.tabActive : ''}`} onClick={() => setActiveTab('transcripts')}>
-            Agent transcripts
-            {transcripts.length > 0 && (
-              <span style={{ marginLeft: '8px', background: '#00ff88', color: '#08080c', padding: '2px 8px', borderRadius: '10px', fontSize: '11px' }}>
-                {transcripts.length}
-              </span>
-            )}
-          </button>
-          <button className={`${styles.tab} ${activeTab === 'sdk' ? styles.tabActive : ''}`} onClick={() => setActiveTab('sdk')}>
-            SDK sessions
-            {sdkSessions.length > 0 && (
-              <span style={{ marginLeft: '8px', background: '#00d4ff', color: '#08080c', padding: '2px 8px', borderRadius: '10px', fontSize: '11px' }}>
-                {sdkSessions.length}
-              </span>
-            )}
-          </button>
-          <button className={`${styles.tab} ${activeTab === 'plugin' ? styles.tabActive : ''}`} onClick={() => setActiveTab('plugin')}>
-            Plugin content
-          </button>
-          <button className={`${styles.tab} ${activeTab === 'issues' ? styles.tabActive : ''}`} onClick={() => setActiveTab('issues')}>
-            Known issues
-          </button>
-        </div>
-
-        {/* Encoding runs Tab */}
-        {activeTab === 'encodings' && (
           <section className={styles.tableSection}>
-            <h2 className={styles.sectionTitle}>
-              Encoding runs
-              <span className={styles.sectionCount}>{totalRuns}</span>
-            </h2>
-
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Citation</th>
-                  <th>Time</th>
-                  <th>Source</th>
-                  <th>Iterations</th>
-                  <th>Duration</th>
-                  <th>RAC</th>
-                  <th>Formula</th>
-                  <th>Param</th>
-                  <th>Integ</th>
-                  <th>Errors</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((run) => {
-                  const lastIter = run.iterations[run.iterations.length - 1]
-                  const totalDuration = run.iterations.reduce((acc, i) => acc + i.duration_ms, 0)
-                  const hasErrors = run.iterations.some((i) => i.errors && i.errors.length > 0)
-                  const sourceInfo = DATA_SOURCE_INFO[run.dataSource]
-
-                  return (
-                    <Fragment key={run.id}>
-                      <tr
-                        onClick={() => handleSelectRun(run)}
-                        style={{
-                          cursor: 'pointer',
-                          background: selectedRun?.id === run.id ? 'rgba(0, 212, 255, 0.1)' : undefined,
-                          borderLeft: selectedRun?.id === run.id ? '3px solid #00d4ff' : '3px solid transparent',
-                        }}
-                      >
-                        <td className={styles.citationCell}>
-                          {run.citation}
-                          {run.hasIssues && (
-                            <span style={{ color: '#ff4466', marginLeft: '8px' }}>
-                              <WarningIcon size={14} />
-                            </span>
-                          )}
-                        </td>
-                        <td className={styles.timestampCell}>{formatTime(run.timestamp)}</td>
-                        <td>
-                          <span
-                            className={styles.sourceBadge}
-                            style={{
-                              color: sourceInfo.color,
-                              background: `${sourceInfo.color}15`,
-                              border: `1px solid ${sourceInfo.color}40`,
-                            }}
-                            title={sourceInfo.warning ? 'WARNING: Scores may not be from actual reviewer agents' : 'Verified by reviewer agents'}
-                          >
-                            {sourceInfo.label}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={`${styles.iterationBadge} ${lastIter?.success ? styles.iterationSuccess : styles.iterationFailed}`}>
-                            {run.iterations.length} {lastIter?.success ? <CheckIcon size={12} /> : <XIcon size={12} />}
-                          </span>
-                        </td>
-                        <td className={styles.durationCell}>{formatDuration(totalDuration)}</td>
-                        <td className={`${styles.scoreCell} ${getScoreClass(run.scores.rac)}`}>{run.scores.rac.toFixed(1)}</td>
-                        <td className={`${styles.scoreCell} ${getScoreClass(run.scores.formula)}`}>{run.scores.formula.toFixed(1)}</td>
-                        <td className={`${styles.scoreCell} ${getScoreClass(run.scores.parameter)}`}>{run.scores.parameter.toFixed(1)}</td>
-                        <td className={`${styles.scoreCell} ${getScoreClass(run.scores.integration)}`}>{run.scores.integration.toFixed(1)}</td>
-                        <td>
-                          {/* v8 ignore next -- errors || [] fallback unreachable since hasErrors already checks */}
-                          {hasErrors && <span className={styles.errorTag}>{run.iterations.flatMap((i) => i.errors || []).map((e) => e.type).join(', ')}</span>}
-                          {run.note && (
-                            <span className={styles.errorTag} style={{ background: 'rgba(255, 170, 0, 0.15)', color: '#ffaa00' }}>
-                              structural
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                      {/* Inline Detail Panel */}
-                      {selectedRun?.id === run.id && (
-                        <tr>
-                          <td colSpan={10} style={{ padding: 0, border: 'none' }}>
-                            <div className={styles.detailPanel}>
-                              <div className={styles.detailHeader}>
-                                <div>
-                                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#00d4ff' }}>{run.citation}</h3>
-                                  <div style={{ color: '#888', fontSize: '0.8rem', marginTop: '4px' }}>
-                                    {new Date(run.timestamp).toLocaleString()} • {run.id}
-                                  </div>
-                                </div>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setSelectedRun(null)
-                                    setSelectedRunTranscripts([])
-                                  }}
-                                  style={{
-                                    background: 'transparent',
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    color: '#888',
-                                    padding: '6px 12px',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer',
-                                  }}
-                                >
-                                  Close ✕
-                                </button>
-                              </div>
-
-                              {/* Scores */}
-                              <div className={styles.detailSection}>
-                                <div className={styles.detailSectionTitle}>Scores</div>
-                                <div className={styles.scoresGrid}>
-                                  {(['rac', 'formula', 'parameter', 'integration'] as const).map((key) => (
-                                    <div key={key} className={styles.scoreItem}>
-                                      <div className={styles.scoreValue} style={{ color: getScoreColor(run.scores[key]) }}>
-                                        {run.scores[key].toFixed(1)}
-                                      </div>
-                                      <div className={styles.scoreLabel}>{key}</div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-
-                              {/* Metadata */}
-                              <div className={styles.detailSection}>
-                                <div className={styles.metaGrid}>
-                                  <div className={styles.metaBlock}>
-                                    <div>Iterations</div>
-                                    <div style={{ color: lastIter?.success ? '#00ff88' : '#ff4466' }}>
-                                      {run.iterations.length} {lastIter?.success ? <CheckIcon size={14} /> : <XIcon size={14} />}
-                                    </div>
-                                  </div>
-                                  <div className={styles.metaBlock}>
-                                    <div>Duration</div>
-                                    <div>{formatDuration(totalDuration)}</div>
-                                  </div>
-                                  <div className={styles.metaBlock}>
-                                    <div>Data source</div>
-                                    <div style={{ color: sourceInfo.color }}>{sourceInfo.label}</div>
-                                  </div>
-                                  {run.note && (
-                                    <div className={styles.metaBlock} style={{ flex: '1 1 100%' }}>
-                                      <div>Notes</div>
-                                      <div style={{ color: '#ffaa00', fontSize: '0.85rem' }}>{run.note}</div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Transcripts */}
-                              <div className={styles.detailSection} style={{ borderBottom: 'none' }}>
-                                <div className={styles.detailSectionTitle}>Agent transcripts ({selectedRunTranscripts.length})</div>
-                                {selectedRunTranscripts.length === 0 ? (
-                                  <div style={{ color: '#666', fontStyle: 'italic' }}>
-                                    {run.sessionId ? 'Loading transcripts...' : 'No session ID - transcripts not linked'}
-                                  </div>
-                                ) : (
-                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    {selectedRunTranscripts.map((t) => (
-                                      <div
-                                        key={t.id}
-                                        style={{
-                                          background: 'rgba(0, 0, 0, 0.2)',
-                                          border: '1px solid rgba(255,255,255,0.1)',
-                                          borderRadius: '6px',
-                                          padding: '12px 16px',
-                                          display: 'flex',
-                                          justifyContent: 'space-between',
-                                          alignItems: 'center',
-                                        }}
-                                      >
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                          <span className={styles.transcriptBadge}>{t.subagent_type}</span>
-                                          <span style={{ color: '#ccc', fontSize: '0.85rem' }}>{t.description || 'No description'}</span>
-                                        </div>
-                                        <span style={{ color: '#00ff88', fontSize: '0.8rem' }}>{t.message_count} msgs</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </Fragment>
-                  )
-                })}
-              </tbody>
-            </table>
-          </section>
-        )}
-
-        {/* Transcripts Tab */}
-        {activeTab === 'transcripts' && (
-          <section className={styles.tableSection}>
-            <h2 className={styles.sectionTitle}>
-              Agent transcripts
-              <span className={styles.sectionCount}>{transcripts.length}</span>
-            </h2>
-
-            {transcripts.length === 0 ? (
-              <div className={styles.emptyState}>
-                <div className={styles.emptyStateIcon}>
-                  <CodeIcon size={48} />
-                </div>
-                <div className={styles.emptyStateTitle}>No agent transcripts yet</div>
-                <div className={styles.emptyStateDesc}>Run an encoding task to capture transcripts.</div>
-              </div>
-            ) : (
-              <div className={styles.transcriptList}>
-                {transcripts.map((t) => {
-                  const isExpanded = expandedTranscript === t.id
-                  return (
-                    <div key={t.id} className={styles.transcriptCard}>
-                      <div
-                        className={`${styles.transcriptHeader} ${isExpanded ? styles.transcriptHeaderExpanded : ''}`}
-                        onClick={() => setExpandedTranscript(isExpanded ? null : t.id)}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                          <span className={styles.transcriptBadge}>{t.subagent_type}</span>
-                          <span style={{ fontWeight: 500 }}>{t.description || 'No description'}</span>
-                        </div>
-                        <div className={styles.transcriptMeta}>
-                          <span style={{ color: '#888', fontSize: '0.85rem' }}>{new Date(t.created_at).toLocaleString()}</span>
-                          <span style={{ color: '#00ff88', fontSize: '0.85rem' }}>{t.message_count} messages</span>
-                          <span style={{ color: '#00d4ff' }}>{isExpanded ? '▼' : '▶'}</span>
-                        </div>
-                      </div>
-
-                      {isExpanded && (
-                        <div className={styles.transcriptContent}>
-                          {t.orchestrator_thinking && (
-                            <div className={styles.orchestratorThinking}>
-                              <div style={{ color: '#a78bfa', fontSize: '0.75rem', marginBottom: '8px', fontWeight: 600 }}>ORCHESTRATOR THINKING</div>
-                              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontSize: '0.8rem', color: '#ccc', maxHeight: '200px', overflow: 'auto' }}>
-                                {t.orchestrator_thinking}
-                              </pre>
-                            </div>
-                          )}
-                          <div className={styles.timelineControls}>
-                            <span style={{ color: '#888', fontSize: '0.8rem' }}>{t.message_count} events</span>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                              <input type="checkbox" checked={showTimestamps} onChange={(e) => setShowTimestamps(e.target.checked)} />
-                              <span style={{ color: '#888', fontSize: '0.8rem' }}>Show timestamps</span>
-                            </label>
-                          </div>
-                          <div className={styles.timeline}>
-                            <div style={{ color: '#666', fontStyle: 'italic' }}>Full transcript view available when connected to Supabase</div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* SDK Sessions Tab */}
-        {activeTab === 'sdk' && (
-          <section className={styles.tableSection}>
-            <h2 className={styles.sectionTitle}>
-              Encoding missions
-              <span className={styles.sectionCount}>{sdkSessions.length}</span>
-            </h2>
-
             {sdkSessions.length === 0 ? (
               <div className={styles.emptyState}>
                 <div className={styles.emptyStateIcon}>
                   <RocketIcon size={48} />
                 </div>
-                <div className={styles.emptyStateTitle}>No missions recorded yet</div>
+                <div className={styles.emptyStateTitle}>No encoding sessions yet</div>
                 <div className={styles.emptyStateDesc}>
                   Run <code style={{ background: 'rgba(0, 212, 255, 0.1)', padding: '3px 8px', borderRadius: '4px', color: '#00d4ff' }}>autorac sync-sdk-sessions</code> to
                   sync from experiments.db
@@ -708,7 +101,6 @@ export default function LabPage() {
                   const duration = session.ended_at ? Math.round((new Date(session.ended_at).getTime() - new Date(session.started_at).getTime()) / 1000) : null
                   const isSelected = selectedSDKSession?.id === session.id
 
-                  // Summarize events for selected session
                   const agentPhases = isSelected ? sdkSessionEvents.filter(e => e.event_type === 'agent_start') : []
                   const toolCounts: Record<string, number> = {}
                   if (isSelected) {
@@ -760,7 +152,6 @@ export default function LabPage() {
                         </div>
                       </div>
 
-                      {/* Expanded detail panel */}
                       {isSelected && (
                         <div className={styles.detailPanel}>
                           {loadingEvents ? (
@@ -877,140 +268,6 @@ export default function LabPage() {
                 })}
               </div>
             )}
-          </section>
-        )}
-
-        {/* Plugin Content Tab */}
-        {activeTab === 'plugin' && (
-          <section className={styles.tableSection}>
-            <h2 className={styles.sectionTitle}>Plugin content</h2>
-
-            {/* Rules Foundation Plugin */}
-            <div style={{ marginBottom: '32px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                <span style={{ background: 'rgba(0, 212, 255, 0.15)', color: '#00d4ff', padding: '4px 12px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em' }}>
-                  {RF_PLUGIN.name} v{RF_PLUGIN.version}
-                </span>
-                <span style={{ color: '#888', fontSize: '0.85rem' }}>{RF_PLUGIN.description}</span>
-              </div>
-
-              <div className={styles.pluginGrid}>
-                <div className={styles.pluginCategory}>
-                  <h3 className={styles.pluginCategoryTitle}>
-                    <CodeIcon size={20} />
-                    Agents ({RF_PLUGIN.agents.length})
-                  </h3>
-                  {RF_PLUGIN.agents.map((agent) => (
-                    <div key={agent.name} className={styles.pluginItem}>
-                      <div className={styles.pluginItemHeader}>
-                        <span className={styles.pluginItemName}>{agent.name}</span>
-                        <span className={styles.pluginItemLines}>{agent.lines} lines</span>
-                      </div>
-                      <p className={styles.pluginItemDesc}>{agent.description}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className={styles.pluginCategory}>
-                  <h3 className={styles.pluginCategoryTitle}>
-                    <FolderIcon size={20} />
-                    Skills ({RF_PLUGIN.skills.length})
-                  </h3>
-                  {RF_PLUGIN.skills.map((skill) => (
-                    <div key={skill.name} className={styles.pluginItem}>
-                      <div className={styles.pluginItemHeader}>
-                        <span className={styles.pluginItemName}>{skill.name}</span>
-                        <span className={styles.pluginItemLines}>{skill.lines} lines</span>
-                      </div>
-                      <p className={styles.pluginItemDesc}>{skill.description}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className={styles.pluginCategory}>
-                  <h3 className={styles.pluginCategoryTitle}>
-                    <TerminalIcon size={20} />
-                    Commands ({RF_PLUGIN.commands.length})
-                  </h3>
-                  {RF_PLUGIN.commands.map((cmd) => (
-                    <div key={cmd.name} className={styles.pluginItem}>
-                      <div className={styles.pluginItemHeader}>
-                        <span className={styles.pluginItemName}>{cmd.name}</span>
-                        <span className={styles.pluginItemLines}>{cmd.lines} lines</span>
-                      </div>
-                      <p className={styles.pluginItemDesc}>{cmd.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Cosilico Plugin */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                <span style={{ background: 'rgba(167, 139, 250, 0.15)', color: '#a78bfa', padding: '4px 12px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em' }}>
-                  {COSILICO_PLUGIN.name} v{COSILICO_PLUGIN.version}
-                </span>
-                <span style={{ color: '#888', fontSize: '0.85rem' }}>{COSILICO_PLUGIN.description}</span>
-              </div>
-
-              <div className={styles.pluginGrid}>
-                <div className={styles.pluginCategory}>
-                  <h3 className={styles.pluginCategoryTitle}>
-                    <FolderIcon size={20} />
-                    Skills ({COSILICO_PLUGIN.skills.length})
-                  </h3>
-                  {COSILICO_PLUGIN.skills.map((skill) => (
-                    <div key={skill.name} className={styles.pluginItem}>
-                      <div className={styles.pluginItemHeader}>
-                        <span className={styles.pluginItemName}>{skill.name}</span>
-                        <span className={styles.pluginItemLines}>{skill.lines} lines</span>
-                      </div>
-                      <p className={styles.pluginItemDesc}>{skill.description}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className={styles.pluginCategory}>
-                  <h3 className={styles.pluginCategoryTitle}>
-                    <TerminalIcon size={20} />
-                    Hooks ({COSILICO_PLUGIN.hooks.length})
-                  </h3>
-                  {COSILICO_PLUGIN.hooks.map((hook) => (
-                    <div key={hook.name} className={styles.pluginItem}>
-                      <div className={styles.pluginItemHeader}>
-                        <span className={styles.pluginItemName}>{hook.name}</span>
-                      </div>
-                      <p className={styles.pluginItemDesc}>{hook.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Known Issues Tab */}
-        {activeTab === 'issues' && (
-          <section className={styles.tableSection}>
-            <h2 className={styles.sectionTitle}>
-              Known issues
-              <span className={styles.sectionCount}>{KNOWN_ISSUES.length}</span>
-            </h2>
-
-            <div className={styles.issuesList}>
-              {KNOWN_ISSUES.map((issue) => (
-                <div key={issue.id} className={styles.issueCard}>
-                  <div className={styles.issueHeader}>
-                    <span className={styles.issueIcon}>⚠️</span>
-                    <span className={styles.issueTitle}>{issue.title}</span>
-                  </div>
-                  <div className={styles.issueContent}>
-                    <p>{issue.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
           </section>
         )}
       </div>
