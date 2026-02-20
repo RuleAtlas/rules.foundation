@@ -20,6 +20,7 @@ export default function LabPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [sessionMeta, setSessionMeta] = useState<Record<string, { title: string; lastEventAt: string | null }>>({})
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set())
+  const [expandedPhases, setExpandedPhases] = useState<Set<number>>(new Set())
   const [timelineLimit, setTimelineLimit] = useState(50)
 
   useEffect(() => {
@@ -51,6 +52,7 @@ export default function LabPage() {
     setSdkSessionEvents([])
     setLoadingEvents(true)
     setExpandedEvents(new Set())
+    setExpandedPhases(new Set())
     setTimelineLimit(50)
     const events = await getSDKSessionEvents(session.id, 2000)
     setSdkSessionEvents(events)
@@ -196,39 +198,121 @@ export default function LabPage() {
                                       if (e.tool_name) phaseToolCounts[e.tool_name] = (phaseToolCounts[e.tool_name] || 0) + 1
                                     }
                                     const prompt = (phase.content || '').slice(0, 200)
+                                    const isPhaseExpanded = expandedPhases.has(i)
+
+                                    const badgeColors: Record<string, { bg: string; fg: string }> = {
+                                      agent_start: { bg: 'rgba(0, 212, 255, 0.15)', fg: '#00d4ff' },
+                                      agent_end: { bg: 'rgba(0, 212, 255, 0.1)', fg: '#0099bb' },
+                                      tool_use: { bg: 'rgba(167, 139, 250, 0.15)', fg: '#a78bfa' },
+                                      tool_result: { bg: 'rgba(167, 139, 250, 0.1)', fg: '#8b6fd4' },
+                                      message: { bg: 'rgba(0, 255, 136, 0.12)', fg: '#00ff88' },
+                                      thinking: { bg: 'rgba(255, 107, 53, 0.12)', fg: '#ff6b35' },
+                                    }
 
                                     return (
                                       <div key={phase.id} style={{
                                         background: 'rgba(0, 0, 0, 0.2)',
-                                        border: '1px solid rgba(255,255,255,0.08)',
+                                        border: isPhaseExpanded ? '1px solid rgba(0, 212, 255, 0.3)' : '1px solid rgba(255,255,255,0.08)',
                                         borderRadius: '6px',
-                                        padding: '12px 16px',
+                                        overflow: 'hidden',
                                       }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                                          <span style={{ color: '#00d4ff', fontWeight: 600, fontSize: '0.85rem' }}>Phase {i + 1}</span>
-                                          <span style={{ color: '#888', fontSize: '0.75rem', fontFamily: 'JetBrains Mono, monospace' }}>
-                                            {phaseEvents.length} events
-                                          </span>
-                                        </div>
-                                        {prompt && (
-                                          <div style={{ color: '#ccc', fontSize: '0.8rem', marginBottom: '8px', lineHeight: 1.4 }}>
-                                            {prompt}{phase.content && phase.content.length > 200 ? '...' : ''}
+                                        <div
+                                          style={{
+                                            padding: '12px 16px',
+                                            cursor: 'pointer',
+                                          }}
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            setExpandedPhases(prev => {
+                                              const next = new Set(prev)
+                                              if (next.has(i)) next.delete(i)
+                                              else next.add(i)
+                                              return next
+                                            })
+                                          }}
+                                        >
+                                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                              <span style={{ color: '#00d4ff', fontSize: '0.75rem' }}>{isPhaseExpanded ? '▼' : '▶'}</span>
+                                              <span style={{ color: '#00d4ff', fontWeight: 600, fontSize: '0.85rem' }}>Phase {i + 1}</span>
+                                            </div>
+                                            <span style={{ color: '#888', fontSize: '0.75rem', fontFamily: 'JetBrains Mono, monospace' }}>
+                                              {phaseEvents.length} events
+                                            </span>
                                           </div>
-                                        )}
-                                        {Object.keys(phaseToolCounts).length > 0 && (
-                                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                                            {Object.entries(phaseToolCounts).sort((a, b) => b[1] - a[1]).map(([tool, count]) => (
-                                              <span key={tool} style={{
-                                                background: 'rgba(167, 139, 250, 0.1)',
-                                                color: '#a78bfa',
-                                                padding: '2px 8px',
-                                                borderRadius: '4px',
-                                                fontSize: '0.7rem',
-                                                fontFamily: 'JetBrains Mono, monospace',
-                                              }}>
-                                                {tool} ×{count}
-                                              </span>
-                                            ))}
+                                          {prompt && (
+                                            <div style={{ color: '#ccc', fontSize: '0.8rem', marginBottom: '8px', lineHeight: 1.4 }}>
+                                              {prompt}{phase.content && phase.content.length > 200 ? '...' : ''}
+                                            </div>
+                                          )}
+                                          {Object.keys(phaseToolCounts).length > 0 && (
+                                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                              {Object.entries(phaseToolCounts).sort((a, b) => b[1] - a[1]).map(([tool, count]) => (
+                                                <span key={tool} style={{
+                                                  background: 'rgba(167, 139, 250, 0.1)',
+                                                  color: '#a78bfa',
+                                                  padding: '2px 8px',
+                                                  borderRadius: '4px',
+                                                  fontSize: '0.7rem',
+                                                  fontFamily: 'JetBrains Mono, monospace',
+                                                }}>
+                                                  {tool} ×{count}
+                                                </span>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
+                                        {isPhaseExpanded && (
+                                          <div style={{
+                                            borderTop: '1px solid rgba(255,255,255,0.06)',
+                                            padding: '8px',
+                                            maxHeight: '400px',
+                                            overflowY: 'auto',
+                                          }}>
+                                            {phaseEvents.map((event) => {
+                                              const sessionStart = new Date(session.started_at).getTime()
+                                              const eventTime = new Date(event.timestamp).getTime()
+                                              const offsetSec = Math.max(0, Math.round((eventTime - sessionStart) / 1000))
+                                              const minutes = Math.floor(offsetSec / 60)
+                                              const seconds = offsetSec % 60
+                                              const relTime = `+${minutes}m ${String(seconds).padStart(2, '0')}s`
+                                              const isEventExpanded = expandedEvents.has(event.id)
+                                              const colors = badgeColors[event.event_type] || { bg: 'rgba(255, 255, 255, 0.08)', fg: '#888' }
+                                              const label = event.tool_name ? `${event.event_type}:${event.tool_name}` : event.event_type
+                                              const contentText = event.content || ''
+
+                                              return (
+                                                <div
+                                                  key={event.id}
+                                                  className={styles.timelineEvent}
+                                                  onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    setExpandedEvents(prev => {
+                                                      const next = new Set(prev)
+                                                      if (next.has(event.id)) next.delete(event.id)
+                                                      else next.add(event.id)
+                                                      return next
+                                                    })
+                                                  }}
+                                                >
+                                                  <span className={styles.timelineSeq}>#{event.sequence}</span>
+                                                  <span
+                                                    className={styles.timelineBadge}
+                                                    style={{ background: colors.bg, color: colors.fg }}
+                                                  >
+                                                    {label}
+                                                  </span>
+                                                  <span className={styles.timelineTime}>{relTime}</span>
+                                                  {contentText ? (
+                                                    <span className={isEventExpanded ? styles.timelineContentExpanded : styles.timelineContent}>
+                                                      {isEventExpanded ? contentText : contentText.slice(0, 120) + (contentText.length > 120 ? '...' : '')}
+                                                    </span>
+                                                  ) : (
+                                                    <span className={styles.timelineContent} style={{ color: '#555' }}>--</span>
+                                                  )}
+                                                </div>
+                                              )
+                                            })}
                                           </div>
                                         )}
                                       </div>

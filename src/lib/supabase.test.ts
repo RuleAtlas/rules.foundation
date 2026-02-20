@@ -225,7 +225,7 @@ describe('supabase lib', () => {
       mockFrom.mockReturnValue({ select: selectFn })
 
       await getSDKSessionEvents('sdk-1')
-      expect(limitFn).toHaveBeenCalledWith(100)
+      expect(limitFn).toHaveBeenCalledWith(2000)
     })
 
     it('returns empty when data is null without error', async () => {
