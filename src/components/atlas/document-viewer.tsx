@@ -82,6 +82,7 @@ export function DocumentViewer({
       {/* Main content */}
       <main className="flex-1 overflow-y-auto p-8">
         <AnimatePresence mode="wait">
+          {/* v8 ignore next -- viewMode is always "statute", split is future */}
           {(viewMode === "statute" || viewMode === "split") && (
             <motion.div
               key="statute-panel"

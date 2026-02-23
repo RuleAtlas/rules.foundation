@@ -23,7 +23,7 @@ vi.mock('@/hooks/use-rules', () => ({
 }))
 
 import { useRule } from '@/hooks/use-rules'
-import { RuleViewer, transformRuleToDoc } from './[ruleId]/page'
+import { RuleViewer, transformRuleToDoc } from './[ruleId]/rule-viewer'
 import type { Rule } from '@/lib/supabase'
 
 function makeRule(overrides: Partial<Rule> = {}): Rule {
@@ -54,11 +54,13 @@ describe('transformRuleToDoc', () => {
     const children = [
       makeRule({ id: 'c1', body: 'Child 1 text', heading: null }),
       makeRule({ id: 'c2', body: null, heading: 'Child 2 heading' }),
+      makeRule({ id: 'c3', body: null, heading: null }),
     ]
     const doc = transformRuleToDoc(rule, children)
     expect(doc.subsections).toEqual([
       { id: 'a', text: 'Child 1 text' },
       { id: 'b', text: 'Child 2 heading' },
+      { id: 'c', text: '' },
     ])
     expect(doc.title).toBe('Section 1 - Tax imposed')
     expect(doc.citation).toBe('statute/26/1')
@@ -182,4 +184,19 @@ describe('RuleViewer', () => {
     render(<RuleViewer ruleId="rule-1" />)
     expect(screen.getByText('In general, there is imposed a tax.')).toBeInTheDocument()
   })
+
+  it('navigates to /atlas when back button is clicked in document viewer', () => {
+    vi.mocked(useRule).mockReturnValue({
+      rule: makeRule(),
+      children: [],
+      loading: false,
+      error: null,
+    })
+
+    render(<RuleViewer ruleId="rule-1" />)
+    const backBtn = screen.getByTitle('Back to browser')
+    fireEvent.click(backBtn)
+    expect(mockPush).toHaveBeenCalledWith('/atlas')
+  })
 })
+

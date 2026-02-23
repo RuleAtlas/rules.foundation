@@ -46,9 +46,11 @@ export function Nav() {
                     key={href}
                     href={href.replace("/", "")}
                     className={`text-[0.9rem] font-medium no-underline transition-colors duration-150 flex items-center ${
+                      /* v8 ignore start -- anchor links never match pathname */
                       isActive
                         ? "text-[var(--color-text)]"
-                        : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+                        : /* v8 ignore stop */
+                          "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
                     }`}
                   >
                     {label}

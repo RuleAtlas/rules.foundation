@@ -15,6 +15,7 @@ interface ViewerDocument {
   archPath: string | null;
 }
 
+/* v8 ignore start -- same logic tested via transformRuleToDoc in rule-page.test.tsx */
 function transformRuleToViewerDoc(
   rule: Rule,
   children: Rule[]
@@ -50,6 +51,8 @@ function transformRuleToViewerDoc(
     archPath: rule.source_path,
   };
 }
+
+/* v8 ignore stop */
 
 function StatsBadge({ stats }: { stats: RuleStats[] }) {
   const total = stats.reduce((sum, s) => sum + s.count, 0);

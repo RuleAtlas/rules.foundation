@@ -16,7 +16,9 @@ vi.mock('motion/react', () => ({
 }))
 
 // Mock useRules hook
-const mockLoadMore = vi.fn()
+const { mockLoadMore } = vi.hoisted(() => ({
+  mockLoadMore: vi.fn(),
+}))
 vi.mock('@/hooks/use-rules', () => ({
   useRules: vi.fn().mockReturnValue({
     rules: [],
@@ -202,7 +204,8 @@ describe('AtlasBrowser', () => {
     })
 
     render(<AtlasBrowser />)
-    expect(screen.getByText('US')).toBeInTheDocument()
+    // 'US' appears both in filter buttons and stats badge
+    expect(screen.getAllByText('US').length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText('500')).toBeInTheDocument()
     expect(screen.getByText('750 total')).toBeInTheDocument()
   })

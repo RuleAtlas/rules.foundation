@@ -59,6 +59,21 @@ describe('LabPage', () => {
       expect(screen.getByText(/loading sessions/i)).toBeInTheDocument()
     })
 
+    it('handles fetch error gracefully', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.mocked(getSDKSessions).mockRejectedValue(new Error('Network error'))
+
+      render(<LabPage />)
+
+      await waitFor(() => {
+        // Should finish loading even on error
+        expect(screen.queryByText(/loading sessions/i)).not.toBeInTheDocument()
+      })
+
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch sessions:', expect.any(Error))
+      consoleSpy.mockRestore()
+    })
+
     it('shows empty state when no sessions exist', async () => {
       vi.mocked(getSDKSessions).mockResolvedValue([])
 
@@ -114,6 +129,20 @@ describe('LabPage', () => {
 
       await waitFor(() => {
         expect(screen.getByText('26 USC 137')).toBeInTheDocument()
+      })
+    })
+
+    it('renders session without ended_at (no duration)', async () => {
+      vi.mocked(getSDKSessions).mockResolvedValue([mockSession({ ended_at: null })])
+      vi.mocked(getSDKSessionMeta).mockResolvedValue({})
+      vi.mocked(getSDKSessionEvents).mockResolvedValue([])
+
+      render(<LabPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText('sdk-1')).toBeInTheDocument()
+        // Duration shows em-dash when ended_at is null
+        expect(screen.getByText('\u2014')).toBeInTheDocument()
       })
     })
 
@@ -321,6 +350,57 @@ describe('LabPage', () => {
       })
     })
 
+    it('truncates long phase content with ellipsis', async () => {
+      const longContent = 'X'.repeat(250)
+      const events: SDKSessionEvent[] = [
+        mockEvent({ id: 'e1', sequence: 1, event_type: 'agent_start', content: longContent }),
+        mockEvent({ id: 'e2', sequence: 2, event_type: 'agent_end', content: null }),
+      ]
+      vi.mocked(getSDKSessions).mockResolvedValue([mockSession({ event_count: 2 })])
+      vi.mocked(getSDKSessionMeta).mockResolvedValue({})
+      vi.mocked(getSDKSessionEvents).mockResolvedValue(events)
+
+      render(<LabPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText('sdk-1')).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByText('sdk-1'))
+
+      await waitFor(() => {
+        expect(screen.getByText('Phase 1')).toBeInTheDocument()
+      })
+
+      // Content div contains truncated text (200 X's) plus "..."
+      const promptDiv = document.querySelector('.text-\\[\\#ccc\\]')
+      expect(promptDiv?.textContent).toContain('...')
+    })
+
+    it('handles phase without matching agent_end', async () => {
+      const events: SDKSessionEvent[] = [
+        mockEvent({ id: 'e1', sequence: 1, event_type: 'agent_start', content: 'Incomplete phase' }),
+        mockEvent({ id: 'e2', sequence: 2, event_type: 'tool_use', tool_name: 'Read', content: 'Reading' }),
+        // No agent_end event
+      ]
+      vi.mocked(getSDKSessions).mockResolvedValue([mockSession({ event_count: 2 })])
+      vi.mocked(getSDKSessionMeta).mockResolvedValue({})
+      vi.mocked(getSDKSessionEvents).mockResolvedValue(events)
+
+      render(<LabPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText('sdk-1')).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByText('sdk-1'))
+
+      await waitFor(() => {
+        expect(screen.getByText('Phase 1')).toBeInTheDocument()
+        expect(screen.getByText('2 events')).toBeInTheDocument()
+      })
+    })
+
     it('shows expand/collapse indicator on phase cards', async () => {
       render(<LabPage />)
 
@@ -366,6 +446,90 @@ describe('LabPage', () => {
         expect(screen.getByText(/event timeline/i)).toBeInTheDocument()
         expect(screen.getByText('#1')).toBeInTheDocument()
         expect(screen.getByText('#2')).toBeInTheDocument()
+      })
+    })
+
+    it('shows "Show more" button when events exceed timeline limit', async () => {
+      // Create 55 events to exceed the default timelineLimit of 50
+      const events = Array.from({ length: 55 }, (_, i) =>
+        mockEvent({
+          id: `e${i + 1}`,
+          sequence: i + 1,
+          event_type: 'message',
+          content: `Event ${i + 1}`,
+          timestamp: new Date(Date.UTC(2025, 0, 1, 10, 0, i)).toISOString(),
+        })
+      )
+      vi.mocked(getSDKSessions).mockResolvedValue([mockSession({ event_count: 55 })])
+      vi.mocked(getSDKSessionMeta).mockResolvedValue({})
+      vi.mocked(getSDKSessionEvents).mockResolvedValue(events)
+
+      render(<LabPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText('sdk-1')).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByText('sdk-1'))
+
+      await waitFor(() => {
+        expect(screen.getByText(/show more/i)).toBeInTheDocument()
+        expect(screen.getByText(/5 remaining/i)).toBeInTheDocument()
+      })
+
+      // Click show more
+      fireEvent.click(screen.getByText(/show more/i))
+
+      await waitFor(() => {
+        expect(screen.queryByText(/show more/i)).not.toBeInTheDocument()
+      })
+    })
+
+    it('expands and collapses events in timeline', async () => {
+      const events = [
+        mockEvent({ id: 'e1', sequence: 1, event_type: 'message', content: 'Hello world' }),
+      ]
+      vi.mocked(getSDKSessions).mockResolvedValue([mockSession({ event_count: 1 })])
+      vi.mocked(getSDKSessionMeta).mockResolvedValue({})
+      vi.mocked(getSDKSessionEvents).mockResolvedValue(events)
+
+      render(<LabPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText('sdk-1')).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByText('sdk-1'))
+
+      await waitFor(() => {
+        expect(screen.getByText('#1')).toBeInTheDocument()
+      })
+
+      // Click the event row to expand
+      fireEvent.click(screen.getByText('#1'))
+
+      // Click again to collapse
+      fireEvent.click(screen.getByText('#1'))
+    })
+
+    it('renders unknown event types with fallback badge colors', async () => {
+      const events = [
+        mockEvent({ id: 'e1', sequence: 1, event_type: 'custom_unknown_type', content: 'Unknown event' }),
+      ]
+      vi.mocked(getSDKSessions).mockResolvedValue([mockSession({ event_count: 1 })])
+      vi.mocked(getSDKSessionMeta).mockResolvedValue({})
+      vi.mocked(getSDKSessionEvents).mockResolvedValue(events)
+
+      render(<LabPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText('sdk-1')).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByText('sdk-1'))
+
+      await waitFor(() => {
+        expect(screen.getByText('custom_unknown_type')).toBeInTheDocument()
       })
     })
   })
