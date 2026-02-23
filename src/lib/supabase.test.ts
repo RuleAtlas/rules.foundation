@@ -20,6 +20,7 @@ import {
   getTranscriptsBySession,
   getSDKSessions,
   getSDKSessionEvents,
+  getSDKSessionMeta,
 } from './supabase'
 
 describe('supabase lib', () => {
@@ -237,6 +238,150 @@ describe('supabase lib', () => {
 
       const result = await getSDKSessionEvents('sdk-1')
       expect(result).toEqual([])
+    })
+  })
+
+  describe('getSDKSessionMeta', () => {
+    it('returns empty object for empty sessionIds', async () => {
+      const result = await getSDKSessionMeta([])
+      expect(result).toEqual({})
+    })
+
+    it('returns meta with title from agent_start events', async () => {
+      const startEvents = [
+        { session_id: 'sdk-1', content: 'Encode 26 USC 32 subsection a' },
+      ]
+      const lastEvents = [
+        { session_id: 'sdk-1', timestamp: '2025-01-01T10:30:00Z' },
+      ]
+
+      // First call: startEvents, second call: lastEvents
+      let callCount = 0
+      const inFn = vi.fn()
+      const eqFn = vi.fn()
+      const orderFn = vi.fn()
+      const selectFn = vi.fn()
+
+      orderFn.mockImplementation(() => {
+        callCount++
+        if (callCount <= 1) {
+          return { data: startEvents, error: null }
+        }
+        return { data: lastEvents, error: null }
+      })
+
+      eqFn.mockReturnValue({ order: orderFn })
+      inFn.mockReturnValue({ eq: eqFn, order: orderFn })
+      selectFn.mockReturnValue({ in: inFn })
+      mockFrom.mockReturnValue({ select: selectFn })
+
+      const result = await getSDKSessionMeta(['sdk-1'])
+      expect(result['sdk-1']).toBeDefined()
+      expect(result['sdk-1'].title).toBe('26 USC 32')
+      expect(result['sdk-1'].lastEventAt).toBe('2025-01-01T10:30:00Z')
+    })
+
+    it('returns content prefix as title when no match pattern', async () => {
+      const startEvents = [
+        { session_id: 'sdk-1', content: 'Some arbitrary task description' },
+      ]
+
+      let callCount = 0
+      const inFn = vi.fn()
+      const eqFn = vi.fn()
+      const orderFn = vi.fn()
+      const selectFn = vi.fn()
+
+      orderFn.mockImplementation(() => {
+        callCount++
+        if (callCount <= 1) {
+          return { data: startEvents, error: null }
+        }
+        return { data: [], error: null }
+      })
+
+      eqFn.mockReturnValue({ order: orderFn })
+      inFn.mockReturnValue({ eq: eqFn, order: orderFn })
+      selectFn.mockReturnValue({ in: inFn })
+      mockFrom.mockReturnValue({ select: selectFn })
+
+      const result = await getSDKSessionMeta(['sdk-1'])
+      expect(result['sdk-1'].title).toBe('Some arbitrary task description')
+    })
+
+    it('handles null content in start events', async () => {
+      const startEvents = [
+        { session_id: 'sdk-1', content: null },
+      ]
+
+      let callCount = 0
+      const inFn = vi.fn()
+      const eqFn = vi.fn()
+      const orderFn = vi.fn()
+      const selectFn = vi.fn()
+
+      orderFn.mockImplementation(() => {
+        callCount++
+        if (callCount <= 1) {
+          return { data: startEvents, error: null }
+        }
+        return { data: [{ session_id: 'sdk-1', timestamp: '2025-01-01T10:30:00Z' }], error: null }
+      })
+
+      eqFn.mockReturnValue({ order: orderFn })
+      inFn.mockReturnValue({ eq: eqFn, order: orderFn })
+      selectFn.mockReturnValue({ in: inFn })
+      mockFrom.mockReturnValue({ select: selectFn })
+
+      const result = await getSDKSessionMeta(['sdk-1'])
+      // Session has lastEventAt but empty title since content was null
+      expect(result['sdk-1']).toEqual({ title: '', lastEventAt: '2025-01-01T10:30:00Z' })
+    })
+
+    it('handles null data from queries', async () => {
+      const inFn = vi.fn()
+      const eqFn = vi.fn()
+      const orderFn = vi.fn()
+      const selectFn = vi.fn()
+
+      orderFn.mockResolvedValue({ data: null, error: null })
+      eqFn.mockReturnValue({ order: orderFn })
+      inFn.mockReturnValue({ eq: eqFn, order: orderFn })
+      selectFn.mockReturnValue({ in: inFn })
+      mockFrom.mockReturnValue({ select: selectFn })
+
+      const result = await getSDKSessionMeta(['sdk-1'])
+      expect(result).toEqual({})
+    })
+
+    it('only takes first start event per session', async () => {
+      const startEvents = [
+        { session_id: 'sdk-1', content: 'Encode 26 USC 1' },
+        { session_id: 'sdk-1', content: 'Encode 26 USC 2' },
+      ]
+
+      let callCount = 0
+      const inFn = vi.fn()
+      const eqFn = vi.fn()
+      const orderFn = vi.fn()
+      const selectFn = vi.fn()
+
+      orderFn.mockImplementation(() => {
+        callCount++
+        if (callCount <= 1) {
+          return { data: startEvents, error: null }
+        }
+        return { data: [], error: null }
+      })
+
+      eqFn.mockReturnValue({ order: orderFn })
+      inFn.mockReturnValue({ eq: eqFn, order: orderFn })
+      selectFn.mockReturnValue({ in: inFn })
+      mockFrom.mockReturnValue({ select: selectFn })
+
+      const result = await getSDKSessionMeta(['sdk-1'])
+      // Should only take the first
+      expect(result['sdk-1'].title).toBe('26 USC 1')
     })
   })
 })

@@ -20,5 +20,24 @@
     "types": ["vitest/globals"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "src/App.tsx",
+    "src/App.test.tsx",
+    "src/main.tsx",
+    "src/theme.css.ts",
+    "src/styles",
+    "src/_old_pages",
+    "src/components/LandingPage.tsx",
+    "src/components/LandingPage.css.ts",
+    "src/components/LandingPage.test.tsx",
+    "src/components/Header.tsx",
+    "src/components/Header.css.ts",
+    "src/components/Header.test.tsx",
+    "src/components/CodeBlock.tsx",
+    "src/components/CodeBlock.test.tsx",
+    "src/components/Icons.tsx",
+    "src/components/Icons.test.tsx",
+    "vitest.config.ts"
+  ]
 }

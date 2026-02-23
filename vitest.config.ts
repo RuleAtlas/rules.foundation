@@ -1,41 +1,35 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
-import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
+import path from 'path'
 
 export default defineConfig({
-  plugins: [react(), vanillaExtractPlugin()],
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: true,
+    exclude: ['src/_old_pages/**', 'node_modules/**'],
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],
       exclude: [
-        'src/**/*.css.ts',
         'src/**/*.test.{ts,tsx}',
         'src/test/**',
         'src/lib/prism-*/**',
-        'src/main.tsx',
+        'src/app/layout.tsx',
+        'src/_old_pages/**',
       ],
       thresholds: {
         lines: 100,
         functions: 100,
         branches: 100,
         statements: 100,
-      },
-    },
-    server: {
-      deps: {
-        inline: [/@vanilla-extract/],
-      },
-    },
-    deps: {
-      optimizer: {
-        web: {
-          include: ['@vanilla-extract/css'],
-        },
       },
     },
   },

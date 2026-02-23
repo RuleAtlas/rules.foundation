@@ -19,7 +19,7 @@ import {
   RocketIcon,
   FolderIcon,
   TerminalIcon,
-} from './Icons'
+} from '@/components/icons'
 
 describe('Icons', () => {
   it('renders GitHubIcon', () => {

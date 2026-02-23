@@ -10,7 +10,7 @@ export const supabase: SupabaseClient = isTestEnv
   : createClient(supabaseUrl, supabaseAnonKey)
 
 // Arch schema client for atlas/rule browsing
-export const supabaseArch: SupabaseClient = isTestEnv
+export const supabaseArch = isTestEnv
   ? createClient('https://placeholder.supabase.co', 'placeholder-key', { db: { schema: 'arch' } })
   : createClient(supabaseUrl, supabaseAnonKey, { db: { schema: 'arch' } })
 /* v8 ignore stop */
