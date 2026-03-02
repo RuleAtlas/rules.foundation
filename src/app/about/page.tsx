@@ -44,7 +44,7 @@ export default function AboutPage() {
             {[
               {
                 title: "Atlas",
-                desc: "Archive of legal source documents \u2014 53 USC titles, 570+ IRS guidance documents, and 48 states. The foundation for all encoding work.",
+                desc: "Open platform for exploring encoded law. The Archive holds 53 USC titles, 570+ IRS guidance documents, and 48 states. Atlas brings together source documents, RAC encodings, and validation results.",
               },
               {
                 title: "RAC",

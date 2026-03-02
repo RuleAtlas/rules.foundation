@@ -104,8 +104,8 @@ export function AtlasBrowser({ segments }: { segments: string[] }) {
           Atlas
         </h1>
         <p className="font-[family-name:var(--f-body)] text-lg text-[var(--color-text-secondary)] max-w-[600px] mx-auto">
-          Browse the legal document archive. Statutes, regulations, and IRS
-          guidance across jurisdictions.
+          Explore encoded law. Source documents, RAC encodings, and
+          validation results across jurisdictions.
         </p>
       </div>
 

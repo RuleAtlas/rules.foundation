@@ -50,7 +50,7 @@ describe("AtlasBrowser (tree-based)", () => {
     render(<AtlasBrowser segments={[]} />);
     expect(screen.getByText("Atlas")).toBeInTheDocument();
     expect(
-      screen.getByText(/Browse the legal document archive/)
+      screen.getByText(/Explore encoded law/)
     ).toBeInTheDocument();
   });
 

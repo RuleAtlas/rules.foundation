@@ -45,7 +45,7 @@ export function CtaSection() {
             },
             {
               href: "https://github.com/RulesFoundation/atlas",
-              label: "Atlas archive",
+              label: "Atlas platform",
             },
             {
               href: "https://github.com/RulesFoundation/autorac",

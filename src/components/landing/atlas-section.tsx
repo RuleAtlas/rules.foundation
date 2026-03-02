@@ -5,14 +5,14 @@ export function AtlasSection() {
     <section id="atlas" className="relative z-1 py-32 px-8">
       <div className="max-w-[1280px] mx-auto">
         <div className="text-center mb-20">
-          <span className="eyebrow block mb-4">Foundation</span>
+          <span className="eyebrow block mb-4">Platform</span>
           <h2 className="heading-section text-[var(--color-text)] mb-6">
             Atlas
           </h2>
           <p className="font-[family-name:var(--f-body)] text-lg font-light text-[var(--color-text-secondary)] max-w-[600px] mx-auto leading-relaxed">
-            It all starts here. A comprehensive map of government source files
-            &mdash; statutes, regulations, IRS guidance, and state codes. The
-            legal source of truth.
+            The open platform for exploring encoded law. Browse the Archive
+            of source documents, RAC encodings, and validation results
+            across jurisdictions.
           </p>
         </div>
 
