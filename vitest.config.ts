@@ -23,7 +23,7 @@ export default defineConfig({
         'src/test/**',
         'src/lib/prism-*/**',
         'src/app/layout.tsx',
-        'src/app/atlas/[[]ruleId]/page.tsx', // thin use(params) wrapper — logic tested via rule-viewer
+        'src/app/browse/[[][]...segments]]/page.tsx', // thin use(params) wrapper
         'src/_old_pages/**',
       ],
       thresholds: {

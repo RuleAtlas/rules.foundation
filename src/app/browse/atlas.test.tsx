@@ -1,79 +1,61 @@
-import { render, screen } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
 
 // Mock next/navigation
-vi.mock('next/navigation', () => ({
+vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), back: vi.fn() }),
-  usePathname: () => '/browse',
-}))
+  usePathname: () => "/browse",
+}));
 
-// Mock motion/react
-vi.mock('motion/react', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-  },
-  AnimatePresence: ({ children }: any) => <>{children}</>,
-}))
+// Mock next/link
+vi.mock("next/link", () => ({
+  default: ({ children, href, ...props }: any) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
+}));
+
+// Mock useTreeNodes
+vi.mock("@/hooks/use-tree-nodes", () => ({
+  useTreeNodes: vi.fn().mockReturnValue({
+    nodes: [],
+    loading: false,
+    error: null,
+    hasMore: false,
+    loadMore: vi.fn(),
+    breadcrumbs: [{ label: "Browse", href: "/browse" }],
+    leafRule: null,
+  }),
+}));
+
+// Mock tree-data
+vi.mock("@/lib/tree-data", () => ({
+  isUUID: vi.fn().mockReturnValue(false),
+  buildBreadcrumbs: vi.fn().mockReturnValue([]),
+  getJurisdiction: vi.fn(),
+  JURISDICTIONS: [],
+}));
 
 // Mock supabase
-vi.mock('@/lib/supabase', () => {
-  const mockFrom = vi.fn().mockReturnValue({
-    select: vi.fn().mockReturnValue({
-      order: vi.fn().mockReturnValue({
-        order: vi.fn().mockReturnValue({
-          range: vi.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
-          is: vi.fn().mockReturnValue({
-            order: vi.fn().mockReturnValue({
-              order: vi.fn().mockReturnValue({
-                range: vi.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
-              }),
-            }),
-          }),
-        }),
-        range: vi.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
-        is: vi.fn().mockReturnValue({
-          order: vi.fn().mockReturnValue({
-            order: vi.fn().mockReturnValue({
-              range: vi.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
-            }),
-          }),
-        }),
-      }),
-      eq: vi.fn().mockReturnValue({
-        order: vi.fn().mockReturnValue({
-          range: vi.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
-        }),
-      }),
-      is: vi.fn().mockReturnValue({
-        order: vi.fn().mockReturnValue({
-          order: vi.fn().mockReturnValue({
-            range: vi.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
-          }),
-        }),
-      }),
-    }),
-  })
+vi.mock("@/lib/supabase", () => ({
+  supabaseArch: { from: vi.fn() },
+  supabase: { from: vi.fn() },
+}));
 
-  return {
-    supabaseArch: { from: mockFrom },
-    supabase: { from: mockFrom },
-  }
-})
+import { AtlasBrowser } from "@/components/atlas/document-browser";
 
-import AtlasPage from './page'
+describe("AtlasBrowser (tree-based)", () => {
+  it("renders the Atlas heading and description", () => {
+    render(<AtlasBrowser segments={[]} />);
+    expect(screen.getByText("Atlas")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Browse the legal document archive/)
+    ).toBeInTheDocument();
+  });
 
-describe('AtlasPage', () => {
-  it('renders the Atlas page with browser', async () => {
-    render(<AtlasPage />)
-    expect(screen.getByText('Atlas')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Search statutes...')).toBeInTheDocument()
-  })
-
-  it('renders jurisdiction filter buttons', () => {
-    render(<AtlasPage />)
-    expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'US' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'UK' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Canada' })).toBeInTheDocument()
-  })
-})
+  it("shows empty state when no nodes", () => {
+    render(<AtlasBrowser segments={[]} />);
+    expect(screen.getByText("No items found.")).toBeInTheDocument();
+  });
+});
