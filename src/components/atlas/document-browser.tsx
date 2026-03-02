@@ -76,13 +76,11 @@ export function AtlasBrowser({ segments }: { segments: string[] }) {
           <RuleDetailPanel
             document={doc}
             rule={leafRule}
-            onBack={() => {
-              const parentPath =
-                segments.length > 1
-                  ? "/browse/" + segments.slice(0, -1).join("/")
-                  : "/browse";
-              router.push(parentPath);
-            }}
+            onBack={() =>
+              router.push(
+                breadcrumbs[breadcrumbs.length - 2]?.href ?? "/browse"
+              )
+            }
           />
         </div>
       </div>

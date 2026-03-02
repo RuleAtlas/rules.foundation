@@ -21,14 +21,16 @@ interface CacheEntry {
   hasMore: boolean;
 }
 
+const MAX_CACHE_ENTRIES = 20;
+
 export function useTreeNodes(segments: string[]) {
   const [nodes, setNodes] = useState<TreeNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
-  const [page, setPage] = useState(0);
   const [leafRule, setLeafRule] = useState<Rule | null>(null);
 
+  const pageRef = useRef(0);
   const cache = useRef<Map<string, CacheEntry>>(new Map());
 
   const segmentsKey = segments.join("/");
@@ -47,7 +49,7 @@ export function useTreeNodes(segments: string[]) {
       setLoading(false);
       setLeafRule(null);
       setError(null);
-      setPage(0);
+      pageRef.current = 0;
       return;
     }
 
@@ -117,10 +119,15 @@ export function useTreeNodes(segments: string[]) {
         setNodes(result.nodes);
       }
       setHasMore(result.hasMore);
-      setPage(pageNum);
+      pageRef.current = pageNum;
 
       if (!append) {
-        cache.current.set(segs.join("/"), {
+        // Evict oldest entries if cache is full
+        if (cache.current.size >= MAX_CACHE_ENTRIES) {
+          const firstKey = cache.current.keys().next().value;
+          if (firstKey !== undefined) cache.current.delete(firstKey);
+        }
+        cache.current.set(segmentsKey, {
           nodes: result.nodes,
           hasMore: result.hasMore,
         });
@@ -135,10 +142,10 @@ export function useTreeNodes(segments: string[]) {
 
   const loadMore = useCallback(() => {
     if (!loading && hasMore) {
-      fetchNodes(segments, page + 1, true);
+      fetchNodes(segments, pageRef.current + 1, true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, hasMore, segmentsKey, page]);
+  }, [loading, hasMore, segmentsKey]);
 
   return { nodes, loading, error, hasMore, loadMore, breadcrumbs, leafRule };
 }

@@ -46,6 +46,14 @@ export function getJurisdiction(id: string): JurisdictionConfig | undefined {
   return JURISDICTIONS.find((j) => j.id === id);
 }
 
+// ---- Pagination ----
+
+const PAGE_SIZE = 100;
+
+function hasNextPage(page: number, total: number): boolean {
+  return (page + 1) * PAGE_SIZE < total;
+}
+
 // ---- Query functions ----
 
 /* v8 ignore start -- Supabase queries tested via integration/e2e */
@@ -134,8 +142,7 @@ export async function getTitleNodes(
 
 export async function getSectionNodes(
   pathPrefix: string,
-  page: number = 0,
-  pageSize: number = 100
+  page: number = 0
 ): Promise<TreeResult> {
   const { data: parentRule } = await supabaseArch
     .from("rules")
@@ -144,8 +151,8 @@ export async function getSectionNodes(
     .single();
 
   if (parentRule) {
-    const from = page * pageSize;
-    const to = from + pageSize - 1;
+    const from = page * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
     const { data, count } = await supabaseArch
       .from("rules")
       .select("*", { count: "exact" })
@@ -158,13 +165,13 @@ export async function getSectionNodes(
 
     return {
       nodes: rules.map((r) => ruleToSectionNode(r)),
-      hasMore: (page + 1) * pageSize < total,
+      hasMore: hasNextPage(page, total),
       total,
     };
   }
 
-  const from = page * pageSize;
-  const to = from + pageSize - 1;
+  const from = page * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
   const { data, count } = await supabaseArch
     .from("rules")
     .select("*", { count: "exact" })
@@ -176,15 +183,20 @@ export async function getSectionNodes(
   const rules = (data || []) as Rule[];
   const total = count || 0;
 
-  const prefixDepth = pathPrefix.split("/").length;
+  const expectedDepth = pathPrefix.split("/").length + 1;
   const filtered = rules.filter((r) => {
     if (!r.citation_path) return false;
-    return r.citation_path.split("/").length === prefixDepth + 1;
+    // Count slashes + 1 instead of splitting to avoid array allocations
+    let depth = 1;
+    for (let i = 0; i < r.citation_path.length; i++) {
+      if (r.citation_path[i] === "/") depth++;
+    }
+    return depth === expectedDepth;
   });
 
   return {
     nodes: filtered.map((r) => ruleToSectionNode(r)),
-    hasMore: (page + 1) * pageSize < total,
+    hasMore: hasNextPage(page, total),
     total,
   };
 }
@@ -209,11 +221,10 @@ function ruleToSectionNode(rule: Rule): TreeNode {
 
 export async function getActNodes(
   jurisdiction: string,
-  page: number = 0,
-  pageSize: number = 100
+  page: number = 0
 ): Promise<TreeResult> {
-  const from = page * pageSize;
-  const to = from + pageSize - 1;
+  const from = page * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
 
   const { data, count } = await supabaseArch
     .from("rules")
@@ -234,18 +245,17 @@ export async function getActNodes(
       rule: r,
       nodeType: "act" as const,
     })),
-    hasMore: (page + 1) * pageSize < total,
+    hasMore: hasNextPage(page, total),
     total,
   };
 }
 
 export async function getChildrenByParentId(
   parentId: string,
-  page: number = 0,
-  pageSize: number = 100
+  page: number = 0
 ): Promise<TreeResult> {
-  const from = page * pageSize;
-  const to = from + pageSize - 1;
+  const from = page * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
 
   const { data, count } = await supabaseArch
     .from("rules")
@@ -265,7 +275,7 @@ export async function getChildrenByParentId(
       rule: r,
       nodeType: "section" as const,
     })),
-    hasMore: (page + 1) * pageSize < total,
+    hasMore: hasNextPage(page, total),
     total,
   };
 }
