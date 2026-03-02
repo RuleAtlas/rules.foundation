@@ -5,8 +5,9 @@ import { useTreeNodes } from "@/hooks/use-tree-nodes";
 import { TreeBreadcrumbs } from "./tree-breadcrumbs";
 import { TreeNodeList } from "./tree-node-list";
 import { RuleDetailPanel } from "./rule-detail-panel";
+import { JurisdictionPicker } from "./jurisdiction-picker";
 import { transformRuleToViewerDoc } from "@/lib/atlas-utils";
-import { isUUID } from "@/lib/tree-data";
+import { resolveAtlasPath, buildBreadcrumbs, isUUID } from "@/lib/tree-data";
 import { useRule } from "@/hooks/use-rules";
 
 /* v8 ignore start -- UUID backward compat component */
@@ -50,22 +51,24 @@ function UUIDRuleView({
 }
 /* v8 ignore stop */
 
-export function AtlasBrowser({ segments }: { segments: string[] }) {
+function RuleTreeView({
+  segments,
+  dbJurisdictionId,
+  ruleSegments,
+  hasCitationPaths,
+}: {
+  segments: string[];
+  dbJurisdictionId: string;
+  ruleSegments: string[];
+  hasCitationPaths: boolean;
+}) {
   const router = useRouter();
-  const { nodes, loading, error, hasMore, loadMore, breadcrumbs, leafRule } =
-    useTreeNodes(segments);
-
-  // Backward compat: single UUID segment → rule detail view
-  /* v8 ignore start -- UUID backward compat branch */
-  if (segments.length === 1 && isUUID(segments[0])) {
-    return (
-      <UUIDRuleView
-        ruleId={segments[0]}
-        onBack={() => router.push("/atlas")}
-      />
-    );
-  }
-  /* v8 ignore stop */
+  const { nodes, loading, error, hasMore, loadMore, leafRule } = useTreeNodes(
+    dbJurisdictionId,
+    ruleSegments,
+    hasCitationPaths
+  );
+  const breadcrumbs = buildBreadcrumbs(segments);
 
   // Leaf rule from tree navigation (e.g. UK/Canada act with no children)
   /* v8 ignore start -- leaf rule rendering */
@@ -98,17 +101,6 @@ export function AtlasBrowser({ segments }: { segments: string[] }) {
     <div className="max-w-[1280px] mx-auto">
       <TreeBreadcrumbs items={breadcrumbs} />
 
-      {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="heading-section text-[var(--color-text)] mb-4">
-          Atlas
-        </h1>
-        <p className="font-[family-name:var(--f-body)] text-lg text-[var(--color-text-secondary)] max-w-[600px] mx-auto">
-          Explore encoded law. Source documents, RAC encodings, and
-          validation results across jurisdictions.
-        </p>
-      </div>
-
       {/* Tree node list */}
       <div className="bg-[var(--color-bg)] border border-[var(--color-border-subtle)] rounded-xl overflow-hidden min-h-[400px]">
         <TreeNodeList
@@ -132,3 +124,94 @@ export function AtlasBrowser({ segments }: { segments: string[] }) {
     </div>
   );
 }
+
+export function AtlasBrowser({ segments }: { segments: string[] }) {
+  const router = useRouter();
+
+  // Backward compat: single UUID segment → rule detail view
+  /* v8 ignore start -- UUID backward compat branch */
+  if (segments.length === 1 && isUUID(segments[0])) {
+    return (
+      <UUIDRuleView
+        ruleId={segments[0]}
+        onBack={() => router.push("/atlas")}
+      />
+    );
+  }
+  /* v8 ignore stop */
+
+  const resolved = resolveAtlasPath(segments);
+  const breadcrumbs = buildBreadcrumbs(segments);
+
+  if (resolved.phase === "country-picker") {
+    return (
+      <div className="max-w-[1280px] mx-auto">
+        <TreeBreadcrumbs items={breadcrumbs} />
+
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="heading-section text-[var(--color-text)] mb-4">
+            Atlas
+          </h1>
+          <p className="font-[family-name:var(--f-body)] text-lg text-[var(--color-text-secondary)] max-w-[600px] mx-auto">
+            Explore encoded law. Source documents, RAC encodings, and
+            validation results across jurisdictions.
+          </p>
+        </div>
+
+        <JurisdictionPicker mode="country" />
+      </div>
+    );
+  }
+
+  if (resolved.phase === "sub-jurisdiction-picker" && resolved.country) {
+    return (
+      <div className="max-w-[1280px] mx-auto">
+        <TreeBreadcrumbs items={breadcrumbs} />
+
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="heading-section text-[var(--color-text)] mb-4">
+            {resolved.country.label}
+          </h1>
+          <p className="font-[family-name:var(--f-body)] text-lg text-[var(--color-text-secondary)] max-w-[600px] mx-auto">
+            Select a sub-jurisdiction to browse.
+          </p>
+        </div>
+
+        <JurisdictionPicker
+          mode="sub-jurisdiction"
+          country={resolved.country}
+        />
+      </div>
+    );
+  }
+
+  /* v8 ignore start -- subJurisdiction always defined in rule phase; else branch is unreachable */
+  // Rule phase
+  if (resolved.subJurisdiction) {
+    return (
+      <RuleTreeView
+        segments={segments}
+        dbJurisdictionId={resolved.subJurisdiction.dbJurisdictionId}
+        ruleSegments={resolved.ruleSegments}
+        hasCitationPaths={resolved.subJurisdiction.hasCitationPaths}
+      />
+    );
+  }
+
+  return (
+    <div className="max-w-[1280px] mx-auto">
+      <div className="flex items-center justify-center py-20 text-[var(--color-text-muted)]">
+        Invalid path.{" "}
+        <button
+          className="ml-2 text-[var(--color-precision)] hover:underline"
+          onClick={() => router.push("/atlas")}
+        >
+          Return to Atlas
+        </button>
+      </div>
+    </div>
+  );
+}
+/* v8 ignore stop */

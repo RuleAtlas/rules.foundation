@@ -4,7 +4,6 @@ import { useTreeNodes } from "./use-tree-nodes";
 
 // ---- Mock @/lib/tree-data ----
 
-const mockGetJurisdictionNodes = vi.fn();
 const mockGetDocTypeNodes = vi.fn();
 const mockGetTitleNodes = vi.fn();
 const mockGetSectionNodes = vi.fn();
@@ -12,13 +11,9 @@ const mockGetActNodes = vi.fn();
 const mockGetChildrenByParentId = vi.fn();
 const mockGetRuleById = vi.fn();
 const mockGetEncodedPaths = vi.fn();
-const mockBuildBreadcrumbs = vi.fn();
-const mockGetJurisdiction = vi.fn();
 const mockIsUUID = vi.fn();
 
 vi.mock("@/lib/tree-data", () => ({
-  getJurisdictionNodes: (...args: unknown[]) =>
-    mockGetJurisdictionNodes(...args),
   getDocTypeNodes: (...args: unknown[]) => mockGetDocTypeNodes(...args),
   getTitleNodes: (...args: unknown[]) => mockGetTitleNodes(...args),
   getSectionNodes: (...args: unknown[]) => mockGetSectionNodes(...args),
@@ -27,8 +22,6 @@ vi.mock("@/lib/tree-data", () => ({
     mockGetChildrenByParentId(...args),
   getRuleById: (...args: unknown[]) => mockGetRuleById(...args),
   getEncodedPaths: (...args: unknown[]) => mockGetEncodedPaths(...args),
-  buildBreadcrumbs: (...args: unknown[]) => mockBuildBreadcrumbs(...args),
-  getJurisdiction: (...args: unknown[]) => mockGetJurisdiction(...args),
   isUUID: (...args: unknown[]) => mockIsUUID(...args),
 }));
 
@@ -53,42 +46,13 @@ function makeNode(overrides: Record<string, unknown> = {}) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockBuildBreadcrumbs.mockReturnValue([{ label: "Atlas", href: "/atlas" }]);
-  mockGetJurisdiction.mockReturnValue(undefined);
   mockIsUUID.mockReturnValue(false);
   mockGetEncodedPaths.mockResolvedValue(new Set<string>());
 });
 
 describe("useTreeNodes", () => {
-  describe("root level (empty segments)", () => {
-    it("calls getJurisdictionNodes and returns nodes", async () => {
-      const nodes = [
-        makeNode(),
-        makeNode({ segment: "uk", label: "United Kingdom" }),
-      ];
-      mockGetJurisdictionNodes.mockResolvedValue(nodes);
-
-      const { result } = renderHook(() => useTreeNodes([]));
-
-      expect(result.current.loading).toBe(true);
-
-      await waitFor(() => expect(result.current.loading).toBe(false));
-
-      expect(mockGetJurisdictionNodes).toHaveBeenCalledOnce();
-      expect(result.current.nodes).toEqual(nodes);
-      expect(result.current.hasMore).toBe(false);
-      expect(result.current.error).toBeNull();
-      expect(result.current.leafRule).toBeNull();
-    });
-  });
-
-  describe("citation-path jurisdiction (depth 1)", () => {
-    it('calls getDocTypeNodes for "us"', async () => {
-      mockGetJurisdiction.mockReturnValue({
-        id: "us",
-        label: "United States",
-        hasCitationPaths: true,
-      });
+  describe("root of citation-path jurisdiction (empty ruleSegments)", () => {
+    it("calls getDocTypeNodes", async () => {
       const docNodes = [
         makeNode({
           segment: "statute",
@@ -98,22 +62,24 @@ describe("useTreeNodes", () => {
       ];
       mockGetDocTypeNodes.mockResolvedValue(docNodes);
 
-      const { result } = renderHook(() => useTreeNodes(["us"]));
+      const { result } = renderHook(() =>
+        useTreeNodes("us", [], true)
+      );
+
+      expect(result.current.loading).toBe(true);
 
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       expect(mockGetDocTypeNodes).toHaveBeenCalledWith("us");
       expect(result.current.nodes).toEqual(docNodes);
+      expect(result.current.hasMore).toBe(false);
+      expect(result.current.error).toBeNull();
+      expect(result.current.leafRule).toBeNull();
     });
   });
 
-  describe("flat jurisdiction (depth 1)", () => {
-    it('calls getActNodes for "uk"', async () => {
-      mockGetJurisdiction.mockReturnValue({
-        id: "uk",
-        label: "United Kingdom",
-        hasCitationPaths: false,
-      });
+  describe("root of flat jurisdiction (empty ruleSegments)", () => {
+    it("calls getActNodes", async () => {
       const actNodes = [
         makeNode({
           segment: SAMPLE_UUID,
@@ -127,7 +93,9 @@ describe("useTreeNodes", () => {
         total: 50,
       });
 
-      const { result } = renderHook(() => useTreeNodes(["uk"]));
+      const { result } = renderHook(() =>
+        useTreeNodes("uk", [], false)
+      );
 
       await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -137,19 +105,16 @@ describe("useTreeNodes", () => {
     });
   });
 
-  describe("citation-path title level (depth 2)", () => {
-    it("calls getTitleNodes for us/statute", async () => {
-      mockGetJurisdiction.mockReturnValue({
-        id: "us",
-        label: "United States",
-        hasCitationPaths: true,
-      });
+  describe("citation-path title level (ruleSegments length 1)", () => {
+    it("calls getTitleNodes for statute", async () => {
       const titleNodes = [
         makeNode({ segment: "26", label: "Title 26", nodeType: "title" }),
       ];
       mockGetTitleNodes.mockResolvedValue(titleNodes);
 
-      const { result } = renderHook(() => useTreeNodes(["us", "statute"]));
+      const { result } = renderHook(() =>
+        useTreeNodes("us", ["statute"], true)
+      );
 
       await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -158,13 +123,8 @@ describe("useTreeNodes", () => {
     });
   });
 
-  describe("citation-path section level (depth 3+)", () => {
-    it("calls getSectionNodes for us/statute/26", async () => {
-      mockGetJurisdiction.mockReturnValue({
-        id: "us",
-        label: "United States",
-        hasCitationPaths: true,
-      });
+  describe("citation-path section level (ruleSegments length 2+)", () => {
+    it("calls getSectionNodes with full path prefix", async () => {
       const sectionNodes = [
         makeNode({ segment: "1", label: "Section 1", nodeType: "section" }),
       ];
@@ -175,7 +135,7 @@ describe("useTreeNodes", () => {
       });
 
       const { result } = renderHook(() =>
-        useTreeNodes(["us", "statute", "26"])
+        useTreeNodes("us", ["statute", "26"], true)
       );
 
       await waitFor(() => expect(result.current.loading).toBe(false));
@@ -189,13 +149,8 @@ describe("useTreeNodes", () => {
     });
   });
 
-  describe("flat jurisdiction UUID children (depth 2+)", () => {
-    it("calls getChildrenByParentId for uk/{uuid}", async () => {
-      mockGetJurisdiction.mockReturnValue({
-        id: "uk",
-        label: "United Kingdom",
-        hasCitationPaths: false,
-      });
+  describe("flat jurisdiction UUID children", () => {
+    it("calls getChildrenByParentId for UUID segment", async () => {
       mockIsUUID.mockReturnValue(true);
 
       const childNodes = [
@@ -212,7 +167,7 @@ describe("useTreeNodes", () => {
       });
 
       const { result } = renderHook(() =>
-        useTreeNodes(["uk", SAMPLE_UUID])
+        useTreeNodes("uk", [SAMPLE_UUID], false)
       );
 
       await waitFor(() => expect(result.current.loading).toBe(false));
@@ -224,11 +179,6 @@ describe("useTreeNodes", () => {
 
   describe("leaf node (children empty)", () => {
     it("sets leafRule when children are empty", async () => {
-      mockGetJurisdiction.mockReturnValue({
-        id: "uk",
-        label: "United Kingdom",
-        hasCitationPaths: false,
-      });
       mockIsUUID.mockReturnValue(true);
 
       mockGetChildrenByParentId.mockResolvedValue({
@@ -241,7 +191,7 @@ describe("useTreeNodes", () => {
       mockGetRuleById.mockResolvedValue(fakeRule);
 
       const { result } = renderHook(() =>
-        useTreeNodes(["uk", SAMPLE_UUID])
+        useTreeNodes("uk", [SAMPLE_UUID], false)
       );
 
       await waitFor(() => expect(result.current.loading).toBe(false));
@@ -254,12 +204,6 @@ describe("useTreeNodes", () => {
 
   describe("citation-path leaf node (no children)", () => {
     it("sets leafRule when getSectionNodes returns leafRule", async () => {
-      mockGetJurisdiction.mockReturnValue({
-        id: "us",
-        label: "United States",
-        hasCitationPaths: true,
-      });
-
       const fakeRule = { id: "rule-leaf", heading: "Deputy Comptrollers" };
       mockGetSectionNodes.mockResolvedValue({
         nodes: [],
@@ -269,7 +213,7 @@ describe("useTreeNodes", () => {
       });
 
       const { result } = renderHook(() =>
-        useTreeNodes(["us", "statute", "12", "4"])
+        useTreeNodes("us", ["statute", "12", "4"], true)
       );
 
       await waitFor(() => expect(result.current.loading).toBe(false));
@@ -286,15 +230,10 @@ describe("useTreeNodes", () => {
 
   describe("flat jurisdiction non-UUID deep segment", () => {
     it("returns empty nodes for non-UUID segment", async () => {
-      mockGetJurisdiction.mockReturnValue({
-        id: "uk",
-        label: "United Kingdom",
-        hasCitationPaths: false,
-      });
       mockIsUUID.mockReturnValue(false);
 
       const { result } = renderHook(() =>
-        useTreeNodes(["uk", "not-a-uuid"])
+        useTreeNodes("uk", ["not-a-uuid"], false)
       );
 
       await waitFor(() => expect(result.current.loading).toBe(false));
@@ -305,46 +244,54 @@ describe("useTreeNodes", () => {
   });
 
   describe("cache behavior", () => {
-    it("uses cache on second render with same segments", async () => {
-      const nodes = [makeNode()];
-      mockGetJurisdictionNodes.mockResolvedValue(nodes);
+    it("uses cache on second render with same args", async () => {
+      const docNodes = [
+        makeNode({ segment: "statute", label: "Statutes" }),
+      ];
+      mockGetDocTypeNodes.mockResolvedValue(docNodes);
 
       const { result, rerender } = renderHook(
-        ({ segs }: { segs: string[] }) => useTreeNodes(segs),
-        { initialProps: { segs: [] } }
+        ({
+          dbId,
+          segs,
+          hasCitation,
+        }: {
+          dbId: string;
+          segs: string[];
+          hasCitation: boolean;
+        }) => useTreeNodes(dbId, segs, hasCitation),
+        { initialProps: { dbId: "us", segs: [], hasCitation: true } }
       );
 
       await waitFor(() => expect(result.current.loading).toBe(false));
-      expect(mockGetJurisdictionNodes).toHaveBeenCalledOnce();
+      expect(mockGetDocTypeNodes).toHaveBeenCalledOnce();
 
       // Navigate away
-      mockGetJurisdiction.mockReturnValue({
-        id: "us",
-        label: "United States",
-        hasCitationPaths: true,
-      });
-      mockGetDocTypeNodes.mockResolvedValue([
-        makeNode({ segment: "statute", label: "Statutes" }),
-      ]);
-      rerender({ segs: ["us"] });
+      const titleNodes = [
+        makeNode({ segment: "26", label: "Title 26" }),
+      ];
+      mockGetTitleNodes.mockResolvedValue(titleNodes);
+      rerender({ dbId: "us", segs: ["statute"], hasCitation: true });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
-      // Navigate back to root — should hit cache
-      rerender({ segs: [] });
+      // Navigate back — should hit cache
+      rerender({ dbId: "us", segs: [], hasCitation: true });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
-      expect(mockGetJurisdictionNodes).toHaveBeenCalledOnce();
-      expect(result.current.nodes).toEqual(nodes);
+      expect(mockGetDocTypeNodes).toHaveBeenCalledOnce();
+      expect(result.current.nodes).toEqual(docNodes);
     });
   });
 
   describe("error handling", () => {
     it("sets error when fetch throws an Error", async () => {
-      mockGetJurisdictionNodes.mockRejectedValue(
+      mockGetDocTypeNodes.mockRejectedValue(
         new Error("Network failure")
       );
 
-      const { result } = renderHook(() => useTreeNodes([]));
+      const { result } = renderHook(() =>
+        useTreeNodes("us", [], true)
+      );
 
       await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -352,9 +299,11 @@ describe("useTreeNodes", () => {
     });
 
     it("sets generic error when fetch throws a non-Error", async () => {
-      mockGetJurisdictionNodes.mockRejectedValue("some string error");
+      mockGetDocTypeNodes.mockRejectedValue("some string error");
 
-      const { result } = renderHook(() => useTreeNodes([]));
+      const { result } = renderHook(() =>
+        useTreeNodes("us", [], true)
+      );
 
       await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -364,12 +313,6 @@ describe("useTreeNodes", () => {
 
   describe("loadMore", () => {
     it("increments page and appends nodes", async () => {
-      mockGetJurisdiction.mockReturnValue({
-        id: "uk",
-        label: "United Kingdom",
-        hasCitationPaths: false,
-      });
-
       const page0Nodes = [
         makeNode({ segment: "act-1", label: "Act 1", nodeType: "act" }),
       ];
@@ -389,7 +332,9 @@ describe("useTreeNodes", () => {
           total: 2,
         });
 
-      const { result } = renderHook(() => useTreeNodes(["uk"]));
+      const { result } = renderHook(() =>
+        useTreeNodes("uk", [], false)
+      );
 
       await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -407,10 +352,12 @@ describe("useTreeNodes", () => {
     });
 
     it("does nothing when hasMore is false", async () => {
-      const nodes = [makeNode()];
-      mockGetJurisdictionNodes.mockResolvedValue(nodes);
+      const docNodes = [makeNode({ segment: "statute", label: "Statutes" })];
+      mockGetDocTypeNodes.mockResolvedValue(docNodes);
 
-      const { result } = renderHook(() => useTreeNodes([]));
+      const { result } = renderHook(() =>
+        useTreeNodes("us", [], true)
+      );
 
       await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -418,28 +365,7 @@ describe("useTreeNodes", () => {
         result.current.loadMore();
       });
 
-      expect(mockGetJurisdictionNodes).toHaveBeenCalledOnce();
-    });
-  });
-
-  describe("breadcrumbs", () => {
-    it("returns breadcrumbs from buildBreadcrumbs", async () => {
-      const crumbs = [
-        { label: "Atlas", href: "/atlas" },
-        { label: "United States", href: "/atlas/us" },
-      ];
-      mockBuildBreadcrumbs.mockReturnValue(crumbs);
-      mockGetJurisdiction.mockReturnValue({
-        id: "us",
-        label: "United States",
-        hasCitationPaths: true,
-      });
-      mockGetDocTypeNodes.mockResolvedValue([]);
-
-      const { result } = renderHook(() => useTreeNodes(["us"]));
-
-      expect(result.current.breadcrumbs).toEqual(crumbs);
-      expect(mockBuildBreadcrumbs).toHaveBeenCalledWith(["us"]);
+      expect(mockGetDocTypeNodes).toHaveBeenCalledOnce();
     });
   });
 });

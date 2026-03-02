@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import type { TreeNode, TreeResult, BreadcrumbItem } from "@/lib/tree-data";
+import { useState, useEffect, useRef, useCallback } from "react";
+import type { TreeNode, TreeResult } from "@/lib/tree-data";
 import {
-  getJurisdictionNodes,
   getDocTypeNodes,
   getTitleNodes,
   getSectionNodes,
@@ -11,8 +10,6 @@ import {
   getChildrenByParentId,
   getRuleById,
   getEncodedPaths,
-  buildBreadcrumbs,
-  getJurisdiction,
   isUUID,
 } from "@/lib/tree-data";
 import type { Rule } from "@/lib/supabase";
@@ -24,7 +21,15 @@ interface CacheEntry {
 
 const MAX_CACHE_ENTRIES = 20;
 
-export function useTreeNodes(segments: string[]) {
+/**
+ * Fetch tree nodes for a resolved jurisdiction.
+ * Receives pre-resolved jurisdiction info — no longer dispatches on jurisdiction segments.
+ */
+export function useTreeNodes(
+  dbJurisdictionId: string,
+  ruleSegments: string[],
+  hasCitationPaths: boolean
+) {
   const [nodes, setNodes] = useState<TreeNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,16 +40,10 @@ export function useTreeNodes(segments: string[]) {
   const cache = useRef<Map<string, CacheEntry>>(new Map());
   const encodedPathsRef = useRef<Set<string> | null>(null);
 
-  const segmentsKey = segments.join("/");
-
-  const breadcrumbs: BreadcrumbItem[] = useMemo(
-    () => buildBreadcrumbs(segments),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [segmentsKey]
-  );
+  const cacheKey = `${dbJurisdictionId}/${ruleSegments.join("/")}`;
 
   useEffect(() => {
-    const cached = cache.current.get(segmentsKey);
+    const cached = cache.current.get(cacheKey);
     if (cached) {
       setNodes(cached.nodes);
       setHasMore(cached.hasMore);
@@ -55,9 +54,9 @@ export function useTreeNodes(segments: string[]) {
       return;
     }
 
-    fetchNodes(segments, 0, false);
+    fetchNodes(ruleSegments, 0, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [segmentsKey]);
+  }, [cacheKey]);
 
   /* v8 ignore start -- async Supabase-dependent fetch logic */
   async function fetchNodes(
@@ -73,58 +72,55 @@ export function useTreeNodes(segments: string[]) {
       let result: { nodes: TreeNode[]; hasMore: boolean };
 
       if (segs.length === 0) {
-        const fetched = await getJurisdictionNodes();
-        result = { nodes: fetched, hasMore: false };
-      } else if (segs.length === 1) {
-        const jur = getJurisdiction(segs[0]);
-        if (jur && jur.hasCitationPaths) {
-          const fetched = await getDocTypeNodes(segs[0]);
+        // Root of jurisdiction: show doc types or acts
+        if (hasCitationPaths) {
+          const fetched = await getDocTypeNodes(dbJurisdictionId);
           result = { nodes: fetched, hasMore: false };
         } else {
-          const r: TreeResult = await getActNodes(segs[0], pageNum);
+          const r: TreeResult = await getActNodes(dbJurisdictionId, pageNum);
           result = { nodes: r.nodes, hasMore: r.hasMore };
         }
-      } else {
-        const jur = getJurisdiction(segs[0]);
-        if (jur && jur.hasCitationPaths) {
-          if (segs.length === 2) {
-            const fetched = await getTitleNodes(segs[0], segs[1]);
-            result = { nodes: fetched, hasMore: false };
+      } else if (hasCitationPaths) {
+        if (segs.length === 1) {
+          // Doc type selected, show titles
+          const fetched = await getTitleNodes(dbJurisdictionId, segs[0]);
+          result = { nodes: fetched, hasMore: false };
+        } else {
+          // Deep navigation via citation path
+          const pathPrefix = `${dbJurisdictionId}/${segs.join("/")}`;
+          // Lazy-load encoded paths once for RAC badge indicators
+          if (!encodedPathsRef.current) {
+            encodedPathsRef.current = await getEncodedPaths();
+          }
+          const r: TreeResult = await getSectionNodes(
+            pathPrefix,
+            pageNum,
+            encodedPathsRef.current
+          );
+          if (r.leafRule) {
+            setLeafRule(r.leafRule);
+            result = { nodes: [], hasMore: false };
           } else {
-            const pathPrefix = segs.join("/");
-            // Lazy-load encoded paths once for RAC badge indicators
-            if (!encodedPathsRef.current) {
-              encodedPathsRef.current = await getEncodedPaths();
-            }
-            const r: TreeResult = await getSectionNodes(
-              pathPrefix,
-              pageNum,
-              encodedPathsRef.current
-            );
-            if (r.leafRule) {
-              setLeafRule(r.leafRule);
-              result = { nodes: [], hasMore: false };
-            } else {
-              result = { nodes: r.nodes, hasMore: r.hasMore };
-            }
+            result = { nodes: r.nodes, hasMore: r.hasMore };
+          }
+        }
+      } else {
+        // Non-citation-path jurisdiction: navigate by parent_id (UUID)
+        const lastSegment = segs[segs.length - 1];
+        if (isUUID(lastSegment)) {
+          const r: TreeResult = await getChildrenByParentId(
+            lastSegment,
+            pageNum
+          );
+          if (r.nodes.length === 0) {
+            const rule = await getRuleById(lastSegment);
+            setLeafRule(rule);
+            result = { nodes: [], hasMore: false };
+          } else {
+            result = { nodes: r.nodes, hasMore: r.hasMore };
           }
         } else {
-          const lastSegment = segs[segs.length - 1];
-          if (isUUID(lastSegment)) {
-            const r: TreeResult = await getChildrenByParentId(
-              lastSegment,
-              pageNum
-            );
-            if (r.nodes.length === 0) {
-              const rule = await getRuleById(lastSegment);
-              setLeafRule(rule);
-              result = { nodes: [], hasMore: false };
-            } else {
-              result = { nodes: r.nodes, hasMore: r.hasMore };
-            }
-          } else {
-            result = { nodes: [], hasMore: false };
-          }
+          result = { nodes: [], hasMore: false };
         }
       }
 
@@ -142,7 +138,7 @@ export function useTreeNodes(segments: string[]) {
           const firstKey = cache.current.keys().next().value;
           if (firstKey !== undefined) cache.current.delete(firstKey);
         }
-        cache.current.set(segmentsKey, {
+        cache.current.set(cacheKey, {
           nodes: result.nodes,
           hasMore: result.hasMore,
         });
@@ -157,10 +153,10 @@ export function useTreeNodes(segments: string[]) {
 
   const loadMore = useCallback(() => {
     if (!loading && hasMore) {
-      fetchNodes(segments, pageRef.current + 1, true);
+      fetchNodes(ruleSegments, pageRef.current + 1, true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, hasMore, segmentsKey]);
+  }, [loading, hasMore, cacheKey]);
 
-  return { nodes, loading, error, hasMore, loadMore, breadcrumbs, leafRule };
+  return { nodes, loading, error, hasMore, loadMore, leafRule };
 }
