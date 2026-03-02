@@ -9,6 +9,20 @@ export interface ViewerDocument {
   archPath: string | null;
 }
 
+export function getJurisdictionLabel(jurisdiction: string): string {
+  switch (jurisdiction) {
+    case "canada":
+      return "CA";
+    case "uk":
+      return "UK";
+    default:
+      if (jurisdiction.startsWith("us-")) {
+        return jurisdiction.replace("us-", "").toUpperCase();
+      }
+      return "US";
+  }
+}
+
 export function transformRuleToViewerDoc(
   rule: Rule,
   children: Rule[]

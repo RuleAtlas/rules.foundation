@@ -27,10 +27,11 @@ describe('Nav', () => {
   it('renders navigation links', () => {
     mockUsePathname.mockReturnValue('/')
     render(<Nav />)
-    expect(screen.getByText('Atlas')).toBeInTheDocument()
+    expect(screen.getByText('Browser')).toBeInTheDocument()
     expect(screen.getByText('.rac')).toBeInTheDocument()
     expect(screen.getByText('AutoRAC')).toBeInTheDocument()
     expect(screen.queryByText('Lab')).not.toBeInTheDocument()
+    expect(screen.queryByText('Browse')).not.toBeInTheDocument()
     expect(screen.getByText('Spec')).toBeInTheDocument()
     expect(screen.getByText('About')).toBeInTheDocument()
     expect(screen.getByText('Docs')).toBeInTheDocument()
@@ -39,23 +40,22 @@ describe('Nav', () => {
   it('renders anchor links on landing page (pathname /)', () => {
     mockUsePathname.mockReturnValue('/')
     render(<Nav />)
-    const atlasLink = screen.getByText('Atlas')
-    expect(atlasLink.closest('a')).toHaveAttribute('href', '#atlas')
+    const racLink = screen.getByText('.rac')
+    expect(racLink.closest('a')).toHaveAttribute('href', '#format')
   })
 
   it('renders anchor links as Link on non-landing pages', () => {
     mockUsePathname.mockReturnValue('/about')
     render(<Nav />)
-    const atlasLink = screen.getByText('Atlas')
-    // On non-landing pages, anchor links should be full href with /#
-    expect(atlasLink.closest('a')).toHaveAttribute('href', '/#atlas')
+    const racLink = screen.getByText('.rac')
+    expect(racLink.closest('a')).toHaveAttribute('href', '/#format')
   })
 
   it('highlights active link on /atlas', () => {
     mockUsePathname.mockReturnValue('/atlas')
     render(<Nav />)
-    const browseLink = screen.getByText('Browse')
-    expect(browseLink.closest('a')).toHaveClass('text-[var(--color-text)]')
+    const browserLink = screen.getByText('Browser')
+    expect(browserLink.closest('a')).toHaveClass('text-[var(--color-text)]')
   })
 
   it('highlights active link on /about', () => {
@@ -75,10 +75,10 @@ describe('Nav', () => {
     expect(githubLink).toBeInTheDocument()
   })
 
-  it('renders Browse link to /atlas', () => {
+  it('renders Browser link to /atlas', () => {
     mockUsePathname.mockReturnValue('/')
     render(<Nav />)
-    const browseLink = screen.getByText('Browse')
-    expect(browseLink.closest('a')).toHaveAttribute('href', '/atlas')
+    const browserLink = screen.getByText('Browser')
+    expect(browserLink.closest('a')).toHaveAttribute('href', '/atlas')
   })
 })

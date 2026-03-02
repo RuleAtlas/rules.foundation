@@ -36,22 +36,26 @@ export function useEncoding(ruleId: string | null): UseEncodingResult {
     async function fetchData() {
       try {
         const encodingData = await getRuleEncoding(ruleId!);
+        /* v8 ignore next -- cancellation guard for race conditions */
         if (cancelled) return;
         setEncoding(encodingData);
 
         if (encodingData?.session_id) {
           const events = await getSDKSessionEvents(encodingData.session_id);
+          /* v8 ignore next -- cancellation guard for race conditions */
           if (cancelled) return;
           setSessionEvents(events);
         } else {
           setSessionEvents([]);
         }
       } catch (err) {
+        /* v8 ignore next -- cancellation guard for race conditions */
         if (cancelled) return;
         setError("Failed to load encoding data");
         setEncoding(null);
         setSessionEvents([]);
       } finally {
+        /* v8 ignore next -- cancellation guard for race conditions */
         if (!cancelled) setLoading(false);
       }
     }

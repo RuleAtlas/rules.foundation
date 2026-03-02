@@ -8,10 +8,9 @@ export function Nav() {
   const pathname = usePathname();
 
   const navLinks = [
-    { href: "/#atlas", label: "Atlas" },
+    { href: "/atlas", label: "Browser" },
     { href: "/#format", label: ".rac" },
     { href: "/#autorac", label: "AutoRAC" },
-    { href: "/atlas", label: "Browse" },
     { href: "/#spec", label: "Spec" },
     { href: "/about", label: "About" },
   ];
@@ -28,12 +27,7 @@ export function Nav() {
         </Link>
         <nav className="flex items-center gap-8">
           {navLinks.map(({ href, label }) => {
-            const isActive =
-              href === "/atlas"
-                ? pathname?.startsWith("/atlas")
-                : href === "/about"
-                  ? pathname === "/about"
-                  : false;
+            const isActive = pathname?.startsWith(href) && !href.startsWith("/#");
 
             if (href.startsWith("/#")) {
               // Anchor links — on landing page use native anchors, elsewhere use Link

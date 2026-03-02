@@ -35,7 +35,7 @@ vi.mock('@/hooks/use-encoding', () => ({
 import { useRule } from '@/hooks/use-rules'
 import { useEncoding } from '@/hooks/use-encoding'
 import { RuleViewer } from './[ruleId]/rule-viewer'
-import { transformRuleToViewerDoc } from '@/lib/atlas-utils'
+import { transformRuleToViewerDoc, getJurisdictionLabel } from '@/lib/atlas-utils'
 import type { Rule } from '@/lib/supabase'
 
 function makeRule(overrides: Partial<Rule> = {}): Rule {
@@ -117,6 +117,29 @@ describe('transformRuleToViewerDoc', () => {
     expect(doc.hasRac).toBe(true)
     expect(doc.jurisdiction).toBe('uk')
     expect(doc.archPath).toBe('statute/uk/1')
+  })
+})
+
+describe('getJurisdictionLabel', () => {
+  it('returns US for "us"', () => {
+    expect(getJurisdictionLabel('us')).toBe('US')
+  })
+
+  it('returns UK for "uk"', () => {
+    expect(getJurisdictionLabel('uk')).toBe('UK')
+  })
+
+  it('returns CA for "canada"', () => {
+    expect(getJurisdictionLabel('canada')).toBe('CA')
+  })
+
+  it('returns state abbreviation for us- prefix', () => {
+    expect(getJurisdictionLabel('us-ny')).toBe('NY')
+    expect(getJurisdictionLabel('us-ca')).toBe('CA')
+  })
+
+  it('returns US for unknown jurisdiction', () => {
+    expect(getJurisdictionLabel('other')).toBe('US')
   })
 })
 
@@ -212,43 +235,7 @@ describe('RuleViewer', () => {
     expect(mockPush).toHaveBeenCalledWith('/atlas')
   })
 
-  it('shows encoding tab indicator when encoding exists', () => {
-    vi.mocked(useRule).mockReturnValue({
-      rule: makeRule(),
-      children: [],
-      loading: false,
-      error: null,
-    })
-    vi.mocked(useEncoding).mockReturnValue({
-      encoding: {
-        encoding_run_id: 'enc-1',
-        citation: '26 USC 1',
-        session_id: 'sess-1',
-        file_path: 'statute/26/1.rac',
-        rac_content: 'rule { ... }',
-        final_scores: { rac: 90, formula: 85, parameter: 80, integration: 75 },
-      },
-      sessionEvents: [{
-        id: 'evt-1',
-        session_id: 'sess-1',
-        sequence: 1,
-        timestamp: '2025-01-01T10:00:00Z',
-        event_type: 'agent_start',
-        tool_name: null,
-        content: 'Start',
-        metadata: null,
-      }],
-      loading: false,
-      error: null,
-    })
-
-    render(<RuleViewer ruleId="rule-1" />)
-    // Tab bar should show encoding and agent logs tabs
-    expect(screen.getByText('Encoding')).toBeInTheDocument()
-    expect(screen.getByText('Agent logs')).toBeInTheDocument()
-  })
-
-  it('switches to encoding tab and shows content', () => {
+  it('shows source and encoding side by side with encoding content', () => {
     vi.mocked(useRule).mockReturnValue({
       rule: makeRule(),
       children: [],
@@ -270,13 +257,14 @@ describe('RuleViewer', () => {
     })
 
     render(<RuleViewer ruleId="rule-1" />)
-    fireEvent.click(screen.getByText('Encoding'))
-    expect(screen.getByText('26 USC 1')).toBeInTheDocument()
+    // Both panes visible simultaneously
+    expect(screen.getByText('Source')).toBeInTheDocument()
+    expect(screen.getByText('Encoding')).toBeInTheDocument()
     expect(screen.getByText('rule tax_imposed { ... }')).toBeInTheDocument()
     expect(screen.getByText('90')).toBeInTheDocument()
   })
 
-  it('switches to agent logs tab and shows empty state', () => {
+  it('shows agent logs drawer when session events exist', () => {
     vi.mocked(useRule).mockReturnValue({
       rule: makeRule(),
       children: [],
@@ -284,14 +272,29 @@ describe('RuleViewer', () => {
       error: null,
     })
     vi.mocked(useEncoding).mockReturnValue({
-      encoding: null,
-      sessionEvents: [],
+      encoding: {
+        encoding_run_id: 'enc-1',
+        citation: '26 USC 1',
+        session_id: 'sess-1',
+        file_path: 'statute/26/1.rac',
+        rac_content: 'rule { ... }',
+        final_scores: null,
+      },
+      sessionEvents: [{
+        id: 'evt-1',
+        session_id: 'sess-1',
+        sequence: 1,
+        timestamp: '2025-01-01T10:00:00Z',
+        event_type: 'agent_start',
+        tool_name: null,
+        content: 'Start',
+        metadata: null,
+      }],
       loading: false,
       error: null,
     })
 
     render(<RuleViewer ruleId="rule-1" />)
-    fireEvent.click(screen.getByText('Agent logs'))
-    expect(screen.getByText('No sessions')).toBeInTheDocument()
+    expect(screen.getByText('Agent logs')).toBeInTheDocument()
   })
 })

@@ -60,12 +60,6 @@
       "namedRegex": "^/atlas(?:/)?$"
     },
     {
-      "page": "/lab",
-      "regex": "^/lab(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/lab(?:/)?$"
-    },
-    {
       "page": "/privacy",
       "regex": "^/privacy(?:/)?$",
       "routeKeys": {},

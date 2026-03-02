@@ -1,16 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import type { ViewerDocument } from "@/lib/atlas-utils";
 
 export function SourceTab({ document }: { document: ViewerDocument }) {
   const [highlightedSection, setHighlightedSection] = useState<string | null>(
     null
   );
-
-  const handleSectionHover = useCallback((sectionId: string | null) => {
-    setHighlightedSection(sectionId);
-  }, []);
 
   return (
     <div className="max-w-[800px] mx-auto">
@@ -22,8 +18,8 @@ export function SourceTab({ document }: { document: ViewerDocument }) {
               ? "bg-[rgba(59,130,246,0.08)]"
               : "hover:bg-[rgba(255,255,255,0.02)]"
           }`}
-          onMouseEnter={() => handleSectionHover(subsection.id)}
-          onMouseLeave={() => handleSectionHover(null)}
+          onMouseEnter={() => setHighlightedSection(subsection.id)}
+          onMouseLeave={() => setHighlightedSection(null)}
         >
           <span className="font-mono text-xs text-[var(--color-precision)] pt-1 shrink-0">
             ({subsection.id})
