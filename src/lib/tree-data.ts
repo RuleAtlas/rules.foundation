@@ -50,13 +50,13 @@ export function getJurisdiction(id: string): JurisdictionConfig | undefined {
 
 const PAGE_SIZE = 100;
 
-function hasNextPage(page: number, total: number): boolean {
-  return (page + 1) * PAGE_SIZE < total;
-}
-
 // ---- Query functions ----
 
 /* v8 ignore start -- Supabase queries tested via integration/e2e */
+
+function hasNextPage(page: number, total: number): boolean {
+  return (page + 1) * PAGE_SIZE < total;
+}
 
 export async function getJurisdictionNodes(): Promise<TreeNode[]> {
   const counts = await Promise.all(

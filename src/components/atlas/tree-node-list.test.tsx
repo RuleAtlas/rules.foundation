@@ -153,4 +153,20 @@ describe("TreeNodeList", () => {
     fireEvent.keyDown(row, { key: "Enter" });
     expect(onNavigate).toHaveBeenCalledWith(node);
   });
+
+  it("handles keyboard navigation with Space", () => {
+    const onNavigate = vi.fn();
+    const node = makeNode();
+    render(
+      <TreeNodeList
+        nodes={[node]}
+        onNavigate={onNavigate}
+        loading={false}
+        error={null}
+      />
+    );
+    const row = screen.getByRole("button");
+    fireEvent.keyDown(row, { key: " " });
+    expect(onNavigate).toHaveBeenCalledWith(node);
+  });
 });
