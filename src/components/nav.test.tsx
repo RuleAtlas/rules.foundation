@@ -30,7 +30,7 @@ describe('Nav', () => {
     expect(screen.getByText('Atlas')).toBeInTheDocument()
     expect(screen.getByText('.rac')).toBeInTheDocument()
     expect(screen.getByText('AutoRAC')).toBeInTheDocument()
-    expect(screen.getByText('Lab')).toBeInTheDocument()
+    expect(screen.queryByText('Lab')).not.toBeInTheDocument()
     expect(screen.getByText('Spec')).toBeInTheDocument()
     expect(screen.getByText('About')).toBeInTheDocument()
     expect(screen.getByText('Docs')).toBeInTheDocument()
@@ -49,14 +49,6 @@ describe('Nav', () => {
     const atlasLink = screen.getByText('Atlas')
     // On non-landing pages, anchor links should be full href with /#
     expect(atlasLink.closest('a')).toHaveAttribute('href', '/#atlas')
-  })
-
-  it('highlights active link on /lab', () => {
-    mockUsePathname.mockReturnValue('/lab')
-    render(<Nav />)
-    const labLink = screen.getByText('Lab')
-    // Active link has text-[var(--color-text)] class
-    expect(labLink.closest('a')).toHaveClass('text-[var(--color-text)]')
   })
 
   it('highlights active link on /atlas', () => {

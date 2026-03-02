@@ -241,8 +241,54 @@ export interface Rule {
   repeal_date: string | null
   source_url: string | null
   source_path: string | null
+  citation_path: string | null
   rac_path: string | null
   has_rac: boolean
   created_at: string
   updated_at: string
+}
+
+// Encoding data linked to a rule via citation_path
+export interface RuleEncodingData {
+  encoding_run_id: string
+  citation: string
+  session_id: string | null
+  file_path: string
+  rac_content: string | null
+  final_scores: EncodingRunScores | null
+}
+
+// Fetch encoding data for a rule by its ID
+export async function getRuleEncoding(ruleId: string): Promise<RuleEncodingData | null> {
+  // First get the rule's citation_path and jurisdiction
+  const { data: rule, error: ruleError } = await supabaseArch
+    .from('rules')
+    .select('citation_path, jurisdiction')
+    .eq('id', ruleId)
+    .single()
+
+  if (ruleError || !rule?.citation_path) return null
+
+  // Match citation_path to encoding_runs.file_path
+  // citation_path: "us/statute/26/1/j/2" → file_path: "statute/26/1/j/2.rac"
+  const expectedFilePath = rule.citation_path.replace(rule.jurisdiction + '/', '') + '.rac'
+
+  const { data, error } = await supabase
+    .from('encoding_runs')
+    .select('id, citation, session_id, file_path, rac_content, final_scores')
+    .eq('file_path', expectedFilePath)
+    .order('timestamp', { ascending: false })
+    .limit(1)
+
+  if (error || !data || data.length === 0) return null
+
+  const run = data[0]
+  return {
+    encoding_run_id: run.id,
+    citation: run.citation,
+    session_id: run.session_id,
+    file_path: run.file_path,
+    rac_content: run.rac_content,
+    final_scores: run.final_scores,
+  }
 }

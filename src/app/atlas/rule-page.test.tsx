@@ -22,8 +22,20 @@ vi.mock('@/hooks/use-rules', () => ({
   useRule: vi.fn(),
 }))
 
+// Mock useEncoding hook
+vi.mock('@/hooks/use-encoding', () => ({
+  useEncoding: vi.fn().mockReturnValue({
+    encoding: null,
+    sessionEvents: [],
+    loading: false,
+    error: null,
+  }),
+}))
+
 import { useRule } from '@/hooks/use-rules'
-import { RuleViewer, transformRuleToDoc } from './[ruleId]/rule-viewer'
+import { useEncoding } from '@/hooks/use-encoding'
+import { RuleViewer } from './[ruleId]/rule-viewer'
+import { transformRuleToViewerDoc } from '@/lib/atlas-utils'
 import type { Rule } from '@/lib/supabase'
 
 function makeRule(overrides: Partial<Rule> = {}): Rule {
@@ -40,6 +52,7 @@ function makeRule(overrides: Partial<Rule> = {}): Rule {
     repeal_date: null,
     source_url: null,
     source_path: 'statute/26/1',
+    citation_path: 'us/statute/26/1',
     rac_path: null,
     has_rac: true,
     created_at: '2025-01-01',
@@ -48,7 +61,7 @@ function makeRule(overrides: Partial<Rule> = {}): Rule {
   }
 }
 
-describe('transformRuleToDoc', () => {
+describe('transformRuleToViewerDoc', () => {
   it('creates subsections from children', () => {
     const rule = makeRule()
     const children = [
@@ -56,7 +69,7 @@ describe('transformRuleToDoc', () => {
       makeRule({ id: 'c2', body: null, heading: 'Child 2 heading' }),
       makeRule({ id: 'c3', body: null, heading: null }),
     ]
-    const doc = transformRuleToDoc(rule, children)
+    const doc = transformRuleToViewerDoc(rule, children)
     expect(doc.subsections).toEqual([
       { id: 'a', text: 'Child 1 text' },
       { id: 'b', text: 'Child 2 heading' },
@@ -68,7 +81,7 @@ describe('transformRuleToDoc', () => {
 
   it('splits body into paragraphs when no children', () => {
     const rule = makeRule({ body: 'Paragraph one.\n\nParagraph two.' })
-    const doc = transformRuleToDoc(rule, [])
+    const doc = transformRuleToViewerDoc(rule, [])
     expect(doc.subsections).toEqual([
       { id: 'a', text: 'Paragraph one.' },
       { id: 'b', text: 'Paragraph two.' },
@@ -77,7 +90,7 @@ describe('transformRuleToDoc', () => {
 
   it('uses heading fallback when no body and no children', () => {
     const rule = makeRule({ body: null })
-    const doc = transformRuleToDoc(rule, [])
+    const doc = transformRuleToViewerDoc(rule, [])
     expect(doc.subsections).toEqual([
       { id: 'a', text: 'Section 1 - Tax imposed' },
     ])
@@ -85,7 +98,7 @@ describe('transformRuleToDoc', () => {
 
   it('uses "No content available." when no heading, body, or children', () => {
     const rule = makeRule({ heading: null, body: null })
-    const doc = transformRuleToDoc(rule, [])
+    const doc = transformRuleToViewerDoc(rule, [])
     expect(doc.subsections).toEqual([
       { id: 'a', text: 'No content available.' },
     ])
@@ -94,13 +107,13 @@ describe('transformRuleToDoc', () => {
 
   it('uses rule.id as citation when source_path is null', () => {
     const rule = makeRule({ source_path: null })
-    const doc = transformRuleToDoc(rule, [])
+    const doc = transformRuleToViewerDoc(rule, [])
     expect(doc.citation).toBe('rule-1')
   })
 
   it('passes hasRac, jurisdiction, and archPath', () => {
     const rule = makeRule({ has_rac: true, jurisdiction: 'uk', source_path: 'statute/uk/1' })
-    const doc = transformRuleToDoc(rule, [])
+    const doc = transformRuleToViewerDoc(rule, [])
     expect(doc.hasRac).toBe(true)
     expect(doc.jurisdiction).toBe('uk')
     expect(doc.archPath).toBe('statute/uk/1')
@@ -158,7 +171,7 @@ describe('RuleViewer', () => {
     expect(mockPush).toHaveBeenCalledWith('/atlas')
   })
 
-  it('renders document viewer when rule is loaded', () => {
+  it('renders rule detail panel when rule is loaded', () => {
     vi.mocked(useRule).mockReturnValue({
       rule: makeRule(),
       children: [],
@@ -185,7 +198,7 @@ describe('RuleViewer', () => {
     expect(screen.getByText('In general, there is imposed a tax.')).toBeInTheDocument()
   })
 
-  it('navigates to /atlas when back button is clicked in document viewer', () => {
+  it('navigates to /atlas when back button is clicked', () => {
     vi.mocked(useRule).mockReturnValue({
       rule: makeRule(),
       children: [],
@@ -198,5 +211,87 @@ describe('RuleViewer', () => {
     fireEvent.click(backBtn)
     expect(mockPush).toHaveBeenCalledWith('/atlas')
   })
-})
 
+  it('shows encoding tab indicator when encoding exists', () => {
+    vi.mocked(useRule).mockReturnValue({
+      rule: makeRule(),
+      children: [],
+      loading: false,
+      error: null,
+    })
+    vi.mocked(useEncoding).mockReturnValue({
+      encoding: {
+        encoding_run_id: 'enc-1',
+        citation: '26 USC 1',
+        session_id: 'sess-1',
+        file_path: 'statute/26/1.rac',
+        rac_content: 'rule { ... }',
+        final_scores: { rac: 90, formula: 85, parameter: 80, integration: 75 },
+      },
+      sessionEvents: [{
+        id: 'evt-1',
+        session_id: 'sess-1',
+        sequence: 1,
+        timestamp: '2025-01-01T10:00:00Z',
+        event_type: 'agent_start',
+        tool_name: null,
+        content: 'Start',
+        metadata: null,
+      }],
+      loading: false,
+      error: null,
+    })
+
+    render(<RuleViewer ruleId="rule-1" />)
+    // Tab bar should show encoding and agent logs tabs
+    expect(screen.getByText('Encoding')).toBeInTheDocument()
+    expect(screen.getByText('Agent logs')).toBeInTheDocument()
+  })
+
+  it('switches to encoding tab and shows content', () => {
+    vi.mocked(useRule).mockReturnValue({
+      rule: makeRule(),
+      children: [],
+      loading: false,
+      error: null,
+    })
+    vi.mocked(useEncoding).mockReturnValue({
+      encoding: {
+        encoding_run_id: 'enc-1',
+        citation: '26 USC 1',
+        session_id: null,
+        file_path: 'statute/26/1.rac',
+        rac_content: 'rule tax_imposed { ... }',
+        final_scores: { rac: 90, formula: 85, parameter: 80, integration: 75 },
+      },
+      sessionEvents: [],
+      loading: false,
+      error: null,
+    })
+
+    render(<RuleViewer ruleId="rule-1" />)
+    fireEvent.click(screen.getByText('Encoding'))
+    expect(screen.getByText('26 USC 1')).toBeInTheDocument()
+    expect(screen.getByText('rule tax_imposed { ... }')).toBeInTheDocument()
+    expect(screen.getByText('90')).toBeInTheDocument()
+  })
+
+  it('switches to agent logs tab and shows empty state', () => {
+    vi.mocked(useRule).mockReturnValue({
+      rule: makeRule(),
+      children: [],
+      loading: false,
+      error: null,
+    })
+    vi.mocked(useEncoding).mockReturnValue({
+      encoding: null,
+      sessionEvents: [],
+      loading: false,
+      error: null,
+    })
+
+    render(<RuleViewer ruleId="rule-1" />)
+    fireEvent.click(screen.getByText('Agent logs'))
+    expect(screen.getByText('No sessions')).toBeInTheDocument()
+  })
+})

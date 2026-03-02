@@ -3,56 +3,9 @@
 import { useState, useMemo, useCallback } from "react";
 import { supabaseArch, type Rule } from "@/lib/supabase";
 import { useRules, type RuleStats } from "@/hooks/use-rules";
+import { transformRuleToViewerDoc } from "@/lib/atlas-utils";
 import { RuleTree } from "./rule-tree";
-import { DocumentViewer } from "./document-viewer";
-
-interface ViewerDocument {
-  citation: string;
-  title: string;
-  subsections: Array<{ id: string; text: string }>;
-  hasRac: boolean;
-  jurisdiction: string;
-  archPath: string | null;
-}
-
-/* v8 ignore start -- same logic tested via transformRuleToDoc in rule-page.test.tsx */
-function transformRuleToViewerDoc(
-  rule: Rule,
-  children: Rule[]
-): ViewerDocument {
-  const subsections = children.map((child, i) => ({
-    id: String.fromCharCode(97 + i),
-    text: child.body || child.heading || "",
-  }));
-
-  if (subsections.length === 0 && rule.body) {
-    const paragraphs = rule.body.split(/\n\n+/).filter(Boolean);
-    paragraphs.forEach((para, i) => {
-      subsections.push({
-        id: String.fromCharCode(97 + i),
-        text: para.trim(),
-      });
-    });
-  }
-
-  if (subsections.length === 0) {
-    subsections.push({
-      id: "a",
-      text: rule.heading || "No content available.",
-    });
-  }
-
-  return {
-    citation: rule.source_path || rule.id,
-    title: rule.heading || "Untitled",
-    subsections,
-    hasRac: rule.has_rac,
-    jurisdiction: rule.jurisdiction,
-    archPath: rule.source_path,
-  };
-}
-
-/* v8 ignore stop */
+import { RuleDetailPanel } from "./rule-detail-panel";
 
 function StatsBadge({ stats }: { stats: RuleStats[] }) {
   const total = stats.reduce((sum, s) => sum + s.count, 0);
@@ -117,11 +70,12 @@ export function AtlasBrowser() {
     [selectedRule, selectedChildren]
   );
 
-  if (!showBrowser && currentDoc) {
+  if (!showBrowser && currentDoc && selectedRule) {
     return (
       <div className="min-h-[calc(100vh-200px)]">
-        <DocumentViewer
+        <RuleDetailPanel
           document={currentDoc}
+          rule={selectedRule}
           onBack={() => setShowBrowser(true)}
         />
       </div>

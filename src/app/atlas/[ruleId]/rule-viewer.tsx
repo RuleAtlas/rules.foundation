@@ -1,42 +1,9 @@
 "use client";
 
 import { useRule } from "@/hooks/use-rules";
-import { DocumentViewer } from "@/components/atlas/document-viewer";
+import { RuleDetailPanel } from "@/components/atlas/rule-detail-panel";
+import { transformRuleToViewerDoc } from "@/lib/atlas-utils";
 import { useRouter } from "next/navigation";
-import type { Rule } from "@/lib/supabase";
-
-export function transformRuleToDoc(rule: Rule, children: Rule[]) {
-  const subsections = children.map((child, i) => ({
-    id: String.fromCharCode(97 + i),
-    text: child.body || child.heading || "",
-  }));
-
-  if (subsections.length === 0 && rule.body) {
-    const paragraphs = rule.body.split(/\n\n+/).filter(Boolean);
-    paragraphs.forEach((para, i) => {
-      subsections.push({
-        id: String.fromCharCode(97 + i),
-        text: para.trim(),
-      });
-    });
-  }
-
-  if (subsections.length === 0) {
-    subsections.push({
-      id: "a",
-      text: rule.heading || "No content available.",
-    });
-  }
-
-  return {
-    citation: rule.source_path || rule.id,
-    title: rule.heading || "Untitled",
-    subsections,
-    hasRac: rule.has_rac,
-    jurisdiction: rule.jurisdiction,
-    archPath: rule.source_path,
-  };
-}
 
 export function RuleViewer({ ruleId }: { ruleId: string }) {
   const { rule, children, loading, error } = useRule(ruleId);
@@ -66,12 +33,13 @@ export function RuleViewer({ ruleId }: { ruleId: string }) {
     );
   }
 
-  const doc = transformRuleToDoc(rule, children);
+  const doc = transformRuleToViewerDoc(rule, children);
 
   return (
     <div className="relative z-1 min-h-[calc(100vh-200px)]">
-      <DocumentViewer
+      <RuleDetailPanel
         document={doc}
+        rule={rule}
         onBack={() => router.push("/atlas")}
       />
     </div>

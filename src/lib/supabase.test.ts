@@ -21,6 +21,7 @@ import {
   getSDKSessions,
   getSDKSessionEvents,
   getSDKSessionMeta,
+  getRuleEncoding,
 } from './supabase'
 
 describe('supabase lib', () => {
@@ -382,6 +383,149 @@ describe('supabase lib', () => {
       const result = await getSDKSessionMeta(['sdk-1'])
       // Should only take the first
       expect(result['sdk-1'].title).toBe('26 USC 1')
+    })
+  })
+
+  describe('getRuleEncoding', () => {
+    it('returns encoding data when rule has citation_path and encoding exists', async () => {
+      // getRuleEncoding calls supabaseArch.from('rules') then supabase.from('encoding_runs')
+      // Both clients use the same mockFrom since createClient is mocked once
+      let fromCallCount = 0
+      mockFrom.mockImplementation((table: string) => {
+        fromCallCount++
+        if (table === 'rules') {
+          return {
+            select: () => ({
+              eq: () => ({
+                single: () => Promise.resolve({
+                  data: { citation_path: 'us/statute/26/1', jurisdiction: 'us' },
+                  error: null,
+                }),
+              }),
+            }),
+          }
+        }
+        // encoding_runs
+        return {
+          select: () => ({
+            eq: () => ({
+              order: () => ({
+                limit: () => Promise.resolve({
+                  data: [{
+                    id: 'enc-1',
+                    citation: '26 USC 1',
+                    session_id: 'sess-1',
+                    file_path: 'statute/26/1.rac',
+                    rac_content: 'rule { ... }',
+                    final_scores: { rac: 90, formula: 85, parameter: 80, integration: 75 },
+                  }],
+                  error: null,
+                }),
+              }),
+            }),
+          }),
+        }
+      })
+
+      const result = await getRuleEncoding('rule-1')
+      expect(result).toEqual({
+        encoding_run_id: 'enc-1',
+        citation: '26 USC 1',
+        session_id: 'sess-1',
+        file_path: 'statute/26/1.rac',
+        rac_content: 'rule { ... }',
+        final_scores: { rac: 90, formula: 85, parameter: 80, integration: 75 },
+      })
+    })
+
+    it('returns null when rule has no citation_path', async () => {
+      mockFrom.mockReturnValue({
+        select: () => ({
+          eq: () => ({
+            single: () => Promise.resolve({
+              data: { citation_path: null, jurisdiction: 'us' },
+              error: null,
+            }),
+          }),
+        }),
+      })
+
+      const result = await getRuleEncoding('rule-no-cp')
+      expect(result).toBeNull()
+    })
+
+    it('returns null when rule fetch errors', async () => {
+      mockFrom.mockReturnValue({
+        select: () => ({
+          eq: () => ({
+            single: () => Promise.resolve({
+              data: null,
+              error: { message: 'not found' },
+            }),
+          }),
+        }),
+      })
+
+      const result = await getRuleEncoding('rule-missing')
+      expect(result).toBeNull()
+    })
+
+    it('returns null when no encoding run matches', async () => {
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'rules') {
+          return {
+            select: () => ({
+              eq: () => ({
+                single: () => Promise.resolve({
+                  data: { citation_path: 'us/statute/26/99', jurisdiction: 'us' },
+                  error: null,
+                }),
+              }),
+            }),
+          }
+        }
+        return {
+          select: () => ({
+            eq: () => ({
+              order: () => ({
+                limit: () => Promise.resolve({ data: [], error: null }),
+              }),
+            }),
+          }),
+        }
+      })
+
+      const result = await getRuleEncoding('rule-no-encoding')
+      expect(result).toBeNull()
+    })
+
+    it('returns null when encoding_runs query errors', async () => {
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'rules') {
+          return {
+            select: () => ({
+              eq: () => ({
+                single: () => Promise.resolve({
+                  data: { citation_path: 'us/statute/26/1', jurisdiction: 'us' },
+                  error: null,
+                }),
+              }),
+            }),
+          }
+        }
+        return {
+          select: () => ({
+            eq: () => ({
+              order: () => ({
+                limit: () => Promise.resolve({ data: null, error: { message: 'err' } }),
+              }),
+            }),
+          }),
+        }
+      })
+
+      const result = await getRuleEncoding('rule-err')
+      expect(result).toBeNull()
     })
   })
 })
