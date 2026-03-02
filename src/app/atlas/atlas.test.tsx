@@ -24,18 +24,18 @@ vi.mock("@/hooks/use-tree-nodes", () => ({
     error: null,
     hasMore: false,
     loadMore: vi.fn(),
-    breadcrumbs: [{ label: "Atlas", href: "/atlas" }],
     leafRule: null,
   }),
 }));
 
-// Mock tree-data
-vi.mock("@/lib/tree-data", () => ({
-  isUUID: vi.fn().mockReturnValue(false),
-  buildBreadcrumbs: vi.fn().mockReturnValue([]),
-  getJurisdiction: vi.fn(),
-  JURISDICTIONS: [],
-}));
+// Mock tree-data — use real resolveAtlasPath/buildBreadcrumbs
+vi.mock("@/lib/tree-data", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/tree-data")>();
+  return {
+    ...actual,
+    getJurisdictionCounts: vi.fn().mockResolvedValue(new Map()),
+  };
+});
 
 // Mock supabase
 vi.mock("@/lib/supabase", () => ({
@@ -48,14 +48,14 @@ import { AtlasBrowser } from "@/components/atlas/document-browser";
 describe("AtlasBrowser (tree-based)", () => {
   it("renders the Atlas heading and description", () => {
     render(<AtlasBrowser segments={[]} />);
-    expect(screen.getByRole("heading", { name: "Atlas" })).toBeInTheDocument();
     expect(
-      screen.getByText(/Explore encoded law/)
+      screen.getByRole("heading", { name: "Atlas" })
     ).toBeInTheDocument();
+    expect(screen.getByText(/Explore encoded law/)).toBeInTheDocument();
   });
 
-  it("shows empty state when no nodes", () => {
+  it("shows jurisdiction picker when no segments", () => {
     render(<AtlasBrowser segments={[]} />);
-    expect(screen.getByText("No items found.")).toBeInTheDocument();
+    expect(screen.getByText("Choose a jurisdiction")).toBeInTheDocument();
   });
 });

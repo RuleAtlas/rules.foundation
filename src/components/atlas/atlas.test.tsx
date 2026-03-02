@@ -24,18 +24,18 @@ vi.mock("@/hooks/use-tree-nodes", () => ({
     error: null,
     hasMore: false,
     loadMore: vi.fn(),
-    breadcrumbs: [{ label: "Atlas", href: "/atlas" }],
     leafRule: null,
   }),
 }));
 
-// Mock tree-data
-vi.mock("@/lib/tree-data", () => ({
-  isUUID: vi.fn().mockReturnValue(false),
-  buildBreadcrumbs: vi.fn().mockReturnValue([]),
-  getJurisdiction: vi.fn(),
-  JURISDICTIONS: [],
-}));
+// Mock tree-data — use real resolveAtlasPath/buildBreadcrumbs
+vi.mock("@/lib/tree-data", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/tree-data")>();
+  return {
+    ...actual,
+    getJurisdictionCounts: vi.fn().mockResolvedValue(new Map()),
+  };
+});
 
 // Mock supabase
 vi.mock("@/lib/supabase", () => ({
@@ -53,110 +53,88 @@ describe("AtlasBrowser integration", () => {
 
   it("renders Atlas header and description", () => {
     render(<AtlasBrowser segments={[]} />);
-    expect(screen.getByRole("heading", { name: "Atlas" })).toBeInTheDocument();
     expect(
-      screen.getByText(/Explore encoded law/)
+      screen.getByRole("heading", { name: "Atlas" })
     ).toBeInTheDocument();
+    expect(screen.getByText(/Explore encoded law/)).toBeInTheDocument();
   });
 
-  it("shows No items found when empty", () => {
+  it("shows jurisdiction picker at root", () => {
     render(<AtlasBrowser segments={[]} />);
-    expect(screen.getByText("No items found.")).toBeInTheDocument();
+    expect(screen.getByText("Choose a jurisdiction")).toBeInTheDocument();
   });
 
-  it("renders nodes with jurisdiction counts", () => {
+  it("renders nodes in rule tree phase", () => {
     vi.mocked(useTreeNodes).mockReturnValue({
       nodes: [
         {
-          segment: "us",
-          label: "United States",
+          segment: "statute",
+          label: "Statutes",
           hasChildren: true,
-          childCount: 60519,
-          nodeType: "jurisdiction",
-        },
-        {
-          segment: "uk",
-          label: "United Kingdom",
-          hasChildren: true,
-          childCount: 1558,
-          nodeType: "jurisdiction",
+          nodeType: "doc_type",
         },
       ],
       loading: false,
       error: null,
       hasMore: false,
       loadMore: vi.fn(),
-      breadcrumbs: [{ label: "Atlas", href: "/atlas" }],
       leafRule: null,
     });
 
-    render(<AtlasBrowser segments={[]} />);
-    expect(screen.getByText("United States")).toBeInTheDocument();
-    expect(screen.getByText("60,519")).toBeInTheDocument();
-    expect(screen.getByText("United Kingdom")).toBeInTheDocument();
-    expect(screen.getByText("1,558")).toBeInTheDocument();
+    render(<AtlasBrowser segments={["us", "federal"]} />);
+    expect(screen.getByText("Statutes")).toBeInTheDocument();
   });
 
-  it("renders breadcrumb navigation", () => {
+  it("renders breadcrumb navigation in rule phase", () => {
     vi.mocked(useTreeNodes).mockReturnValue({
       nodes: [],
       loading: false,
       error: null,
       hasMore: false,
       loadMore: vi.fn(),
-      breadcrumbs: [
-        { label: "Atlas", href: "/atlas" },
-        { label: "United States", href: "/atlas/us" },
-        { label: "Statutes", href: "/atlas/us/statute" },
-      ],
       leafRule: null,
     });
 
-    render(<AtlasBrowser segments={["us", "statute"]} />);
-    // "Atlas" appears in both breadcrumb and heading
-    const atlasElements = screen.getAllByText("Atlas");
-    expect(atlasElements.length).toBeGreaterThanOrEqual(1);
-    // "United States" appears in both breadcrumb and possibly node list
-    const usElements = screen.getAllByText("United States");
-    expect(usElements.length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Statutes")).toBeInTheDocument();
+    render(<AtlasBrowser segments={["us", "federal", "statute"]} />);
+    const breadcrumbNav = screen.getByRole("navigation", {
+      name: "Breadcrumb",
+    });
+    expect(breadcrumbNav).toBeInTheDocument();
   });
 
-  it("renders loading state", () => {
+  it("renders loading state in rule phase", () => {
     vi.mocked(useTreeNodes).mockReturnValue({
       nodes: [],
       loading: true,
       error: null,
       hasMore: false,
       loadMore: vi.fn(),
-      breadcrumbs: [{ label: "Atlas", href: "/atlas" }],
       leafRule: null,
     });
 
-    render(<AtlasBrowser segments={[]} />);
+    render(<AtlasBrowser segments={["us", "federal"]} />);
     expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
 
-  it("renders load more button", () => {
+  it("renders load more button in rule phase", () => {
     const loadMore = vi.fn();
     vi.mocked(useTreeNodes).mockReturnValue({
       nodes: [
         {
-          segment: "us",
-          label: "United States",
+          segment: "statute",
+          label: "Statutes",
           hasChildren: true,
-          nodeType: "jurisdiction",
+          nodeType: "doc_type",
         },
       ],
       loading: false,
       error: null,
       hasMore: true,
       loadMore,
-      breadcrumbs: [{ label: "Atlas", href: "/atlas" }],
       leafRule: null,
     });
 
-    render(<AtlasBrowser segments={[]} />);
+    render(<AtlasBrowser segments={["us", "federal"]} />);
     const btn = screen.getByRole("button", { name: /load more/i });
     fireEvent.click(btn);
     expect(loadMore).toHaveBeenCalled();
