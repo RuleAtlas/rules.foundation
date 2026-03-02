@@ -51,8 +51,8 @@ describe('Nav', () => {
     expect(racLink.closest('a')).toHaveAttribute('href', '/#format')
   })
 
-  it('highlights active link on /atlas', () => {
-    mockUsePathname.mockReturnValue('/atlas')
+  it('highlights active link on /browse', () => {
+    mockUsePathname.mockReturnValue('/browse')
     render(<Nav />)
     const browserLink = screen.getByText('Browser')
     expect(browserLink.closest('a')).toHaveClass('text-[var(--color-text)]')
@@ -75,10 +75,10 @@ describe('Nav', () => {
     expect(githubLink).toBeInTheDocument()
   })
 
-  it('renders Browser link to /atlas', () => {
+  it('renders Browser link to /browse', () => {
     mockUsePathname.mockReturnValue('/')
     render(<Nav />)
     const browserLink = screen.getByText('Browser')
-    expect(browserLink.closest('a')).toHaveAttribute('href', '/atlas')
+    expect(browserLink.closest('a')).toHaveAttribute('href', '/browse')
   })
 })

@@ -19,7 +19,7 @@ export function RulePageClient({
       <RuleDetailPanel
         document={document}
         rule={rule}
-        onBack={() => router.push("/atlas")}
+        onBack={() => router.push("/browse")}
       />
     </div>
   );

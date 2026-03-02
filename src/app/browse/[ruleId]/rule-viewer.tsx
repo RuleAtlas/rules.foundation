@@ -25,9 +25,9 @@ export function RuleViewer({ ruleId }: { ruleId: string }) {
         </p>
         <button
           className="btn-outline"
-          onClick={() => router.push("/atlas")}
+          onClick={() => router.push("/browse")}
         >
-          Back to Atlas
+          Back to Browser
         </button>
       </div>
     );
@@ -40,7 +40,7 @@ export function RuleViewer({ ruleId }: { ruleId: string }) {
       <RuleDetailPanel
         document={doc}
         rule={rule}
-        onBack={() => router.push("/atlas")}
+        onBack={() => router.push("/browse")}
       />
     </div>
   );

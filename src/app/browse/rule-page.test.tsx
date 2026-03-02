@@ -6,7 +6,7 @@ const mockPush = vi.fn()
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush, back: vi.fn() }),
-  usePathname: () => '/atlas/rule-1',
+  usePathname: () => '/browse/rule-1',
 }))
 
 // Mock motion/react
@@ -166,7 +166,7 @@ describe('RuleViewer', () => {
 
     render(<RuleViewer ruleId="bad-id" />)
     expect(screen.getByText('Rule not found')).toBeInTheDocument()
-    expect(screen.getByText('Back to Atlas')).toBeInTheDocument()
+    expect(screen.getByText('Back to Browser')).toBeInTheDocument()
   })
 
   it('shows not found when no rule and no error', () => {
@@ -181,7 +181,7 @@ describe('RuleViewer', () => {
     expect(screen.getByText('Rule not found.')).toBeInTheDocument()
   })
 
-  it('navigates to /atlas on back button click', () => {
+  it('navigates to /browse on back button click', () => {
     vi.mocked(useRule).mockReturnValue({
       rule: null,
       children: [],
@@ -190,8 +190,8 @@ describe('RuleViewer', () => {
     })
 
     render(<RuleViewer ruleId="rule-1" />)
-    fireEvent.click(screen.getByText('Back to Atlas'))
-    expect(mockPush).toHaveBeenCalledWith('/atlas')
+    fireEvent.click(screen.getByText('Back to Browser'))
+    expect(mockPush).toHaveBeenCalledWith('/browse')
   })
 
   it('renders rule detail panel when rule is loaded', () => {
@@ -221,7 +221,7 @@ describe('RuleViewer', () => {
     expect(screen.getByText('In general, there is imposed a tax.')).toBeInTheDocument()
   })
 
-  it('navigates to /atlas when back button is clicked', () => {
+  it('navigates to /browse when back button is clicked', () => {
     vi.mocked(useRule).mockReturnValue({
       rule: makeRule(),
       children: [],
@@ -232,7 +232,7 @@ describe('RuleViewer', () => {
     render(<RuleViewer ruleId="rule-1" />)
     const backBtn = screen.getByTitle('Back to browser')
     fireEvent.click(backBtn)
-    expect(mockPush).toHaveBeenCalledWith('/atlas')
+    expect(mockPush).toHaveBeenCalledWith('/browse')
   })
 
   it('shows source and encoding side by side with encoding content', () => {

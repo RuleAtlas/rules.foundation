@@ -67,10 +67,10 @@ describe('RulePageClient', () => {
     expect(screen.getByText('26 USC 1')).toBeInTheDocument()
   })
 
-  it('navigates to /atlas on back button click', () => {
+  it('navigates to /browse on back button click', () => {
     render(<RulePageClient document={makeDoc()} rule={makeRule()} />)
     const backBtn = screen.getByTitle('Back to browser')
     fireEvent.click(backBtn)
-    expect(mockPush).toHaveBeenCalledWith('/atlas')
+    expect(mockPush).toHaveBeenCalledWith('/browse')
   })
 })
