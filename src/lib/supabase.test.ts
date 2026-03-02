@@ -20,6 +20,8 @@ import {
   getTranscriptsBySession,
   getSDKSessions,
   getSDKSessionEvents,
+  getSDKSessionMeta,
+  getRuleEncoding,
 } from './supabase'
 
 describe('supabase lib', () => {
@@ -237,6 +239,293 @@ describe('supabase lib', () => {
 
       const result = await getSDKSessionEvents('sdk-1')
       expect(result).toEqual([])
+    })
+  })
+
+  describe('getSDKSessionMeta', () => {
+    it('returns empty object for empty sessionIds', async () => {
+      const result = await getSDKSessionMeta([])
+      expect(result).toEqual({})
+    })
+
+    it('returns meta with title from agent_start events', async () => {
+      const startEvents = [
+        { session_id: 'sdk-1', content: 'Encode 26 USC 32 subsection a' },
+      ]
+      const lastEvents = [
+        { session_id: 'sdk-1', timestamp: '2025-01-01T10:30:00Z' },
+      ]
+
+      // First call: startEvents, second call: lastEvents
+      let callCount = 0
+      const inFn = vi.fn()
+      const eqFn = vi.fn()
+      const orderFn = vi.fn()
+      const selectFn = vi.fn()
+
+      orderFn.mockImplementation(() => {
+        callCount++
+        if (callCount <= 1) {
+          return { data: startEvents, error: null }
+        }
+        return { data: lastEvents, error: null }
+      })
+
+      eqFn.mockReturnValue({ order: orderFn })
+      inFn.mockReturnValue({ eq: eqFn, order: orderFn })
+      selectFn.mockReturnValue({ in: inFn })
+      mockFrom.mockReturnValue({ select: selectFn })
+
+      const result = await getSDKSessionMeta(['sdk-1'])
+      expect(result['sdk-1']).toBeDefined()
+      expect(result['sdk-1'].title).toBe('26 USC 32')
+      expect(result['sdk-1'].lastEventAt).toBe('2025-01-01T10:30:00Z')
+    })
+
+    it('returns content prefix as title when no match pattern', async () => {
+      const startEvents = [
+        { session_id: 'sdk-1', content: 'Some arbitrary task description' },
+      ]
+
+      let callCount = 0
+      const inFn = vi.fn()
+      const eqFn = vi.fn()
+      const orderFn = vi.fn()
+      const selectFn = vi.fn()
+
+      orderFn.mockImplementation(() => {
+        callCount++
+        if (callCount <= 1) {
+          return { data: startEvents, error: null }
+        }
+        return { data: [], error: null }
+      })
+
+      eqFn.mockReturnValue({ order: orderFn })
+      inFn.mockReturnValue({ eq: eqFn, order: orderFn })
+      selectFn.mockReturnValue({ in: inFn })
+      mockFrom.mockReturnValue({ select: selectFn })
+
+      const result = await getSDKSessionMeta(['sdk-1'])
+      expect(result['sdk-1'].title).toBe('Some arbitrary task description')
+    })
+
+    it('handles null content in start events', async () => {
+      const startEvents = [
+        { session_id: 'sdk-1', content: null },
+      ]
+
+      let callCount = 0
+      const inFn = vi.fn()
+      const eqFn = vi.fn()
+      const orderFn = vi.fn()
+      const selectFn = vi.fn()
+
+      orderFn.mockImplementation(() => {
+        callCount++
+        if (callCount <= 1) {
+          return { data: startEvents, error: null }
+        }
+        return { data: [{ session_id: 'sdk-1', timestamp: '2025-01-01T10:30:00Z' }], error: null }
+      })
+
+      eqFn.mockReturnValue({ order: orderFn })
+      inFn.mockReturnValue({ eq: eqFn, order: orderFn })
+      selectFn.mockReturnValue({ in: inFn })
+      mockFrom.mockReturnValue({ select: selectFn })
+
+      const result = await getSDKSessionMeta(['sdk-1'])
+      // Session has lastEventAt but empty title since content was null
+      expect(result['sdk-1']).toEqual({ title: '', lastEventAt: '2025-01-01T10:30:00Z' })
+    })
+
+    it('handles null data from queries', async () => {
+      const inFn = vi.fn()
+      const eqFn = vi.fn()
+      const orderFn = vi.fn()
+      const selectFn = vi.fn()
+
+      orderFn.mockResolvedValue({ data: null, error: null })
+      eqFn.mockReturnValue({ order: orderFn })
+      inFn.mockReturnValue({ eq: eqFn, order: orderFn })
+      selectFn.mockReturnValue({ in: inFn })
+      mockFrom.mockReturnValue({ select: selectFn })
+
+      const result = await getSDKSessionMeta(['sdk-1'])
+      expect(result).toEqual({})
+    })
+
+    it('only takes first start event per session', async () => {
+      const startEvents = [
+        { session_id: 'sdk-1', content: 'Encode 26 USC 1' },
+        { session_id: 'sdk-1', content: 'Encode 26 USC 2' },
+      ]
+
+      let callCount = 0
+      const inFn = vi.fn()
+      const eqFn = vi.fn()
+      const orderFn = vi.fn()
+      const selectFn = vi.fn()
+
+      orderFn.mockImplementation(() => {
+        callCount++
+        if (callCount <= 1) {
+          return { data: startEvents, error: null }
+        }
+        return { data: [], error: null }
+      })
+
+      eqFn.mockReturnValue({ order: orderFn })
+      inFn.mockReturnValue({ eq: eqFn, order: orderFn })
+      selectFn.mockReturnValue({ in: inFn })
+      mockFrom.mockReturnValue({ select: selectFn })
+
+      const result = await getSDKSessionMeta(['sdk-1'])
+      // Should only take the first
+      expect(result['sdk-1'].title).toBe('26 USC 1')
+    })
+  })
+
+  describe('getRuleEncoding', () => {
+    it('returns encoding data when rule has citation_path and encoding exists', async () => {
+      // getRuleEncoding calls supabaseArch.from('rules') then supabase.from('encoding_runs')
+      // Both clients use the same mockFrom since createClient is mocked once
+      let fromCallCount = 0
+      mockFrom.mockImplementation((table: string) => {
+        fromCallCount++
+        if (table === 'rules') {
+          return {
+            select: () => ({
+              eq: () => ({
+                single: () => Promise.resolve({
+                  data: { citation_path: 'us/statute/26/1', jurisdiction: 'us' },
+                  error: null,
+                }),
+              }),
+            }),
+          }
+        }
+        // encoding_runs
+        return {
+          select: () => ({
+            eq: () => ({
+              order: () => ({
+                limit: () => Promise.resolve({
+                  data: [{
+                    id: 'enc-1',
+                    citation: '26 USC 1',
+                    session_id: 'sess-1',
+                    file_path: 'statute/26/1.rac',
+                    rac_content: 'rule { ... }',
+                    final_scores: { rac: 90, formula: 85, parameter: 80, integration: 75 },
+                  }],
+                  error: null,
+                }),
+              }),
+            }),
+          }),
+        }
+      })
+
+      const result = await getRuleEncoding('rule-1')
+      expect(result).toEqual({
+        encoding_run_id: 'enc-1',
+        citation: '26 USC 1',
+        session_id: 'sess-1',
+        file_path: 'statute/26/1.rac',
+        rac_content: 'rule { ... }',
+        final_scores: { rac: 90, formula: 85, parameter: 80, integration: 75 },
+      })
+    })
+
+    it('returns null when rule has no citation_path', async () => {
+      mockFrom.mockReturnValue({
+        select: () => ({
+          eq: () => ({
+            single: () => Promise.resolve({
+              data: { citation_path: null, jurisdiction: 'us' },
+              error: null,
+            }),
+          }),
+        }),
+      })
+
+      const result = await getRuleEncoding('rule-no-cp')
+      expect(result).toBeNull()
+    })
+
+    it('returns null when rule fetch errors', async () => {
+      mockFrom.mockReturnValue({
+        select: () => ({
+          eq: () => ({
+            single: () => Promise.resolve({
+              data: null,
+              error: { message: 'not found' },
+            }),
+          }),
+        }),
+      })
+
+      const result = await getRuleEncoding('rule-missing')
+      expect(result).toBeNull()
+    })
+
+    it('returns null when no encoding run matches', async () => {
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'rules') {
+          return {
+            select: () => ({
+              eq: () => ({
+                single: () => Promise.resolve({
+                  data: { citation_path: 'us/statute/26/99', jurisdiction: 'us' },
+                  error: null,
+                }),
+              }),
+            }),
+          }
+        }
+        return {
+          select: () => ({
+            eq: () => ({
+              order: () => ({
+                limit: () => Promise.resolve({ data: [], error: null }),
+              }),
+            }),
+          }),
+        }
+      })
+
+      const result = await getRuleEncoding('rule-no-encoding')
+      expect(result).toBeNull()
+    })
+
+    it('returns null when encoding_runs query errors', async () => {
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'rules') {
+          return {
+            select: () => ({
+              eq: () => ({
+                single: () => Promise.resolve({
+                  data: { citation_path: 'us/statute/26/1', jurisdiction: 'us' },
+                  error: null,
+                }),
+              }),
+            }),
+          }
+        }
+        return {
+          select: () => ({
+            eq: () => ({
+              order: () => ({
+                limit: () => Promise.resolve({ data: null, error: { message: 'err' } }),
+              }),
+            }),
+          }),
+        }
+      })
+
+      const result = await getRuleEncoding('rule-err')
+      expect(result).toBeNull()
     })
   })
 })

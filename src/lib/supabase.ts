@@ -1,16 +1,18 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 // Supabase configuration
-// These should be set in environment variables for production
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 /* v8 ignore start -- env-dependent module initialization */
-const env = (import.meta as any).env || {}
-const supabaseUrl = env.VITE_SUPABASE_URL || ''
-const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY || ''
-const isTestEnv = !supabaseUrl || env.MODE === 'test'
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const isTestEnv = !supabaseUrl || process.env.NODE_ENV === 'test'
 export const supabase: SupabaseClient = isTestEnv
   ? createClient('https://placeholder.supabase.co', 'placeholder-key')
   : createClient(supabaseUrl, supabaseAnonKey)
+
+// Arch schema client for atlas/rule browsing
+export const supabaseArch = isTestEnv
+  ? createClient('https://placeholder.supabase.co', 'placeholder-key', { db: { schema: 'arch' } })
+  : createClient(supabaseUrl, supabaseAnonKey, { db: { schema: 'arch' } })
 /* v8 ignore stop */
 
 // Types for encoding runs (AutoRAC Experiment Lab)
@@ -28,12 +30,6 @@ export interface EncodingRunScores {
   integration: number
 }
 
-// Valid data source values - CRITICAL for preventing fake data
-// 'reviewer_agent' = Scores from actual reviewer agent runs (trustworthy)
-// 'ci_only' = Only CI tests ran, no reviewer scores
-// 'mock' = Fake/placeholder data for testing (MUST show warning)
-// 'manual_estimate' = Human-estimated scores, not from agents
-// 'unknown' = Legacy data without data_source (show warning)
 export type DataSource = 'reviewer_agent' | 'ci_only' | 'mock' | 'manual_estimate' | 'unknown'
 
 export interface EncodingRun {
@@ -164,13 +160,12 @@ export async function getSDKSessions(limit = 50): Promise<SDKSession[]> {
   return (data || []) as SDKSession[]
 }
 
-// Fetch session metadata (title from first agent_start, last event timestamp) for multiple sessions
+// Fetch session metadata
 export async function getSDKSessionMeta(
   sessionIds: string[]
 ): Promise<Record<string, { title: string; lastEventAt: string | null }>> {
   if (sessionIds.length === 0) return {}
 
-  // Get first agent_start events for titles
   const { data: startEvents } = await supabase
     .from('sdk_session_events')
     .select('session_id, content')
@@ -178,7 +173,6 @@ export async function getSDKSessionMeta(
     .eq('event_type', 'agent_start')
     .order('sequence', { ascending: true })
 
-  // Get last event timestamp per session (ordered descending so first per session is latest)
   const { data: lastEvents } = await supabase
     .from('sdk_session_events')
     .select('session_id, timestamp')
@@ -187,7 +181,6 @@ export async function getSDKSessionMeta(
 
   const meta: Record<string, { title: string; lastEventAt: string | null }> = {}
 
-  // Extract titles from first agent_start per session
   if (startEvents) {
     for (const row of startEvents) {
       if (!meta[row.session_id] && row.content) {
@@ -200,7 +193,6 @@ export async function getSDKSessionMeta(
     }
   }
 
-  // Extract last event timestamp per session
   if (lastEvents) {
     const seen = new Set<string>()
     for (const row of lastEvents) {
@@ -233,4 +225,70 @@ export async function getSDKSessionEvents(sessionId: string, limit = 2000): Prom
   }
 
   return (data || []) as SDKSessionEvent[]
+}
+
+// Atlas/Rule types (from atlas-viewer)
+export interface Rule {
+  id: string
+  jurisdiction: string
+  doc_type: string
+  parent_id: string | null
+  level: number
+  ordinal: number | null
+  heading: string | null
+  body: string | null
+  effective_date: string | null
+  repeal_date: string | null
+  source_url: string | null
+  source_path: string | null
+  citation_path: string | null
+  rac_path: string | null
+  has_rac: boolean
+  created_at: string
+  updated_at: string
+}
+
+// Encoding data linked to a rule via citation_path
+export interface RuleEncodingData {
+  encoding_run_id: string
+  citation: string
+  session_id: string | null
+  file_path: string
+  rac_content: string | null
+  final_scores: EncodingRunScores | null
+}
+
+// Fetch encoding data for a rule by its ID
+export async function getRuleEncoding(ruleId: string): Promise<RuleEncodingData | null> {
+  // First get the rule's citation_path and jurisdiction
+  const { data: rule, error: ruleError } = await supabaseArch
+    .from('rules')
+    .select('citation_path, jurisdiction')
+    .eq('id', ruleId)
+    .single()
+
+  if (ruleError || !rule?.citation_path) return null
+
+  // Match citation_path to encoding_runs.file_path
+  // citation_path: "us/statute/26/1/j/2" → file_path: "statute/26/1/j/2.rac"
+  const expectedFilePath = rule.citation_path.replace(rule.jurisdiction + '/', '') + '.rac'
+
+  const { data, error } = await supabase
+    .from('encoding_runs')
+    .select('id, citation, session_id, file_path, rac_content, final_scores')
+    .eq('file_path', expectedFilePath)
+    .order('timestamp', { ascending: false })
+    .limit(1)
+
+  if (error || !data || data.length === 0) return null
+
+  const run = data[0]
+  return {
+    encoding_run_id: run.id,
+    citation: run.citation,
+    session_id: run.session_id,
+    file_path: run.file_path,
+    rac_content: run.rac_content,
+    final_scores: run.final_scores,
+  }
 }

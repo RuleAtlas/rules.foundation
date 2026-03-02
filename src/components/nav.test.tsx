@@ -1,0 +1,84 @@
+import { render, screen } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+
+const mockUsePathname = vi.fn()
+
+// Mock next/navigation
+vi.mock('next/navigation', () => ({
+  usePathname: () => mockUsePathname(),
+}))
+
+// Mock next/link
+vi.mock('next/link', () => ({
+  default: ({ children, href, ...props }: any) => <a href={href} {...props}>{children}</a>,
+}))
+
+import { Nav } from '@/components/nav'
+
+describe('Nav', () => {
+  it('renders the logo linking to home', () => {
+    mockUsePathname.mockReturnValue('/')
+    render(<Nav />)
+    const logo = screen.getByAltText('Rules Foundation')
+    expect(logo).toBeInTheDocument()
+    expect(logo.closest('a')).toHaveAttribute('href', '/')
+  })
+
+  it('renders navigation links', () => {
+    mockUsePathname.mockReturnValue('/')
+    render(<Nav />)
+    expect(screen.getByText('Browser')).toBeInTheDocument()
+    expect(screen.getByText('.rac')).toBeInTheDocument()
+    expect(screen.getByText('AutoRAC')).toBeInTheDocument()
+    expect(screen.queryByText('Lab')).not.toBeInTheDocument()
+    expect(screen.queryByText('Browse')).not.toBeInTheDocument()
+    expect(screen.getByText('Spec')).toBeInTheDocument()
+    expect(screen.getByText('About')).toBeInTheDocument()
+    expect(screen.getByText('Docs')).toBeInTheDocument()
+  })
+
+  it('renders anchor links on landing page (pathname /)', () => {
+    mockUsePathname.mockReturnValue('/')
+    render(<Nav />)
+    const racLink = screen.getByText('.rac')
+    expect(racLink.closest('a')).toHaveAttribute('href', '#format')
+  })
+
+  it('renders anchor links as Link on non-landing pages', () => {
+    mockUsePathname.mockReturnValue('/about')
+    render(<Nav />)
+    const racLink = screen.getByText('.rac')
+    expect(racLink.closest('a')).toHaveAttribute('href', '/#format')
+  })
+
+  it('highlights active link on /browse', () => {
+    mockUsePathname.mockReturnValue('/browse')
+    render(<Nav />)
+    const browserLink = screen.getByText('Browser')
+    expect(browserLink.closest('a')).toHaveClass('text-[var(--color-text)]')
+  })
+
+  it('highlights active link on /about', () => {
+    mockUsePathname.mockReturnValue('/about')
+    render(<Nav />)
+    const aboutLink = screen.getByText('About')
+    expect(aboutLink.closest('a')).toHaveClass('text-[var(--color-text)]')
+  })
+
+  it('renders GitHub icon link', () => {
+    mockUsePathname.mockReturnValue('/')
+    render(<Nav />)
+    const links = screen.getAllByRole('link')
+    const githubLink = links.find(
+      (l) => l.getAttribute('href') === 'https://github.com/RulesFoundation',
+    )
+    expect(githubLink).toBeInTheDocument()
+  })
+
+  it('renders Browser link to /browse', () => {
+    mockUsePathname.mockReturnValue('/')
+    render(<Nav />)
+    const browserLink = screen.getByText('Browser')
+    expect(browserLink.closest('a')).toHaveAttribute('href', '/browse')
+  })
+})

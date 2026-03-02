@@ -1,22 +1,43 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
     "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "types": ["vitest/globals"]
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "src/App.tsx",
+    "src/App.test.tsx",
+    "src/main.tsx",
+    "src/theme.css.ts",
+    "src/styles",
+    "src/_old_pages",
+    "src/components/LandingPage.tsx",
+    "src/components/LandingPage.css.ts",
+    "src/components/LandingPage.test.tsx",
+    "src/components/Header.tsx",
+    "src/components/Header.css.ts",
+    "src/components/Header.test.tsx",
+    "src/components/CodeBlock.tsx",
+    "src/components/CodeBlock.test.tsx",
+    "src/components/Icons.tsx",
+    "src/components/Icons.test.tsx",
+    "vitest.config.ts"
+  ]
 }
