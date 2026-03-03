@@ -118,7 +118,12 @@ describe("useTreeNodes", () => {
 
       await waitFor(() => expect(result.current.loading).toBe(false));
 
-      expect(mockGetTitleNodes).toHaveBeenCalledWith("us", "statute");
+      expect(mockGetTitleNodes).toHaveBeenCalledWith(
+        "us",
+        "statute",
+        expect.any(Set),
+        false
+      );
       expect(result.current.nodes).toEqual(titleNodes);
     });
   });
@@ -143,7 +148,8 @@ describe("useTreeNodes", () => {
       expect(mockGetSectionNodes).toHaveBeenCalledWith(
         "us/statute/26",
         0,
-        expect.any(Set)
+        expect.any(Set),
+        false
       );
       expect(result.current.nodes).toEqual(sectionNodes);
     });
@@ -221,7 +227,8 @@ describe("useTreeNodes", () => {
       expect(mockGetSectionNodes).toHaveBeenCalledWith(
         "us/statute/12/4",
         0,
-        expect.any(Set)
+        expect.any(Set),
+        false
       );
       expect(result.current.leafRule).toEqual(fakeRule);
       expect(result.current.nodes).toEqual([]);
