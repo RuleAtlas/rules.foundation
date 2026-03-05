@@ -83,6 +83,61 @@ describe('useEncoding', () => {
     expect(mockGetTranscriptsBySession).toHaveBeenCalledWith('sess-1')
   })
 
+  it('fetches agent transcripts in parallel with session events', async () => {
+    const mockEncoding = {
+      encoding_run_id: 'enc-1',
+      citation: '26 USC 1',
+      session_id: 'sess-1',
+      file_path: 'statute/26/1.rac',
+      rac_content: 'rule { ... }',
+      final_scores: null,
+    }
+    const mockTranscripts = [
+      { id: 1, session_id: 'sess-1', agent_id: 'a1', tool_use_id: 'tu1', subagent_type: 'rules-engineer', prompt: 'test', description: null, response_summary: 'done', transcript: null, orchestrator_thinking: null, message_count: 5, created_at: '2025-01-01', uploaded_at: null },
+    ]
+    mockGetRuleEncoding.mockResolvedValue(mockEncoding)
+    mockGetSDKSessionEvents.mockResolvedValue([])
+    mockGetTranscriptsBySession.mockResolvedValue(mockTranscripts)
+
+    const { result } = renderHook(() => useEncoding('rule-1'))
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false)
+    })
+
+    expect(result.current.agentTranscripts).toEqual(mockTranscripts)
+    expect(mockGetTranscriptsBySession).toHaveBeenCalledWith('sess-1')
+  })
+
+  it('resets agentTranscripts when ruleId changes to null', async () => {
+    const mockEncoding = {
+      encoding_run_id: 'enc-1',
+      citation: '26 USC 1',
+      session_id: 'sess-1',
+      file_path: 'statute/26/1.rac',
+      rac_content: null,
+      final_scores: null,
+    }
+    mockGetRuleEncoding.mockResolvedValue(mockEncoding)
+    mockGetSDKSessionEvents.mockResolvedValue([])
+    mockGetTranscriptsBySession.mockResolvedValue([{ id: 1 }])
+
+    const { result, rerender } = renderHook(
+      ({ ruleId }) => useEncoding(ruleId),
+      { initialProps: { ruleId: 'rule-1' as string | null } }
+    )
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false)
+    })
+
+    expect(result.current.agentTranscripts).toHaveLength(1)
+
+    rerender({ ruleId: null })
+
+    expect(result.current.agentTranscripts).toEqual([])
+  })
+
   it('returns null encoding when getRuleEncoding returns null', async () => {
     mockGetRuleEncoding.mockResolvedValue(null)
 
