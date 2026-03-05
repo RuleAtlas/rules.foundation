@@ -258,6 +258,52 @@ export interface RuleEncodingData {
   final_scores: EncodingRunScores | null
 }
 
+// Generate candidate file paths walking up the hierarchy
+// e.g. "statute/26/32/b/1" → ["statute/26/32/b/1.rac", "statute/26/32/b.rac", "statute/26/32.rac"]
+function parentPaths(basePath: string): string[] {
+  const paths: string[] = [basePath + '.rac']
+  const parts = basePath.split('/')
+  for (let i = parts.length - 1; i >= 2; i--) {
+    paths.push(parts.slice(0, i).join('/') + '.rac')
+  }
+  return paths
+}
+
+// Fetch RAC content from GitHub rac-us repo (fallback for hand-written encodings)
+async function fetchRacFromGitHub(
+  basePath: string,
+  jurisdiction: string
+): Promise<RuleEncodingData | null> {
+  const repoMap: Record<string, string> = {
+    us: 'rac-us',
+    'us-ca': 'rac-us-ca',
+    'us-ny': 'rac-us-ny',
+    ca: 'rac-ca',
+  }
+  const repo = repoMap[jurisdiction]
+  if (!repo) return null
+
+  for (const filePath of parentPaths(basePath)) {
+    const url = `https://raw.githubusercontent.com/RulesFoundation/${repo}/main/${filePath}`
+    try {
+      const res = await fetch(url, { next: { revalidate: 3600 } } as RequestInit)
+      if (!res.ok) continue
+      const rac_content = await res.text()
+      return {
+        encoding_run_id: `github:${filePath}`,
+        citation: filePath.replace('.rac', ''),
+        session_id: null,
+        file_path: filePath,
+        rac_content,
+        final_scores: null,
+      }
+    } catch {
+      continue
+    }
+  }
+  return null
+}
+
 // Fetch encoding data for a rule by its ID
 export async function getRuleEncoding(ruleId: string): Promise<RuleEncodingData | null> {
   // First get the rule's citation_path and jurisdiction
@@ -271,24 +317,30 @@ export async function getRuleEncoding(ruleId: string): Promise<RuleEncodingData 
 
   // Match citation_path to encoding_runs.file_path
   // citation_path: "us/statute/26/1/j/2" → file_path: "statute/26/1/j/2.rac"
-  const expectedFilePath = rule.citation_path.replace(rule.jurisdiction + '/', '') + '.rac'
+  const basePath = rule.citation_path.replace(rule.jurisdiction + '/', '')
 
-  const { data, error } = await supabase
-    .from('encoding_runs')
-    .select('id, citation, session_id, file_path, rac_content, final_scores')
-    .eq('file_path', expectedFilePath)
-    .order('timestamp', { ascending: false })
-    .limit(1)
+  // Try exact path, then parent paths in encoding_runs
+  for (const filePath of parentPaths(basePath)) {
+    const { data, error } = await supabase
+      .from('encoding_runs')
+      .select('id, citation, session_id, file_path, rac_content, final_scores')
+      .eq('file_path', filePath)
+      .order('timestamp', { ascending: false })
+      .limit(1)
 
-  if (error || !data || data.length === 0) return null
-
-  const run = data[0]
-  return {
-    encoding_run_id: run.id,
-    citation: run.citation,
-    session_id: run.session_id,
-    file_path: run.file_path,
-    rac_content: run.rac_content,
-    final_scores: run.final_scores,
+    if (!error && data && data.length > 0) {
+      const run = data[0]
+      return {
+        encoding_run_id: run.id,
+        citation: run.citation,
+        session_id: run.session_id,
+        file_path: run.file_path,
+        rac_content: run.rac_content,
+        final_scores: run.final_scores,
+      }
+    }
   }
+
+  // Fallback: fetch from GitHub rac-* repo
+  return fetchRacFromGitHub(basePath, rule.jurisdiction)
 }
