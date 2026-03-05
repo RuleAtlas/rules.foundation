@@ -386,13 +386,22 @@ describe('supabase lib', () => {
     })
   })
 
+  // Helper to build a mock for encoding_runs that uses .in() instead of .eq()
+  function mockEncodingRunsChain(result: { data: any; error: any }) {
+    return {
+      select: () => ({
+        in: () => ({
+          order: () => Promise.resolve(result),
+        }),
+      }),
+    }
+  }
+
   describe('getRuleEncoding', () => {
     it('returns encoding data when rule has citation_path and encoding exists', async () => {
       // getRuleEncoding calls supabaseArch.from('rules') then supabase.from('encoding_runs')
       // Both clients use the same mockFrom since createClient is mocked once
-      let fromCallCount = 0
       mockFrom.mockImplementation((table: string) => {
-        fromCallCount++
         if (table === 'rules') {
           return {
             select: () => ({
@@ -405,26 +414,18 @@ describe('supabase lib', () => {
             }),
           }
         }
-        // encoding_runs
-        return {
-          select: () => ({
-            eq: () => ({
-              order: () => ({
-                limit: () => Promise.resolve({
-                  data: [{
-                    id: 'enc-1',
-                    citation: '26 USC 1',
-                    session_id: 'sess-1',
-                    file_path: 'statute/26/1.rac',
-                    rac_content: 'rule { ... }',
-                    final_scores: { rac: 90, formula: 85, parameter: 80, integration: 75 },
-                  }],
-                  error: null,
-                }),
-              }),
-            }),
-          }),
-        }
+        // encoding_runs — single query with .in()
+        return mockEncodingRunsChain({
+          data: [{
+            id: 'enc-1',
+            citation: '26 USC 1',
+            session_id: 'sess-1',
+            file_path: 'statute/26/1.rac',
+            rac_content: 'rule { ... }',
+            final_scores: { rac: 90, formula: 85, parameter: 80, integration: 75 },
+          }],
+          error: null,
+        })
       })
 
       const result = await getRuleEncoding('rule-1')
@@ -492,15 +493,7 @@ describe('supabase lib', () => {
             }),
           }
         }
-        return {
-          select: () => ({
-            eq: () => ({
-              order: () => ({
-                limit: () => Promise.resolve({ data: [], error: null }),
-              }),
-            }),
-          }),
-        }
+        return mockEncodingRunsChain({ data: [], error: null })
       })
 
       const result = await getRuleEncoding('rule-no-encoding')
@@ -521,15 +514,7 @@ describe('supabase lib', () => {
             }),
           }
         }
-        return {
-          select: () => ({
-            eq: () => ({
-              order: () => ({
-                limit: () => Promise.resolve({ data: null, error: { message: 'err' } }),
-              }),
-            }),
-          }),
-        }
+        return mockEncodingRunsChain({ data: null, error: { message: 'err' } })
       })
 
       const result = await getRuleEncoding('rule-err')

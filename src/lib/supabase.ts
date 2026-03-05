@@ -336,33 +336,35 @@ export async function getRuleEncoding(ruleId: string): Promise<RuleEncodingData 
   // citation_path: "us/statute/26/1/j/2" → file_path: "statute/26/1/j/2.rac"
   const basePath = rule.citation_path.replace(rule.jurisdiction + '/', '')
 
-  // Try exact path, then parent paths in encoding_runs
-  for (const filePath of parentPaths(basePath)) {
-    const { data, error } = await supabase
-      .from('encoding_runs')
-      .select('id, citation, session_id, file_path, rac_content, final_scores, iterations, total_duration_ms, agent_type, agent_model, data_source, has_issues, note, timestamp')
-      .eq('file_path', filePath)
-      .order('timestamp', { ascending: false })
-      .limit(1)
+  // Single query: try all candidate paths at once, pick the most specific match
+  const candidates = parentPaths(basePath)
+  const { data, error } = await supabase
+    .from('encoding_runs')
+    .select('id, citation, session_id, file_path, rac_content, final_scores, iterations, total_duration_ms, agent_type, agent_model, data_source, has_issues, note, timestamp')
+    .in('file_path', candidates)
+    .order('timestamp', { ascending: false })
 
-    if (!error && data && data.length > 0) {
-      const run = data[0]
-      return {
-        encoding_run_id: run.id,
-        citation: run.citation,
-        session_id: run.session_id,
-        file_path: run.file_path,
-        rac_content: run.rac_content,
-        final_scores: run.final_scores,
-        iterations: run.iterations ?? null,
-        total_duration_ms: run.total_duration_ms ?? null,
-        agent_type: run.agent_type ?? null,
-        agent_model: run.agent_model ?? null,
-        data_source: run.data_source ?? null,
-        has_issues: run.has_issues ?? null,
-        note: run.note ?? null,
-        timestamp: run.timestamp ?? null,
-      }
+  if (!error && data && data.length > 0) {
+    // Pick the most specific match (earliest in candidates list = most specific path)
+    const pathPriority = new Map(candidates.map((p, i) => [p, i]))
+    const best = data.reduce((a, b) =>
+      (pathPriority.get(a.file_path) ?? Infinity) <= (pathPriority.get(b.file_path) ?? Infinity) ? a : b
+    )
+    return {
+      encoding_run_id: best.id,
+      citation: best.citation,
+      session_id: best.session_id,
+      file_path: best.file_path,
+      rac_content: best.rac_content,
+      final_scores: best.final_scores,
+      iterations: best.iterations ?? null,
+      total_duration_ms: best.total_duration_ms ?? null,
+      agent_type: best.agent_type ?? null,
+      agent_model: best.agent_model ?? null,
+      data_source: best.data_source ?? null,
+      has_issues: best.has_issues ?? null,
+      note: best.note ?? null,
+      timestamp: best.timestamp ?? null,
     }
   }
 
