@@ -10,10 +10,13 @@
 export const heroRacCode = `niit_rate:
     from 2013-01-01: 0.038
 
-niit:
+net_investment_income_tax:
+    imports:
+        - 26/1411/a#net_investment_income
+        - 26/1411/a#excess_magi
     entity: TaxUnit
     from 2013-01-01:
-        niit_rate * min(nii, excess_magi)`
+        niit_rate * min(net_investment_income, excess_magi)`
 
 // -- Code comparison examples -------------------------------------------------
 
@@ -31,16 +34,17 @@ export const racExamples: Record<ExampleType, string> = {
 niit_rate:
     from 2013-01-01: 0.038
 
-modified_agi:
-    entity: TaxUnit
-    from 2024-01-01: 0
-
 # Lesser of NII or excess MAGI over threshold
 excess_magi:
+    imports:
+        - 26/62#modified_agi
+        - 26/1411/b#threshold_amount
     entity: TaxUnit
     from 2013-01-01: max(0, modified_agi - threshold_amount)
 
 net_investment_income_tax:
+    imports:
+        - 26/1411/c#net_investment_income
     entity: TaxUnit
     from 2013-01-01: niit_rate * min(net_investment_income, excess_magi)`,
 
@@ -75,6 +79,8 @@ ira_initial_3:
 
 # Computed: applicable percentage
 applicable_percentage:
+    imports:
+        - 26/36B/b/3#applicable_percentage_base
     entity: TaxUnit
     from 2014-01-01: applicable_percentage_base`,
 
@@ -89,6 +95,8 @@ joint_multiplier:
     from 1988-01-01: 2
 
 basic_std_ded_joint:
+    imports:
+        - 26/63/c/2/C#basic_std_ded_other
     entity: TaxUnit
     from 1988-01-01: basic_std_ded_other * joint_multiplier`,
 
@@ -104,6 +112,8 @@ ny_eitc_rate:
     from 2003-01-01: 0.30
 
 ny_eitc:
+    imports:
+        - 26/32#federal_eitc
     entity: TaxUnit
     from 2003-01-01: federal_eitc * ny_eitc_rate`,
 }
