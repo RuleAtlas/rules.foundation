@@ -103,26 +103,6 @@ export function EncodingTab({
         </div>
       )}
 
-      {/* File path */}
-      <div className="mt-6 pt-4 border-t border-[var(--color-border-subtle)]">
-        <span className="font-mono text-xs text-[var(--color-text-muted)]">
-          File:{" "}
-        </span>
-        {gitHubUrl ? (
-          <a
-            href={gitHubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-mono text-xs text-[var(--color-precision)] hover:underline"
-          >
-            {encoding.file_path}
-          </a>
-        ) : (
-          <code className="font-mono text-xs text-[var(--color-precision)]">
-            {encoding.file_path}
-          </code>
-        )}
-      </div>
     </div>
   );
 }

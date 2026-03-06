@@ -136,25 +136,23 @@ describe('EncodingTab', () => {
     expect(screen.getByText('This rule has not been encoded into RAC format yet.')).toBeInTheDocument()
   })
 
-  it('renders encoding with scores, RAC content, and file path', () => {
+  it('renders encoding with scores and RAC content', () => {
     render(<EncodingTab encoding={makeEncoding()} loading={false} />)
     expect(screen.getByText('90')).toBeInTheDocument()
     expect(screen.getByText('85')).toBeInTheDocument()
     expect(screen.getByText('80')).toBeInTheDocument()
     expect(screen.getByText('75')).toBeInTheDocument()
     expect(screen.getByText('rule tax_imposed { ... }')).toBeInTheDocument()
-    expect(screen.getByText('statute/26/1.rac')).toBeInTheDocument()
   })
 
   it('renders encoding without scores', () => {
     render(<EncodingTab encoding={makeEncoding({ final_scores: null })} loading={false} />)
-    expect(screen.getByText('statute/26/1.rac')).toBeInTheDocument()
+    expect(screen.getByText('RAC encoding')).toBeInTheDocument()
     expect(screen.queryByText('90')).not.toBeInTheDocument()
   })
 
   it('renders encoding without RAC content', () => {
     render(<EncodingTab encoding={makeEncoding({ rac_content: null })} loading={false} />)
-    expect(screen.getByText('statute/26/1.rac')).toBeInTheDocument()
     expect(screen.queryByText('rule tax_imposed { ... }')).not.toBeInTheDocument()
   })
 })
