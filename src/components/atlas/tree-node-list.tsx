@@ -25,7 +25,7 @@ export function TreeNodeList({
 
   if (error) {
     return (
-      <div className="p-4 bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.3)] rounded-lg text-sm text-[#ef4444]">
+      <div className="p-4 bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.3)] rounded-lg text-sm text-[var(--pe-color-error)]">
         {error}
       </div>
     );

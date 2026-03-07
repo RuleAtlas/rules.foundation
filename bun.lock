@@ -4,6 +4,7 @@
     "": {
       "name": "rules-foundation",
       "dependencies": {
+        "@policyengine/design-system": "^0.3.0",
         "@supabase/supabase-js": "^2.90.1",
         "motion": "^12.0.0",
         "next": "^16",
@@ -219,6 +220,8 @@
     "@next/swc-win32-x64-msvc": ["@next/swc-win32-x64-msvc@16.1.6", "", { "os": "win32", "cpu": "x64" }, "sha512-NRfO39AIrzBnixKbjuo2YiYhB6o9d8v/ymU9m/Xk8cyVk+k7XylniXkHwjs4s70wedVffc6bQNbufk5v0xEm0A=="],
 
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
+
+    "@policyengine/design-system": ["@policyengine/design-system@0.3.0", "", { "peerDependencies": { "react": ">=18.0.0", "react-dom": ">=18.0.0" }, "optionalPeers": ["react", "react-dom"] }, "sha512-XgyXMr5SIEFRuqeCNTfmP42EorA3N/5+8Vfnu475l0rg7f0zIRMEjHjaiXPCPcWrH4NfRyRJfzIKYDg5TxQEgg=="],
 
     "@rolldown/pluginutils": ["@rolldown/pluginutils@1.0.0-beta.27", "", {}, "sha512-+d0F4MKMCbeVUJwG96uQ4SgAznZNSq93I3V+9NHA4OpvqG8mRCpGdKmK8l/dl02h2CCDHwW2FqilnTyDcAnqjA=="],
 
