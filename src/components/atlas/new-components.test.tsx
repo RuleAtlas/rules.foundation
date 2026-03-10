@@ -77,6 +77,7 @@ function makeEncoding(overrides: Partial<RuleEncodingData> = {}): RuleEncodingDa
     has_issues: null,
     note: null,
     timestamp: null,
+    autorac_version: null,
     ...overrides,
   }
 }
@@ -323,6 +324,30 @@ describe('RuleDetailPanel', () => {
     render(<RuleDetailPanel document={makeDoc()} rule={makeRule()} />)
     expect(screen.getByText('Agent logs')).toBeInTheDocument()
     expect(screen.getByText('(1 events)')).toBeInTheDocument()
+  })
+
+  it('shows autorac version in agent logs drawer', () => {
+    mockUseEncoding.mockReturnValue({
+      encoding: makeEncoding({ autorac_version: '0.4.2' }),
+      sessionEvents: [makeEvent()],
+      agentTranscripts: [],
+      loading: false,
+      error: null,
+    })
+    render(<RuleDetailPanel document={makeDoc()} rule={makeRule()} />)
+    expect(screen.getByText('autorac 0.4.2')).toBeInTheDocument()
+  })
+
+  it('does not show autorac version when not present', () => {
+    mockUseEncoding.mockReturnValue({
+      encoding: makeEncoding({ autorac_version: null }),
+      sessionEvents: [makeEvent()],
+      agentTranscripts: [],
+      loading: false,
+      error: null,
+    })
+    render(<RuleDetailPanel document={makeDoc()} rule={makeRule()} />)
+    expect(screen.queryByText(/autorac /)).not.toBeInTheDocument()
   })
 
   it('toggles agent logs drawer open and closed', () => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { isLabEncoding } from "@/lib/atlas-utils";
 import type {
   SDKSessionEvent,
   AgentTranscript,
@@ -286,8 +287,7 @@ export function AgentLogsTab({
     );
   }
 
-  const hasEncodingMeta =
-    encoding && !encoding.encoding_run_id.startsWith("github:");
+  const hasEncodingMeta = isLabEncoding(encoding);
   /* v8 ignore next 2 -- branch: iterations present */
   const hasIterations =
     encoding?.iterations && encoding.iterations.length > 0;

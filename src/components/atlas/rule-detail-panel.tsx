@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getJurisdictionLabel, type ViewerDocument } from "@/lib/atlas-utils";
+import { getJurisdictionLabel, isLabEncoding, type ViewerDocument } from "@/lib/atlas-utils";
 import type { Rule } from "@/lib/supabase";
 import { useEncoding } from "@/hooks/use-encoding";
 import { SourceTab } from "./source-tab";
@@ -19,7 +19,7 @@ export function RuleDetailPanel({
 }) {
   const { encoding, sessionEvents, agentTranscripts, loading } = useEncoding(rule.id);
   const [logsOpen, setLogsOpen] = useState(false);
-  const hasLabData = encoding && !encoding.encoding_run_id.startsWith("github:");
+  const hasLabData = isLabEncoding(encoding);
 
   return (
     <div className="flex flex-col h-full">
@@ -86,7 +86,6 @@ export function RuleDetailPanel({
                   ({sessionEvents.length} events)
                 </span>
               )}
-              {/* v8 ignore next 4 -- autorac version display */}
               {encoding?.autorac_version && (
                 <span className="normal-case text-[var(--color-text-muted)]">
                   autorac {encoding.autorac_version}
