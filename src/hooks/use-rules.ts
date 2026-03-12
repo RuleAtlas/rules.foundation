@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabaseArch, type Rule } from "@/lib/supabase";
+import { COUNTRIES } from "@/lib/tree-data";
 
 const PAGE_SIZE = 50;
 
@@ -32,7 +33,9 @@ export function useRules(options: {
 
   const fetchStats = useCallback(async () => {
     try {
-      const jurisdictions = ["us", "uk", "canada"];
+      const jurisdictions = COUNTRIES.flatMap((c) =>
+        c.children.map((s) => s.dbJurisdictionId)
+      );
       const results = await Promise.all(
         jurisdictions.map(async (jur) => {
           const { count } = await supabaseArch
