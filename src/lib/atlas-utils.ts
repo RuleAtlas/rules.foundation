@@ -17,6 +17,8 @@ export interface ViewerDocument {
   hasRac: boolean;
   jurisdiction: string;
   archPath: string | null;
+  contextText?: string;
+  highlightedSubsection?: string;
 }
 
 export function getJurisdictionLabel(jurisdiction: string): string {
@@ -35,12 +37,22 @@ export function getJurisdictionLabel(jurisdiction: string): string {
 
 export function transformRuleToViewerDoc(
   rule: Rule,
-  children: Rule[]
+  children: Rule[],
+  options?: { contextText?: string; highlightId?: string }
 ): ViewerDocument {
-  const subsections = children.map((child, i) => ({
-    id: String.fromCharCode(97 + i),
-    text: child.body || child.heading || "",
-  }));
+  const subsections = children.map((child, i) => {
+    let id: string;
+    if (options?.highlightId && child.citation_path) {
+      const segments = child.citation_path.split("/");
+      id = segments[segments.length - 1];
+    } else {
+      id = String.fromCharCode(97 + i);
+    }
+    return {
+      id,
+      text: child.body || child.heading || "",
+    };
+  });
 
   if (subsections.length === 0 && rule.body) {
     const paragraphs = rule.body.split(/\n\n+/).filter(Boolean);
@@ -66,5 +78,7 @@ export function transformRuleToViewerDoc(
     hasRac: rule.has_rac,
     jurisdiction: rule.jurisdiction,
     archPath: rule.source_path,
+    ...(options?.contextText && { contextText: options.contextText }),
+    ...(options?.highlightId && { highlightedSubsection: options.highlightId }),
   };
 }

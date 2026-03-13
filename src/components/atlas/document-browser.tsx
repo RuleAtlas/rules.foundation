@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTreeNodes } from "@/hooks/use-tree-nodes";
 import { TreeBreadcrumbs } from "./tree-breadcrumbs";
@@ -8,7 +8,13 @@ import { TreeNodeList } from "./tree-node-list";
 import { RuleDetailPanel } from "./rule-detail-panel";
 import { JurisdictionPicker } from "./jurisdiction-picker";
 import { transformRuleToViewerDoc } from "@/lib/atlas-utils";
-import { resolveAtlasPath, buildBreadcrumbs, isUUID } from "@/lib/tree-data";
+import {
+  resolveAtlasPath,
+  buildBreadcrumbs,
+  isUUID,
+  resolveDisplayContext,
+} from "@/lib/tree-data";
+import type { DisplayContext } from "@/lib/tree-data";
 import { useRule } from "@/hooks/use-rules";
 
 /* v8 ignore start -- UUID backward compat component */
@@ -73,10 +79,41 @@ function RuleTreeView({
   );
   const breadcrumbs = buildBreadcrumbs(segments);
 
+  const [displayCtx, setDisplayCtx] = useState<DisplayContext | null>(null);
+
+  useEffect(() => {
+    if (leafRule) {
+      resolveDisplayContext(leafRule).then(setDisplayCtx);
+    } else {
+      setDisplayCtx(null);
+    }
+  }, [leafRule]);
+
   // Leaf rule from tree navigation (e.g. UK/Canada act with no children)
   /* v8 ignore start -- leaf rule rendering */
   if (leafRule) {
-    const doc = transformRuleToViewerDoc(leafRule, []);
+    if (!displayCtx) {
+      return (
+        <div className="max-w-[1280px] mx-auto">
+          <TreeBreadcrumbs items={breadcrumbs} />
+          <div className="flex items-center justify-center py-20 text-[var(--color-text-muted)]">
+            Loading...
+          </div>
+        </div>
+      );
+    }
+
+    const doc = transformRuleToViewerDoc(
+      leafRule,
+      displayCtx.parentBody ? displayCtx.siblings : [],
+      displayCtx.parentBody
+        ? {
+            contextText: displayCtx.parentBody,
+            highlightId: leafRule.citation_path?.split("/").pop(),
+          }
+        : undefined
+    );
+
     return (
       <div className="max-w-[1280px] mx-auto">
         <TreeBreadcrumbs items={breadcrumbs} />

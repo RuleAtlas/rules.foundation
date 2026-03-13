@@ -247,6 +247,43 @@ export function getJurisdiction(
   return undefined;
 }
 
+// ---- Display context for leaf nodes ----
+
+export interface DisplayContext {
+  rule: Rule;
+  parentBody: string | null;
+  siblings: Rule[];
+  targetIndex: number;
+}
+
+export async function resolveDisplayContext(rule: Rule): Promise<DisplayContext> {
+  if (!rule.parent_id) {
+    return { rule, parentBody: null, siblings: [rule], targetIndex: 0 };
+  }
+  const parentResult = await supabaseArch
+    .from("rules")
+    .select("*")
+    .eq("id", rule.parent_id)
+    .single();
+  const parent = parentResult.data as Rule | null;
+  if (!parent) {
+    return { rule, parentBody: null, siblings: [rule], targetIndex: 0 };
+  }
+  const siblingsResult = await supabaseArch
+    .from("rules")
+    .select("*")
+    .eq("parent_id", rule.parent_id)
+    .order("ordinal");
+  const siblings = (siblingsResult.data || []) as Rule[];
+  const targetIndex = siblings.findIndex((s) => s.id === rule.id);
+  return {
+    rule,
+    parentBody: parent.body || null,
+    siblings,
+    targetIndex: targetIndex >= 0 ? targetIndex : 0,
+  };
+}
+
 // ---- Pagination ----
 
 const PAGE_SIZE = 100;

@@ -112,13 +112,27 @@ export function SourceTab({ document }: { document: ViewerDocument }) {
 
   return (
     <div className="max-w-[800px] mx-auto">
-      {document.subsections.map((subsection) => (
+      {document.contextText && (
+        <div
+          data-testid="context-intro"
+          className="px-4 py-3 mb-4 text-[0.95rem] text-[var(--color-text-secondary)] leading-relaxed italic border-l-2 border-[var(--color-border-subtle)]"
+        >
+          <RichText text={document.contextText} />
+        </div>
+      )}
+      {document.subsections.map((subsection) => {
+        const isHighlighted =
+          document.highlightedSubsection === subsection.id;
+        return (
         <div
           key={subsection.id}
+          data-subsection-id={subsection.id}
           className={`flex gap-4 p-4 rounded-lg mb-3 transition-colors duration-150 cursor-default ${
-            highlightedSection === subsection.id
-              ? "bg-[rgba(59,130,246,0.08)]"
-              : "hover:bg-[rgba(255,255,255,0.02)]"
+            isHighlighted
+              ? "border-l-2 border-[var(--color-precision)] bg-[rgba(59,130,246,0.08)]"
+              : highlightedSection === subsection.id
+                ? "bg-[rgba(59,130,246,0.08)]"
+                : "hover:bg-[rgba(255,255,255,0.02)]"
           }`}
           onMouseEnter={() => setHighlightedSection(subsection.id)}
           onMouseLeave={() => setHighlightedSection(null)}
@@ -128,7 +142,8 @@ export function SourceTab({ document }: { document: ViewerDocument }) {
           </span>
           <RichText text={subsection.text} />
         </div>
-      ))}
+        );
+      })}
 
       {document.archPath && (
         <div className="mt-8 pt-4 border-t border-[var(--color-border-subtle)]">

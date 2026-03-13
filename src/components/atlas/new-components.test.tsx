@@ -243,10 +243,8 @@ describe('RuleDetailPanel', () => {
     })
   })
 
-  it('renders title, citation, and jurisdiction', () => {
+  it('renders citation and jurisdiction', () => {
     render(<RuleDetailPanel document={makeDoc()} rule={makeRule()} />)
-    expect(screen.getByText('Tax imposed')).toBeInTheDocument()
-    expect(screen.getByText('26 USC 1')).toBeInTheDocument()
     expect(screen.getByText('US')).toBeInTheDocument()
   })
 

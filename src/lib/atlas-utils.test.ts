@@ -1,0 +1,168 @@
+import { describe, it, expect, vi } from "vitest";
+import {
+  transformRuleToViewerDoc,
+  type ViewerDocument,
+} from "./atlas-utils";
+import type { Rule } from "@/lib/supabase";
+
+vi.mock("@/lib/supabase", () => ({
+  supabaseArch: { from: vi.fn() },
+  supabase: { from: vi.fn() },
+}));
+
+const mockRule = (overrides: Partial<Rule> = {}): Rule => ({
+  id: "test-id",
+  jurisdiction: "us",
+  doc_type: "statute",
+  parent_id: null,
+  level: 0,
+  ordinal: null,
+  heading: null,
+  body: null,
+  effective_date: null,
+  repeal_date: null,
+  source_url: null,
+  source_path: null,
+  citation_path: null,
+  rac_path: null,
+  has_rac: false,
+  created_at: "",
+  updated_at: "",
+  ...overrides,
+});
+
+describe("transformRuleToViewerDoc", () => {
+  describe("existing behavior preserved", () => {
+    it("maps children to subsections with letter IDs", () => {
+      const rule = mockRule({ heading: "Section 1", source_path: "26/1" });
+      const children = [
+        mockRule({ id: "c1", body: "Child A body" }),
+        mockRule({ id: "c2", body: "Child B body" }),
+      ];
+
+      const doc = transformRuleToViewerDoc(rule, children);
+
+      expect(doc.citation).toBe("26/1");
+      expect(doc.title).toBe("Section 1");
+      expect(doc.subsections).toEqual([
+        { id: "a", text: "Child A body" },
+        { id: "b", text: "Child B body" },
+      ]);
+    });
+
+    it("splits body into paragraphs when no children", () => {
+      const rule = mockRule({ body: "Paragraph one.\n\nParagraph two." });
+
+      const doc = transformRuleToViewerDoc(rule, []);
+
+      expect(doc.subsections).toEqual([
+        { id: "a", text: "Paragraph one." },
+        { id: "b", text: "Paragraph two." },
+      ]);
+    });
+
+    it("falls back to heading when no body and no children", () => {
+      const rule = mockRule({ heading: "Fallback heading" });
+
+      const doc = transformRuleToViewerDoc(rule, []);
+
+      expect(doc.subsections).toEqual([
+        { id: "a", text: "Fallback heading" },
+      ]);
+    });
+
+    it("falls back to default text when no heading, body, or children", () => {
+      const rule = mockRule({});
+
+      const doc = transformRuleToViewerDoc(rule, []);
+
+      expect(doc.subsections).toEqual([
+        { id: "a", text: "No content available." },
+      ]);
+    });
+
+    it("uses id as citation when source_path is null", () => {
+      const rule = mockRule({ id: "abc-123", source_path: null });
+
+      const doc = transformRuleToViewerDoc(rule, []);
+
+      expect(doc.citation).toBe("abc-123");
+    });
+  });
+
+  describe("with contextText option", () => {
+    it("sets contextText on returned doc", () => {
+      const rule = mockRule({ heading: "Section 1" });
+
+      const doc = transformRuleToViewerDoc(rule, [], {
+        contextText: "You are viewing subsection (a)",
+      });
+
+      expect(doc.contextText).toBe("You are viewing subsection (a)");
+    });
+  });
+
+  describe("with highlightId option", () => {
+    it("sets highlightedSubsection on returned doc", () => {
+      const rule = mockRule({ heading: "Section 1" });
+
+      const doc = transformRuleToViewerDoc(rule, [], {
+        highlightId: "a",
+      });
+
+      expect(doc.highlightedSubsection).toBe("a");
+    });
+  });
+
+  describe("with both options", () => {
+    it("sets both contextText and highlightedSubsection", () => {
+      const rule = mockRule({ heading: "Section 1" });
+
+      const doc = transformRuleToViewerDoc(rule, [], {
+        contextText: "Context here",
+        highlightId: "b",
+      });
+
+      expect(doc.contextText).toBe("Context here");
+      expect(doc.highlightedSubsection).toBe("b");
+    });
+  });
+
+  describe("empty contextText", () => {
+    it("does not set contextText for empty string", () => {
+      const rule = mockRule({ heading: "Section 1" });
+
+      const doc = transformRuleToViewerDoc(rule, [], {
+        contextText: "",
+      });
+
+      expect(doc.contextText).toBeUndefined();
+    });
+  });
+
+  describe("children use citation_path segment as subsection ID", () => {
+    it("uses last segment of citation_path instead of letter index", () => {
+      const rule = mockRule({ heading: "Section 24(d)(1)" });
+      const children = [
+        mockRule({
+          id: "c1",
+          body: "Subparagraph A text",
+          citation_path: "us/statute/26/24/d/1/A",
+        }),
+        mockRule({
+          id: "c2",
+          body: "Subparagraph B text",
+          citation_path: "us/statute/26/24/d/1/B",
+        }),
+      ];
+
+      const doc = transformRuleToViewerDoc(rule, children, {
+        highlightId: "A",
+      });
+
+      expect(doc.subsections[0].id).toBe("A");
+      expect(doc.subsections[1].id).toBe("B");
+      expect(doc.highlightedSubsection).toBe("A");
+    });
+  });
+});

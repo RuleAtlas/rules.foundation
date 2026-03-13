@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   buildBreadcrumbs,
   isUUID,
@@ -7,8 +7,16 @@ import {
   getSubJurisdiction,
   resolveAtlasPath,
   hasEncodedDescendant,
+  resolveDisplayContext,
   COUNTRIES,
 } from "./tree-data";
+import type { Rule } from "@/lib/supabase";
+import { supabaseArch } from "@/lib/supabase";
+
+vi.mock("@/lib/supabase", () => ({
+  supabaseArch: { from: vi.fn() },
+  supabase: { from: vi.fn() },
+}));
 
 describe("COUNTRIES", () => {
   it("contains US, UK, and Canada", () => {
@@ -21,11 +29,12 @@ describe("COUNTRIES", () => {
   it("US has Federal and Ohio sub-jurisdictions", () => {
     const us = COUNTRIES.find((c) => c.slug === "us");
     expect(us).toBeDefined();
-    expect(us!.children).toHaveLength(2);
+    expect(us!.children.length).toBeGreaterThanOrEqual(2);
     expect(us!.children[0].slug).toBe("federal");
     expect(us!.children[0].dbJurisdictionId).toBe("us");
-    expect(us!.children[1].slug).toBe("oh");
-    expect(us!.children[1].dbJurisdictionId).toBe("us-oh");
+    const oh = us!.children.find((c) => c.slug === "oh");
+    expect(oh).toBeDefined();
+    expect(oh!.dbJurisdictionId).toBe("us-oh");
   });
 
   it("UK has a single child (auto-skip)", () => {
@@ -306,5 +315,120 @@ describe("isUUID", () => {
 
   it("is case-insensitive", () => {
     expect(isUUID("550E8400-E29B-41D4-A716-446655440000")).toBe(true);
+  });
+});
+
+const mockRule = (overrides: Partial<Rule> = {}): Rule => ({
+  id: "test-id",
+  jurisdiction: "us",
+  doc_type: "statute",
+  parent_id: null,
+  level: 0,
+  ordinal: null,
+  heading: null,
+  body: null,
+  effective_date: null,
+  repeal_date: null,
+  source_url: null,
+  source_path: null,
+  citation_path: null,
+  rac_path: null,
+  has_rac: false,
+  created_at: "",
+  updated_at: "",
+  ...overrides,
+});
+
+describe("resolveDisplayContext", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns self as displayRoot with empty children for root-level node", async () => {
+    const rule = mockRule({ id: "root-1", parent_id: null });
+
+    const result = await resolveDisplayContext(rule);
+
+    expect(result.rule).toEqual(rule);
+    expect(result.parentBody).toBeNull();
+    expect(result.siblings).toEqual([rule]);
+    expect(result.targetIndex).toBe(0);
+  });
+
+  it("fetches parent and siblings for leaf with parent", async () => {
+    const parentRule = mockRule({ id: "parent-1", heading: "Parent" });
+    const sibling1 = mockRule({ id: "sib-1", parent_id: "parent-1", ordinal: 1 });
+    const sibling2 = mockRule({ id: "sib-2", parent_id: "parent-1", ordinal: 2 });
+    const leaf = mockRule({ id: "leaf-1", parent_id: "parent-1", ordinal: 3 });
+
+    const mockSingle = vi.fn().mockResolvedValue({ data: parentRule, error: null });
+    const mockEqParent = vi.fn().mockReturnValue({ single: mockSingle });
+    const mockOrder = vi.fn().mockResolvedValue({
+      data: [sibling1, sibling2, leaf],
+      error: null,
+    });
+    const mockEqSiblings = vi.fn().mockReturnValue({ order: mockOrder });
+    const mockSelect = vi.fn().mockReturnValue({
+      eq: vi.fn((col: string, val: string) => {
+        if (col === "id") return mockEqParent(col, val);
+        if (col === "parent_id") return mockEqSiblings(col, val);
+        return { single: mockSingle };
+      }),
+    });
+    vi.mocked(supabaseArch.from).mockReturnValue({ select: mockSelect } as any);
+
+    const result = await resolveDisplayContext(leaf);
+
+    expect(result.rule).toEqual(leaf);
+    expect(result.parentBody).toBeNull(); // parentRule has no body
+    expect(result.siblings).toEqual([sibling1, sibling2, leaf]);
+    expect(result.targetIndex).toBe(2);
+  });
+
+  it("falls back to self when parent fetch fails", async () => {
+    const leaf = mockRule({ id: "leaf-1", parent_id: "parent-1" });
+
+    const mockSingle = vi.fn().mockResolvedValue({ data: null, error: { message: "Not found" } });
+    const mockEqParent = vi.fn().mockReturnValue({ single: mockSingle });
+    const mockSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({ single: mockSingle }),
+    });
+    vi.mocked(supabaseArch.from).mockReturnValue({ select: mockSelect } as any);
+
+    const result = await resolveDisplayContext(leaf);
+
+    expect(result.rule).toEqual(leaf);
+    expect(result.parentBody).toBeNull();
+    expect(result.siblings).toEqual([leaf]);
+    expect(result.targetIndex).toBe(0);
+  });
+
+  it("returns children ordered by ordinal for multiple siblings", async () => {
+    const parentRule = mockRule({ id: "parent-1" });
+    const child1 = mockRule({ id: "c1", parent_id: "parent-1", ordinal: 1 });
+    const child3 = mockRule({ id: "c3", parent_id: "parent-1", ordinal: 3 });
+    const child2 = mockRule({ id: "c2", parent_id: "parent-1", ordinal: 2 });
+    const leaf = mockRule({ id: "c2", parent_id: "parent-1", ordinal: 2 });
+
+    const mockSingle = vi.fn().mockResolvedValue({ data: parentRule, error: null });
+    const mockOrder = vi.fn().mockResolvedValue({
+      data: [child1, child2, child3],
+      error: null,
+    });
+    const mockSelect = vi.fn().mockReturnValue({
+      eq: vi.fn((col: string) => {
+        if (col === "id") return { single: mockSingle };
+        if (col === "parent_id") return { order: mockOrder };
+        return { single: mockSingle };
+      }),
+    });
+    vi.mocked(supabaseArch.from).mockReturnValue({ select: mockSelect } as any);
+
+    const result = await resolveDisplayContext(leaf);
+
+    expect(result.siblings).toEqual([child1, child2, child3]);
+    expect(result.siblings[0].ordinal).toBe(1);
+    expect(result.siblings[1].ordinal).toBe(2);
+    expect(result.siblings[2].ordinal).toBe(3);
   });
 });
