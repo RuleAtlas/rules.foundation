@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const mockPush = vi.fn();
@@ -39,6 +39,7 @@ vi.mock("@/lib/tree-data", async (importOriginal) => {
   return {
     ...actual,
     getJurisdictionCounts: vi.fn().mockResolvedValue(new Map()),
+    resolveDisplayContext: vi.fn(),
   };
 });
 
@@ -49,6 +50,7 @@ vi.mock("@/lib/supabase", () => ({
 }));
 
 import { useTreeNodes } from "@/hooks/use-tree-nodes";
+import { resolveDisplayContext } from "@/lib/tree-data";
 import { AtlasBrowser } from "./document-browser";
 
 describe("AtlasBrowser", () => {
@@ -287,6 +289,130 @@ describe("AtlasBrowser", () => {
       ).not.toBeInTheDocument();
       expect(
         screen.queryByText("Choose a sub-jurisdiction")
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("leaf rule with display context", () => {
+    const leafRule = {
+      id: "leaf-1",
+      jurisdiction: "us",
+      doc_type: "statute",
+      parent_id: "parent-1",
+      level: 4,
+      ordinal: 1,
+      heading: null,
+      body: "the credit determined under subsection (a)",
+      effective_date: null,
+      repeal_date: null,
+      source_url: null,
+      source_path: "26 USC 24(d)(1)(A)",
+      citation_path: "us/statute/26/24/d/1/A",
+      rac_path: null,
+      has_rac: false,
+      created_at: "",
+      updated_at: "",
+    };
+
+    it("calls resolveDisplayContext when useTreeNodes returns a leafRule", () => {
+      vi.mocked(useTreeNodes).mockReturnValue({
+        nodes: [],
+        loading: false,
+        error: null,
+        hasMore: false,
+        loadMore: mockLoadMore,
+        leafRule,
+      });
+
+      vi.mocked(resolveDisplayContext).mockResolvedValue({
+        rule: leafRule,
+        parentBody: "shall be increased by the lesser of—",
+        siblings: [
+          { ...leafRule, id: "leaf-1", body: "the credit determined under subsection (a)" },
+          { ...leafRule, id: "leaf-2", body: "the earned income of the taxpayer" },
+        ],
+        targetIndex: 0,
+      });
+
+      render(
+        <AtlasBrowser
+          segments={["us", "federal", "statute", "26", "24", "d", "1", "A"]}
+        />
+      );
+
+      expect(resolveDisplayContext).toHaveBeenCalledWith(leafRule);
+    });
+
+    it("renders parent body text as context after resolveDisplayContext resolves", async () => {
+      vi.mocked(useTreeNodes).mockReturnValue({
+        nodes: [],
+        loading: false,
+        error: null,
+        hasMore: false,
+        loadMore: mockLoadMore,
+        leafRule,
+      });
+
+      vi.mocked(resolveDisplayContext).mockResolvedValue({
+        rule: leafRule,
+        parentBody: "shall be increased by the lesser of—",
+        siblings: [
+          { ...leafRule, id: "leaf-1", body: "the credit determined under subsection (a)" },
+          { ...leafRule, id: "leaf-2", body: "the earned income of the taxpayer" },
+        ],
+        targetIndex: 0,
+      });
+
+      render(
+        <AtlasBrowser
+          segments={["us", "federal", "statute", "26", "24", "d", "1", "A"]}
+        />
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("shall be increased by the lesser of—")
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("renders normally without context block when resolveDisplayContext returns no parent", async () => {
+      const rootLeaf = {
+        ...leafRule,
+        parent_id: null,
+      };
+
+      vi.mocked(useTreeNodes).mockReturnValue({
+        nodes: [],
+        loading: false,
+        error: null,
+        hasMore: false,
+        loadMore: mockLoadMore,
+        leafRule: rootLeaf,
+      });
+
+      vi.mocked(resolveDisplayContext).mockResolvedValue({
+        rule: rootLeaf,
+        parentBody: null,
+        siblings: [rootLeaf],
+        targetIndex: 0,
+      });
+
+      render(
+        <AtlasBrowser
+          segments={["us", "federal", "statute", "26", "24", "d", "1", "A"]}
+        />
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("the credit determined under subsection (a)")
+        ).toBeInTheDocument();
+      });
+
+      // No context intro block
+      expect(
+        screen.queryByTestId("context-intro")
       ).not.toBeInTheDocument();
     });
   });
