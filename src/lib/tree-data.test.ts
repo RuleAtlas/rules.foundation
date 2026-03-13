@@ -431,4 +431,48 @@ describe("resolveDisplayContext", () => {
     expect(result.siblings[1].ordinal).toBe(2);
     expect(result.siblings[2].ordinal).toBe(3);
   });
+
+  it("falls back to empty siblings when siblings query returns null data", async () => {
+    const parentRule = mockRule({ id: "parent-1", body: "intro text" });
+    const leaf = mockRule({ id: "leaf-1", parent_id: "parent-1" });
+
+    const mockSingle = vi.fn().mockResolvedValue({ data: parentRule, error: null });
+    const mockOrder = vi.fn().mockResolvedValue({ data: null, error: { message: "fail" } });
+    const mockSelect = vi.fn().mockReturnValue({
+      eq: vi.fn((col: string) => {
+        if (col === "id") return { single: mockSingle };
+        if (col === "parent_id") return { order: mockOrder };
+        return { single: mockSingle };
+      }),
+    });
+    vi.mocked(supabaseArch.from).mockReturnValue({ select: mockSelect } as any);
+
+    const result = await resolveDisplayContext(leaf);
+
+    expect(result.siblings).toEqual([]);
+    expect(result.targetIndex).toBe(0);
+    expect(result.parentBody).toBe("intro text");
+  });
+
+  it("defaults targetIndex to 0 when leaf not found in siblings", async () => {
+    const parentRule = mockRule({ id: "parent-1" });
+    const otherChild = mockRule({ id: "other-1", parent_id: "parent-1", ordinal: 1 });
+    const leaf = mockRule({ id: "leaf-missing", parent_id: "parent-1" });
+
+    const mockSingle = vi.fn().mockResolvedValue({ data: parentRule, error: null });
+    const mockOrder = vi.fn().mockResolvedValue({ data: [otherChild], error: null });
+    const mockSelect = vi.fn().mockReturnValue({
+      eq: vi.fn((col: string) => {
+        if (col === "id") return { single: mockSingle };
+        if (col === "parent_id") return { order: mockOrder };
+        return { single: mockSingle };
+      }),
+    });
+    vi.mocked(supabaseArch.from).mockReturnValue({ select: mockSelect } as any);
+
+    const result = await resolveDisplayContext(leaf);
+
+    expect(result.targetIndex).toBe(0);
+    expect(result.siblings).toEqual([otherChild]);
+  });
 });
