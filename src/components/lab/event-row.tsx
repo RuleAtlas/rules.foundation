@@ -159,12 +159,12 @@ export function EventRow({
 
   const kindStyles: Record<string, string> = {
     thinking:
-      "text-[var(--color-text-secondary)] bg-[rgba(245,158,11,0.06)] border-l-2 border-[rgba(245,158,11,0.3)] pl-2",
+      "text-[var(--color-ink-secondary)] bg-[rgba(245,158,11,0.06)] border-l-2 border-[rgba(245,158,11,0.3)] pl-2",
     error: "text-red-400",
     permission: "text-yellow-500 italic",
-    tool_call: "text-[var(--color-text-secondary)] font-mono",
-    tool_output: "text-[var(--color-text-muted)] italic",
-    text: "text-[var(--color-text-secondary)]",
+    tool_call: "text-[var(--color-ink-secondary)] font-mono",
+    tool_output: "text-[var(--color-ink-muted)] italic",
+    text: "text-[var(--color-ink-secondary)]",
     empty: "text-[#555]",
   };
 
@@ -176,7 +176,7 @@ export function EventRow({
       className="grid grid-cols-[40px_80px_80px_1fr] gap-2 items-start px-4 py-2 rounded cursor-pointer text-[0.8rem] transition-colors duration-150 hover:bg-[rgba(255,255,255,0.04)]"
       onClick={onToggle}
     >
-      <span className="font-mono text-[0.7rem] text-[var(--color-text-muted)] text-right">
+      <span className="font-mono text-[0.7rem] text-[var(--color-ink-muted)] text-right">
         #{event.sequence}
       </span>
       <span
@@ -185,13 +185,13 @@ export function EventRow({
       >
         {label}
       </span>
-      <span className="font-mono text-[0.7rem] text-[var(--color-text-muted)]">
+      <span className="font-mono text-[0.7rem] text-[var(--color-ink-muted)]">
         {relTime}
       </span>
       <div className="min-w-0">
         {/* v8 ignore next 5 -- agent type badge */}
         {agentType && (
-          <span className="font-mono text-[0.65rem] text-[var(--color-text-muted)] bg-[rgba(255,255,255,0.05)] px-1.5 py-px rounded mr-2">
+          <span className="font-mono text-[0.65rem] text-[var(--color-ink-muted)] bg-[var(--color-code-bg)] px-1.5 py-px rounded mr-2">
             {agentType}
           </span>
         )}

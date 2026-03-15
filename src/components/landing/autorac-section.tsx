@@ -29,7 +29,7 @@ function AutoRACTerminal() {
       content: (
         <>
           <span className="text-[var(--color-success)]">$ </span>
-          <span className="text-[var(--color-text)] font-medium">
+          <span className="text-[var(--color-ink)] font-medium">
             autorac encode &quot;26 USC 32&quot;
           </span>
         </>
@@ -40,9 +40,9 @@ function AutoRACTerminal() {
       delay: 0.6,
       content: (
         <>
-          <span className="font-semibold text-[var(--color-warmth)]">[atlas]</span>
-          <span className="text-[var(--color-text-muted)]"> Loading 26 USC 32...</span>
-          <span className="text-[var(--color-text)] font-medium"> 81,247 characters</span>
+          <span className="font-semibold text-[var(--color-warning)]">[atlas]</span>
+          <span className="text-[var(--color-ink-muted)]"> Loading 26 USC 32...</span>
+          <span className="text-[var(--color-ink)] font-medium"> 81,247 characters</span>
         </>
       ),
     },
@@ -50,8 +50,8 @@ function AutoRACTerminal() {
       delay: 0.9,
       content: (
         <>
-          <span className="font-semibold text-[var(--color-warmth)]">[atlas]</span>
-          <span className="text-[var(--color-text-muted)]"> Parsing subsection tree...</span>
+          <span className="font-semibold text-[var(--color-warning)]">[atlas]</span>
+          <span className="text-[var(--color-ink-muted)]"> Parsing subsection tree...</span>
         </>
       ),
     },
@@ -59,9 +59,9 @@ function AutoRACTerminal() {
       delay: 1.2,
       content: (
         <>
-          <span className="font-semibold text-[var(--color-warmth)]">[atlas]</span>
+          <span className="font-semibold text-[var(--color-warning)]">[atlas]</span>
           <span className="text-[rgba(255,255,255,0.35)]">   (a) Allowance of credit </span>
-          <span className="text-[var(--color-text-muted)]">           2,341 chars</span>
+          <span className="text-[var(--color-ink-muted)]">           2,341 chars</span>
         </>
       ),
     },
@@ -69,9 +69,9 @@ function AutoRACTerminal() {
       delay: 1.35,
       content: (
         <>
-          <span className="font-semibold text-[var(--color-warmth)]">[atlas]</span>
+          <span className="font-semibold text-[var(--color-warning)]">[atlas]</span>
           <span className="text-[rgba(255,255,255,0.35)]">   (b) Percentages and amounts </span>
-          <span className="text-[var(--color-text-muted)]">       4,892 chars</span>
+          <span className="text-[var(--color-ink-muted)]">       4,892 chars</span>
         </>
       ),
     },
@@ -79,9 +79,9 @@ function AutoRACTerminal() {
       delay: 1.5,
       content: (
         <>
-          <span className="font-semibold text-[var(--color-warmth)]">[atlas]</span>
+          <span className="font-semibold text-[var(--color-warning)]">[atlas]</span>
           <span className="text-[rgba(255,255,255,0.35)]">   (c) Definitions and special rules </span>
-          <span className="text-[var(--color-text-muted)]"> 5,675 chars</span>
+          <span className="text-[var(--color-ink-muted)]"> 5,675 chars</span>
         </>
       ),
     },
@@ -89,7 +89,7 @@ function AutoRACTerminal() {
       delay: 1.65,
       content: (
         <>
-          <span className="font-semibold text-[var(--color-warmth)]">[atlas]</span>
+          <span className="font-semibold text-[var(--color-warning)]">[atlas]</span>
           <span className="text-[rgba(255,255,255,0.35)]">   ...</span>
         </>
       ),
@@ -98,9 +98,9 @@ function AutoRACTerminal() {
       delay: 1.8,
       content: (
         <>
-          <span className="font-semibold text-[var(--color-warmth)]">[atlas]</span>
+          <span className="font-semibold text-[var(--color-warning)]">[atlas]</span>
           <span className="text-[rgba(255,255,255,0.35)]">   (n) Supplemental child credit </span>
-          <span className="text-[var(--color-text-muted)]">     1,203 chars</span>
+          <span className="text-[var(--color-ink-muted)]">     1,203 chars</span>
         </>
       ),
     },
@@ -108,8 +108,8 @@ function AutoRACTerminal() {
       delay: 2.0,
       content: (
         <>
-          <span className="font-semibold text-[var(--color-warmth)]">[atlas]</span>
-          <span className="text-[var(--color-text)] font-medium"> 14 subsections extracted</span>
+          <span className="font-semibold text-[var(--color-warning)]">[atlas]</span>
+          <span className="text-[var(--color-ink)] font-medium"> 14 subsections extracted</span>
         </>
       ),
     },
@@ -118,8 +118,8 @@ function AutoRACTerminal() {
       delay: 2.5,
       content: (
         <>
-          <span className="font-semibold text-[var(--color-precision)]">[encode]</span>
-          <span className="text-[var(--color-text-muted)]"> Wave 1: </span>
+          <span className="font-semibold text-[var(--color-accent)]">[encode]</span>
+          <span className="text-[var(--color-ink-muted)]"> Wave 1: </span>
           <span className="text-[rgba(255,255,255,0.35)]">
             (a), (b), (c), (d), (f), (h), (i), (j), (m), (n)
           </span>
@@ -130,10 +130,10 @@ function AutoRACTerminal() {
       delay: 2.8,
       content: (
         <>
-          <span className="font-semibold text-[var(--color-precision)]">[encode]</span>
-          <span className="text-[var(--color-text-muted)]"> Wave 2: </span>
+          <span className="font-semibold text-[var(--color-accent)]">[encode]</span>
+          <span className="text-[var(--color-ink-muted)]"> Wave 2: </span>
           <span className="text-[rgba(255,255,255,0.35)]">(e), (g), (k), (l)</span>
-          <span className="text-[var(--color-text-muted)]"> &mdash; depends on wave 1</span>
+          <span className="text-[var(--color-ink-muted)]"> &mdash; depends on wave 1</span>
         </>
       ),
     },
@@ -141,12 +141,12 @@ function AutoRACTerminal() {
       delay: 3.2,
       content: (
         <>
-          <span className="font-semibold text-[var(--color-precision)]">[encode]</span>
-          <span className="inline-block text-[var(--color-precision)]">
+          <span className="font-semibold text-[var(--color-accent)]">[encode]</span>
+          <span className="inline-block text-[var(--color-accent)]">
             {" "}
             ████████████████████
           </span>
-          <span className="text-[var(--color-text)] font-medium"> 14/14 complete</span>
+          <span className="text-[var(--color-ink)] font-medium"> 14/14 complete</span>
         </>
       ),
     },
@@ -156,7 +156,7 @@ function AutoRACTerminal() {
       content: (
         <>
           <span className="font-semibold text-[#a78bfa]">[validate]</span>
-          <span className="text-[var(--color-text-muted)]"> CI:           </span>
+          <span className="text-[var(--color-ink-muted)]"> CI:           </span>
           <span className="text-[var(--color-success)]">14/14 passed</span>
         </>
       ),
@@ -166,7 +166,7 @@ function AutoRACTerminal() {
       content: (
         <>
           <span className="font-semibold text-[#a78bfa]">[validate]</span>
-          <span className="text-[var(--color-text-muted)]"> PolicyEngine: </span>
+          <span className="text-[var(--color-ink-muted)]"> PolicyEngine: </span>
           <span className="text-[var(--color-success)]">12/14 match</span>
           <span className="text-[rgba(255,255,255,0.35)]">  ✓</span>
         </>
@@ -177,7 +177,7 @@ function AutoRACTerminal() {
       content: (
         <>
           <span className="font-semibold text-[#a78bfa]">[validate]</span>
-          <span className="text-[var(--color-text-muted)]"> TAXSIM:       </span>
+          <span className="text-[var(--color-ink-muted)]"> TAXSIM:       </span>
           <span className="text-[var(--color-success)]">11/14 match</span>
           <span className="text-[rgba(255,255,255,0.35)]">  ✓</span>
         </>
@@ -188,8 +188,8 @@ function AutoRACTerminal() {
       content: (
         <>
           <span className="font-semibold text-[#a78bfa]">[validate]</span>
-          <span className="text-[var(--color-text-muted)]"> LLM review:   </span>
-          <span className="text-[var(--color-text)] font-medium">
+          <span className="text-[var(--color-ink-muted)]"> LLM review:   </span>
+          <span className="text-[var(--color-ink)] font-medium">
             2 issues flagged → auto-fixing
           </span>
         </>
@@ -202,7 +202,7 @@ function AutoRACTerminal() {
         <>
           <span className="font-semibold text-[var(--color-success)]">[done]</span>
           <span className="text-[var(--color-success)]"> 14 .rac files written to </span>
-          <span className="text-[var(--color-text)] font-medium">statute/26/32/</span>
+          <span className="text-[var(--color-ink)] font-medium">statute/26/32/</span>
         </>
       ),
     },
@@ -210,16 +210,16 @@ function AutoRACTerminal() {
 
   return (
     <div className="mb-12 max-w-[760px] mx-auto" ref={ref}>
-      <div className="bg-[#0c0c0c] rounded-xl border border-[var(--color-border)] overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,0.5),0_0_40px_rgba(59,130,246,0.08)]">
-        <div className="flex items-center gap-2 px-4 py-2 bg-[rgba(255,255,255,0.03)] border-b border-[rgba(255,255,255,0.06)]">
+      <div className="bg-[#0c0c0c] rounded-md border border-[var(--color-rule)] overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,0.5),0_0_40px_var(--color-accent-light)]">
+        <div className="flex items-center gap-2 px-4 py-2 bg-[transparent] border-b border-[rgba(255,255,255,0.06)]">
           <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
           <span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
           <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
-          <span className="font-[family-name:var(--f-mono)] text-[0.7rem] text-[rgba(255,255,255,0.3)] ml-2">
+          <span className="font-mono text-[0.7rem] text-[rgba(255,255,255,0.3)] ml-2">
             autorac — zsh
           </span>
         </div>
-        <div className="px-5 py-4 font-[family-name:var(--f-mono)] text-[0.82rem] leading-[1.8] overflow-x-auto min-h-[320px]">
+        <div className="px-5 py-4 font-mono text-[0.82rem] leading-[1.8] overflow-x-auto min-h-[320px]">
           {lines.map((line, i) => (
             <div
               key={i}
@@ -248,10 +248,10 @@ export function AutoracSection() {
       <div className="max-w-[1280px] mx-auto">
         <div className="text-center mb-20">
           <span className="eyebrow block mb-4">AI encoding</span>
-          <h2 className="heading-section text-[var(--color-text)] mb-6">
+          <h2 className="heading-section text-[var(--color-ink)] mb-6">
             AutoRAC
           </h2>
-          <p className="font-[family-name:var(--f-body)] text-lg font-light text-[var(--color-text-secondary)] max-w-[600px] mx-auto leading-relaxed">
+          <p className="font-body text-lg font-light text-[var(--color-ink-secondary)] max-w-[600px] mx-auto leading-relaxed">
             Point it at a statute. Get validated RAC.
           </p>
         </div>
@@ -260,93 +260,93 @@ export function AutoracSection() {
 
         {/* 3-tier validation pipeline */}
         <div className="mt-12 mb-12">
-          <h3 className="font-[family-name:var(--f-body)] text-2xl text-[var(--color-text)] text-center mb-8">
+          <h3 className="font-body text-2xl text-[var(--color-ink)] text-center mb-8">
             3-tier validation pipeline
           </h3>
 
           <div className="flex flex-col gap-4 max-w-[700px] mx-auto">
             {/* Tier 1 */}
-            <div className="flex gap-4 p-6 bg-[var(--color-bg)] border border-[var(--color-border-subtle)] rounded-lg">
-              <div className="w-10 h-10 flex items-center justify-center bg-[var(--color-precision)] text-white font-[family-name:var(--f-mono)] text-base font-semibold rounded-full shrink-0">
+            <div className="flex gap-4 p-6 bg-[var(--color-paper-elevated)] border border-[var(--color-rule)] rounded-lg">
+              <div className="w-10 h-10 flex items-center justify-center bg-[var(--color-accent)] text-white font-mono text-base font-semibold rounded-full shrink-0">
                 1
               </div>
               <div className="flex-1">
-                <h4 className="font-[family-name:var(--f-body)] text-[1.1rem] text-[var(--color-text)] mb-2">
+                <h4 className="font-body text-[1.1rem] text-[var(--color-ink)] mb-2">
                   CI validation
                 </h4>
-                <p className="font-[family-name:var(--f-body)] text-[0.9rem] text-[var(--color-text-secondary)] mb-2">
-                  <code className="font-[family-name:var(--f-mono)] text-[0.8rem] px-1.5 py-0.5 bg-[rgba(59,130,246,0.1)] rounded text-[var(--color-precision)]">
+                <p className="font-body text-[0.9rem] text-[var(--color-ink-secondary)] mb-2">
+                  <code className="font-mono text-[0.8rem] px-1.5 py-0.5 bg-[var(--color-accent-light)] rounded text-[var(--color-accent)]">
                     rac pytest
                   </code>{" "}
                   &mdash; instant, free
                 </p>
-                <p className="font-[family-name:var(--f-body)] text-[0.85rem] text-[var(--color-text-muted)]">
+                <p className="font-body text-[0.85rem] text-[var(--color-ink-muted)]">
                   Catches syntax errors, format issues, missing imports
                 </p>
-                <div className="flex flex-col gap-1 mt-3 pt-3 border-t border-[var(--color-border-subtle)]">
-                  <span className="flex items-center gap-2 font-[family-name:var(--f-mono)] text-[0.8rem] text-[#ff6b6b]">
+                <div className="flex flex-col gap-1 mt-3 pt-3 border-t border-[var(--color-rule)]">
+                  <span className="flex items-center gap-2 font-mono text-[0.8rem] text-[#ff6b6b]">
                     <XIcon className="w-3.5 h-3.5" /> Fail - Fix errors, retry (max 3)
                   </span>
-                  <span className="flex items-center gap-2 font-[family-name:var(--f-mono)] text-[0.8rem] text-[var(--color-success)]">
+                  <span className="flex items-center gap-2 font-mono text-[0.8rem] text-[var(--color-success)]">
                     <CheckIcon className="w-3.5 h-3.5" /> Pass - Proceed to oracles
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="w-0.5 h-6 bg-gradient-to-b from-[var(--color-border)] to-[var(--color-precision)] mx-auto" />
+            <div className="w-0.5 h-6 bg-gradient-to-b from-[var(--color-rule)] to-[var(--color-accent)] mx-auto" />
 
             {/* Tier 2 */}
-            <div className="flex gap-4 p-6 bg-[var(--color-bg)] border border-[var(--color-border-subtle)] rounded-lg">
-              <div className="w-10 h-10 flex items-center justify-center bg-[var(--color-precision)] text-white font-[family-name:var(--f-mono)] text-base font-semibold rounded-full shrink-0">
+            <div className="flex gap-4 p-6 bg-[var(--color-paper-elevated)] border border-[var(--color-rule)] rounded-lg">
+              <div className="w-10 h-10 flex items-center justify-center bg-[var(--color-accent)] text-white font-mono text-base font-semibold rounded-full shrink-0">
                 2
               </div>
               <div className="flex-1">
-                <h4 className="font-[family-name:var(--f-body)] text-[1.1rem] text-[var(--color-text)] mb-2">
+                <h4 className="font-body text-[1.1rem] text-[var(--color-ink)] mb-2">
                   External oracles
                 </h4>
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <span className="px-2 py-1 bg-[rgba(59,130,246,0.15)] rounded font-[family-name:var(--f-mono)] text-[0.75rem] font-semibold text-[var(--color-precision)]">
+                  <span className="px-2 py-1 bg-[rgba(26, 122, 109, 0.1)] rounded font-mono text-[0.75rem] font-semibold text-[var(--color-accent)]">
                     PE
                   </span>
-                  <span className="font-[family-name:var(--f-body)] text-[0.9rem] text-[var(--color-text-secondary)]">
+                  <span className="font-body text-[0.9rem] text-[var(--color-ink-secondary)]">
                     PolicyEngine
                   </span>
-                  <span className="px-2 py-1 bg-[rgba(59,130,246,0.15)] rounded font-[family-name:var(--f-mono)] text-[0.75rem] font-semibold text-[var(--color-precision)]">
+                  <span className="px-2 py-1 bg-[rgba(26, 122, 109, 0.1)] rounded font-mono text-[0.75rem] font-semibold text-[var(--color-accent)]">
                     TX
                   </span>
-                  <span className="font-[family-name:var(--f-body)] text-[0.9rem] text-[var(--color-text-secondary)]">
+                  <span className="font-body text-[0.9rem] text-[var(--color-ink-secondary)]">
                     TAXSIM
                   </span>
                 </div>
-                <p className="font-[family-name:var(--f-body)] text-[0.85rem] text-[var(--color-text-muted)]">
+                <p className="font-body text-[0.85rem] text-[var(--color-ink-muted)]">
                   Fast (~10s), free &mdash; generates comparison data for LLM reviewers
                 </p>
               </div>
             </div>
 
-            <div className="w-0.5 h-6 bg-gradient-to-b from-[var(--color-border)] to-[var(--color-precision)] mx-auto" />
+            <div className="w-0.5 h-6 bg-gradient-to-b from-[var(--color-rule)] to-[var(--color-accent)] mx-auto" />
 
             {/* Tier 3 */}
-            <div className="flex gap-4 p-6 bg-[var(--color-bg)] border border-[var(--color-border-subtle)] rounded-lg">
-              <div className="w-10 h-10 flex items-center justify-center bg-[var(--color-precision)] text-white font-[family-name:var(--f-mono)] text-base font-semibold rounded-full shrink-0">
+            <div className="flex gap-4 p-6 bg-[var(--color-paper-elevated)] border border-[var(--color-rule)] rounded-lg">
+              <div className="w-10 h-10 flex items-center justify-center bg-[var(--color-accent)] text-white font-mono text-base font-semibold rounded-full shrink-0">
                 3
               </div>
               <div className="flex-1">
-                <h4 className="font-[family-name:var(--f-body)] text-[1.1rem] text-[var(--color-text)] mb-2">
+                <h4 className="font-body text-[1.1rem] text-[var(--color-ink)] mb-2">
                   LLM reviewers
                 </h4>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {["RAC Reviewer", "Formula Reviewer", "Parameter Reviewer", "Integration Reviewer"].map((tag) => (
                     <span
                       key={tag}
-                      className="px-2 py-1 bg-[rgba(255,255,255,0.05)] border border-[var(--color-border-subtle)] rounded font-[family-name:var(--f-mono)] text-[0.75rem] text-[var(--color-text-secondary)]"
+                      className="px-2 py-1 bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded font-mono text-[0.75rem] text-[var(--color-ink-secondary)]"
                     >
                       {tag}
                     </span>
                   ))}
                 </div>
-                <p className="font-[family-name:var(--f-body)] text-[0.85rem] text-[var(--color-text-muted)]">
+                <p className="font-body text-[0.85rem] text-[var(--color-ink-muted)]">
                   Receive oracle comparison data to diagnose WHY discrepancies exist
                 </p>
               </div>
@@ -363,7 +363,7 @@ export function AutoracSection() {
           ].map((text) => (
             <div
               key={text}
-              className="flex items-center gap-2 font-[family-name:var(--f-body)] text-[0.9rem] text-[var(--color-text-secondary)]"
+              className="flex items-center gap-2 font-body text-[0.9rem] text-[var(--color-ink-secondary)]"
             >
               <CheckIcon className="w-4 h-4 text-[var(--color-success)]" />
               <span>{text}</span>

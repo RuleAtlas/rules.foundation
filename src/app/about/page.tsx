@@ -6,10 +6,10 @@ export default function AboutPage() {
     <div className="relative z-1 py-32 px-8">
       <div className="max-w-[800px] mx-auto">
         <header className="text-center mb-16">
-          <h1 className="heading-page text-[var(--color-text)] mb-6">
-            About Rule Atlas
+          <h1 className="heading-page mb-6">
+            About Rules Atlas
           </h1>
-          <p className="font-[family-name:var(--f-body)] text-xl font-light text-[var(--color-text-secondary)] leading-relaxed max-w-[600px] mx-auto">
+          <p className="font-body text-xl text-[var(--color-ink-secondary)] leading-relaxed max-w-[600px] mx-auto">
             Open infrastructure for encoded law. We build machine-readable
             encodings of statutes, regulations, and policy rules to serve as
             ground truth for AI systems.
@@ -17,10 +17,10 @@ export default function AboutPage() {
         </header>
 
         <section className="mb-16">
-          <h2 className="heading-sub text-[var(--color-text)] mb-4">
+          <h2 className="heading-sub mb-4">
             Our mission
           </h2>
-          <p className="font-[family-name:var(--f-body)] text-[1rem] text-[var(--color-text-secondary)] leading-relaxed">
+          <p className="font-body text-[1rem] text-[var(--color-ink-secondary)] leading-relaxed">
             Our mission is to make legal rules machine-readable, verifiable,
             and accessible to everyone. We&apos;re a fiscally sponsored project of
             the{" "}
@@ -36,7 +36,7 @@ export default function AboutPage() {
         </section>
 
         <section className="mb-16">
-          <h2 className="heading-sub text-[var(--color-text)] mb-6">
+          <h2 className="heading-sub mb-6">
             What we do
           </h2>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
@@ -56,12 +56,12 @@ export default function AboutPage() {
             ].map((card) => (
               <div
                 key={card.title}
-                className="p-6 bg-[var(--color-bg)] border border-[var(--color-border-subtle)] rounded-xl"
+                className="p-6 bg-[var(--color-paper-elevated)] border border-[var(--color-rule)] rounded-md"
               >
-                <h3 className="font-[family-name:var(--f-body)] text-lg text-[var(--color-text)] mb-2">
+                <h3 className="font-body text-lg text-[var(--color-ink)] mb-2">
                   {card.title}
                 </h3>
-                <p className="font-[family-name:var(--f-body)] text-sm text-[var(--color-text-secondary)] leading-relaxed">
+                <p className="font-body text-sm text-[var(--color-ink-secondary)] leading-relaxed">
                   {card.desc}
                 </p>
               </div>
@@ -70,7 +70,7 @@ export default function AboutPage() {
         </section>
 
         <section className="mb-16">
-          <h2 className="heading-sub text-[var(--color-text)] mb-6">Team</h2>
+          <h2 className="heading-sub mb-6">Team</h2>
           <div className="flex gap-8 items-start max-md:flex-col">
             <Image
               src="https://maxghenis.com/images/headshot.png"
@@ -80,8 +80,8 @@ export default function AboutPage() {
               className="rounded-full shrink-0"
             />
             <div>
-              <p className="font-[family-name:var(--f-body)] text-[1rem] text-[var(--color-text-secondary)] leading-relaxed mb-4">
-                Rule Atlas is led by{" "}
+              <p className="font-body text-[1rem] text-[var(--color-ink-secondary)] leading-relaxed mb-4">
+                Rules Atlas is led by{" "}
                 <a
                   href="https://maxghenis.com"
                   target="_blank"
@@ -95,13 +95,13 @@ export default function AboutPage() {
                 anyone passionate about making rules more transparent and
                 accessible.
               </p>
-              <div className="flex items-center gap-2 font-[family-name:var(--f-body)] text-sm text-[var(--color-text-secondary)]">
+              <div className="flex items-center gap-2 font-body text-sm text-[var(--color-ink-secondary)]">
                 <CheckIcon className="w-4 h-4 text-[var(--color-success)]" />
                 <span>
                   Join us on{" "}
                   <a
                     href="https://github.com/RuleAtlas"
-                    className="text-[var(--color-precision)] hover:text-[var(--color-warmth)]"
+                    className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)]"
                   >
                     github.com/RuleAtlas
                   </a>
@@ -112,17 +112,17 @@ export default function AboutPage() {
         </section>
 
         <section>
-          <h2 className="heading-sub text-[var(--color-text)] mb-4">
+          <h2 className="heading-sub mb-4">
             Contact
           </h2>
-          <p className="font-[family-name:var(--f-body)] text-[1rem] text-[var(--color-text-secondary)] leading-relaxed mb-4">
+          <p className="font-body text-[1rem] text-[var(--color-ink-secondary)] leading-relaxed mb-4">
             Have questions or want to get involved? We&apos;d love to hear from
             you.
           </p>
-          <div className="inline-block px-6 py-3 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-lg">
+          <div className="inline-block px-6 py-3 bg-[var(--color-paper-elevated)] border border-[var(--color-rule)] rounded-md">
             <a
               href="mailto:hello@ruleatlas.org"
-              className="font-[family-name:var(--f-mono)] text-[var(--color-precision)] text-[0.95rem]"
+              className="font-mono text-[var(--color-accent)] text-[0.95rem]"
             >
               hello@ruleatlas.org
             </a>

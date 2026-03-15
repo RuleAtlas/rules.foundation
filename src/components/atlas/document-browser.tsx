@@ -30,7 +30,7 @@ function UUIDRuleView({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20 text-[var(--color-text-muted)]">
+      <div className="flex items-center justify-center py-20 text-[var(--color-ink-muted)]">
         Loading rule...
       </div>
     );
@@ -39,7 +39,7 @@ function UUIDRuleView({
   if (error || !rule) {
     return (
       <div className="text-center py-20">
-        <p className="text-[var(--color-text-muted)] mb-4">
+        <p className="text-[var(--color-ink-muted)] mb-4">
           {error || "Rule not found."}
         </p>
         <button className="btn-outline" onClick={onBack}>
@@ -103,7 +103,7 @@ function RuleTreeView({
       return (
         <div className="max-w-[1280px] mx-auto">
           <TreeBreadcrumbs items={breadcrumbs} />
-          <div className="flex items-center justify-center py-20 text-[var(--color-text-muted)]">
+          <div className="flex items-center justify-center py-20 text-[var(--color-ink-muted)]">
             Loading...
           </div>
         </div>
@@ -162,17 +162,17 @@ function RuleTreeView({
               return !prev;
             });
           }}
-          className={`flex items-center gap-2 px-3 py-1.5 font-[family-name:var(--f-mono)] text-xs rounded-lg border transition-colors ${
+          className={`flex items-center gap-2 px-3 py-1.5 font-mono text-xs rounded-md border transition-colors ${
             encodedOnly
-              ? "text-[var(--color-precision)] border-[var(--color-precision)] bg-[rgba(59,130,246,0.1)]"
-              : "text-[var(--color-text-muted)] border-[var(--color-border)] bg-transparent hover:border-[var(--color-border-hover)]"
+              ? "text-[var(--color-accent)] border-[var(--color-accent)] bg-[var(--color-accent-light)]"
+              : "text-[var(--color-ink-muted)] border-[var(--color-rule)] bg-transparent hover:border-[var(--color-rule-hover)]"
           }`}
         >
           <span
             className={`inline-block w-2 h-2 rounded-full ${
               encodedOnly
-                ? "bg-[var(--color-precision)]"
-                : "bg-[var(--color-text-muted)]"
+                ? "bg-[var(--color-accent)]"
+                : "bg-[var(--color-ink-muted)]"
             }`}
           />
           Encoded only
@@ -181,7 +181,7 @@ function RuleTreeView({
       {/* v8 ignore stop */}
 
       {/* Tree node list */}
-      <div className="bg-[var(--color-bg)] border border-[var(--color-border-subtle)] rounded-xl overflow-hidden min-h-[400px]">
+      <div className="bg-[var(--color-paper-elevated)] border border-[var(--color-rule)] rounded-md overflow-hidden min-h-[400px]">
         <TreeNodeList
           nodes={nodes}
           onNavigate={handleNavigate}
@@ -189,9 +189,9 @@ function RuleTreeView({
           error={error}
         />
         {hasMore && (
-          <div className="flex justify-center py-4 border-t border-[var(--color-border-subtle)]">
+          <div className="flex justify-center py-4 border-t border-[var(--color-rule)]">
             <button
-              className="px-6 py-2 font-[family-name:var(--f-mono)] text-xs text-[var(--color-precision)] bg-transparent border border-[var(--color-border)] rounded-lg hover:bg-[rgba(59,130,246,0.1)] transition-colors"
+              className="px-6 py-2 font-mono text-xs text-[var(--color-accent)] bg-transparent border border-[var(--color-rule)] rounded-md hover:bg-[var(--color-accent-light)] transition-colors"
               onClick={loadMore}
               disabled={loading}
             >
@@ -229,10 +229,10 @@ export function AtlasBrowser({ segments }: { segments: string[] }) {
 
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="heading-section text-[var(--color-text)] mb-4">
+          <h1 className="heading-section text-[var(--color-ink)] mb-4">
             Atlas
           </h1>
-          <p className="font-[family-name:var(--f-body)] text-lg text-[var(--color-text-secondary)] max-w-[600px] mx-auto">
+          <p className="font-body text-lg text-[var(--color-ink-secondary)] max-w-[600px] mx-auto">
             Explore encoded law. Source documents, RAC encodings, and
             validation results across jurisdictions.
           </p>
@@ -258,10 +258,10 @@ export function AtlasBrowser({ segments }: { segments: string[] }) {
 
   return (
     <div className="max-w-[1280px] mx-auto">
-      <div className="flex items-center justify-center py-20 text-[var(--color-text-muted)]">
+      <div className="flex items-center justify-center py-20 text-[var(--color-ink-muted)]">
         Invalid path.{" "}
         <button
-          className="ml-2 text-[var(--color-precision)] hover:underline"
+          className="ml-2 text-[var(--color-accent)] hover:underline"
           onClick={() => router.push("/atlas")}
         >
           Return to Atlas

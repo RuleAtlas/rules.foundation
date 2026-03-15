@@ -4,17 +4,14 @@ import { CodeIcon } from "@/components/icons";
 export function CtaSection() {
   return (
     <section
-      className="relative z-1 py-32 px-8"
-      style={{
-        background: `linear-gradient(180deg, var(--color-void) 0%, rgba(59,130,246,0.08) 50%, var(--color-void) 100%)`,
-      }}
+      className="relative z-1 py-32 px-8 border-t border-[var(--color-rule-subtle)]"
     >
       <div className="max-w-[700px] mx-auto text-center">
-        <h2 className="heading-section text-[var(--color-text)] mb-6">
+        <h2 className="heading-section mb-6">
           Get involved
         </h2>
-        <p className="font-[family-name:var(--f-body)] text-lg text-[var(--color-text-secondary)] leading-relaxed mb-12">
-          Rule Atlas builds open infrastructure for encoded law.
+        <p className="font-body text-lg text-[var(--color-ink-secondary)] leading-relaxed mb-12">
+          Rules Atlas builds open infrastructure for encoded law.
         </p>
 
         <div className="flex justify-center gap-6 mb-12 flex-wrap">
@@ -56,7 +53,7 @@ export function CtaSection() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="font-[family-name:var(--f-mono)] text-[0.85rem] text-[var(--color-text-muted)] no-underline hover:text-[var(--color-precision)] transition-colors duration-150"
+                className="font-mono text-[0.85rem] text-[var(--color-ink-muted)] no-underline hover:text-[var(--color-accent)] transition-colors duration-150"
               >
                 {link.label}
               </Link>
@@ -64,7 +61,7 @@ export function CtaSection() {
               <a
                 key={link.label}
                 href={link.href}
-                className="font-[family-name:var(--f-mono)] text-[0.85rem] text-[var(--color-text-muted)] no-underline hover:text-[var(--color-precision)] transition-colors duration-150"
+                className="font-mono text-[0.85rem] text-[var(--color-ink-muted)] no-underline hover:text-[var(--color-accent)] transition-colors duration-150"
               >
                 {link.label}
               </a>

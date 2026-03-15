@@ -43,16 +43,16 @@ export function JurisdictionPicker() {
 
   return (
     <div>
-      <h2 className="font-[family-name:var(--f-display)] text-lg text-[var(--color-text-secondary)] mb-6 text-center">
+      <h2 className="font-display text-lg text-[var(--color-ink-secondary)] mb-6 text-center">
         Choose a jurisdiction
       </h2>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20 text-[var(--color-text-muted)]">
+        <div className="flex items-center justify-center py-20 text-[var(--color-ink-muted)]">
           Loading...
         </div>
       ) : cards.length === 0 ? (
-        <div className="flex items-center justify-center py-20 text-[var(--color-text-muted)]">
+        <div className="flex items-center justify-center py-20 text-[var(--color-ink-muted)]">
           No jurisdictions found.
         </div>
       ) : (
@@ -77,13 +77,13 @@ export function JurisdictionPicker() {
                   router.push(card.href);
                 }
               }}
-              className="p-6 bg-[var(--color-bg)] border border-[var(--color-border-subtle)] rounded-xl cursor-pointer hover:border-[var(--color-precision)] hover:bg-[rgba(59,130,246,0.05)] transition-colors"
+              className="p-6 bg-[var(--color-paper-elevated)] border border-[var(--color-rule)] rounded-md cursor-pointer hover:border-[var(--color-accent)] hover:bg-[var(--color-accent-light)] transition-colors"
             >
-              <div className="text-base font-[family-name:var(--f-display)] text-[var(--color-text)]">
+              <div className="text-base font-display text-[var(--color-ink)]">
                 {card.label}
               </div>
               {card.count !== null && (
-                <div className="mt-2 font-[family-name:var(--f-mono)] text-xs text-[var(--color-text-muted)]">
+                <div className="mt-2 font-mono text-xs text-[var(--color-ink-muted)]">
                   {card.count.toLocaleString()} rules
                 </div>
               )}

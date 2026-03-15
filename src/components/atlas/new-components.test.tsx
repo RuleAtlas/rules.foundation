@@ -138,9 +138,9 @@ describe('SourceTab', () => {
     const subsection = screen.getByText('There is hereby imposed a tax.')
     const container = subsection.closest('div[class*="transition"]')!
     fireEvent.mouseEnter(container)
-    expect(container).toHaveClass('bg-[rgba(59,130,246,0.08)]')
+    expect(container).toHaveClass('bg-[var(--color-accent-light)]')
     fireEvent.mouseLeave(container)
-    expect(container).not.toHaveClass('bg-[rgba(59,130,246,0.08)]')
+    expect(container).not.toHaveClass('bg-[var(--color-accent-light)]')
   })
 })
 

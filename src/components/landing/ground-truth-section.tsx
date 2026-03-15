@@ -6,10 +6,10 @@ export function GroundTruthSection() {
       <div className="max-w-[1280px] mx-auto">
         <div className="text-center mb-20">
           <span className="eyebrow block mb-4">Ground truth for AI</span>
-          <h2 className="heading-section text-[var(--color-text)] mb-6">
+          <h2 className="heading-section text-[var(--color-ink)] mb-6">
             Verifiable rewards
           </h2>
-          <p className="font-[family-name:var(--f-body)] text-lg font-light text-[var(--color-text-secondary)] max-w-[600px] mx-auto leading-relaxed">
+          <p className="font-body text-lg font-light text-[var(--color-ink-secondary)] max-w-[600px] mx-auto leading-relaxed">
             AI systems answering questions about policy rules need ground truth.
             RAC encodings provide verifiable correctness signals for training.
           </p>
@@ -35,15 +35,15 @@ export function GroundTruthSection() {
           ].map((card) => (
             <div
               key={card.title}
-              className="p-12 bg-gradient-to-br from-[rgba(59,130,246,0.08)] to-[rgba(59,130,246,0.02)] border border-[var(--color-border)] rounded-2xl transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(59,130,246,0.15)]"
+              className="p-12 bg-[var(--color-paper-elevated)] border border-[var(--color-rule)] rounded-md transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(26,122,109,0.1)]"
             >
-              <div className="w-14 h-14 flex items-center justify-center bg-[var(--color-void)] border border-[var(--color-border)] rounded-xl text-[var(--color-precision)] mb-6">
+              <div className="w-14 h-14 flex items-center justify-center bg-[var(--color-paper)] border border-[var(--color-rule)] rounded-md text-[var(--color-accent)] mb-6">
                 {card.icon}
               </div>
-              <h3 className="font-[family-name:var(--f-body)] text-[1.35rem] text-[var(--color-text)] mb-4">
+              <h3 className="font-body text-[1.35rem] text-[var(--color-ink)] mb-4">
                 {card.title}
               </h3>
-              <p className="font-[family-name:var(--f-body)] text-[0.95rem] text-[var(--color-text-secondary)] leading-relaxed">
+              <p className="font-body text-[0.95rem] text-[var(--color-ink-secondary)] leading-relaxed">
                 {card.desc}
               </p>
             </div>

@@ -1,6 +1,6 @@
-# Rule Atlas
+# Rules Atlas
 
-Rule Atlas website (ruleatlas.org). Deploys to Vercel.
+Rules Atlas website (ruleatlas.org). Deploys to Vercel.
 
 ## After pushing changes
 

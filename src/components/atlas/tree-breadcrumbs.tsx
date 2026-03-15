@@ -15,7 +15,7 @@ export function TreeBreadcrumbs({ items }: TreeBreadcrumbsProps) {
   return (
     <nav
       aria-label="Breadcrumb"
-      className="flex items-center gap-2 mb-6 font-[family-name:var(--f-mono)] text-sm"
+      className="flex items-center gap-2 mb-6 font-mono text-sm"
     >
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
@@ -23,16 +23,16 @@ export function TreeBreadcrumbs({ items }: TreeBreadcrumbsProps) {
         return (
           <span key={item.href} className="flex items-center gap-2">
             {index > 0 && (
-              <span className="text-[var(--color-text-muted)]">/</span>
+              <span className="text-[var(--color-ink-muted)]">/</span>
             )}
             {isLast ? (
-              <span className="text-[var(--color-text-secondary)]">
+              <span className="text-[var(--color-ink-secondary)]">
                 {item.label}
               </span>
             ) : (
               <Link
                 href={item.href}
-                className="text-[var(--color-precision)] hover:underline"
+                className="text-[var(--color-accent)] hover:underline"
               >
                 {item.label}
               </Link>

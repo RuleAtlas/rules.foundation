@@ -28,10 +28,10 @@ export function LabPreview() {
       <div className="max-w-[1280px] mx-auto">
         <div className="text-center mb-20">
           <span className="eyebrow block mb-4">Development</span>
-          <h2 className="heading-section text-[var(--color-text)] mb-6">
+          <h2 className="heading-section mb-6">
             Experiment lab
           </h2>
-          <p className="font-[family-name:var(--f-body)] text-lg font-light text-[var(--color-text-secondary)] max-w-[600px] mx-auto leading-relaxed">
+          <p className="font-body text-lg text-[var(--color-ink-secondary)] max-w-[600px] mx-auto leading-relaxed">
             Live experiment tracking, agent transcripts, and calibration data.
             See what AutoRAC is working on in real time.
           </p>
@@ -42,18 +42,18 @@ export function LabPreview() {
             <Link
               key={card.title}
               href="/lab"
-              className="p-12 bg-gradient-to-br from-[rgba(59,130,246,0.08)] to-[rgba(59,130,246,0.02)] border border-[var(--color-border)] rounded-2xl transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(59,130,246,0.15)] no-underline"
+              className="p-12 bg-[var(--color-paper-elevated)] border border-[var(--color-rule)] rounded-md transition-all duration-200 hover:-translate-y-1 hover:border-[var(--color-accent)] hover:shadow-[0_8px_24px_rgba(26,122,109,0.08)] no-underline"
             >
-              <div className="w-14 h-14 flex items-center justify-center bg-[var(--color-void)] border border-[var(--color-border)] rounded-xl text-[var(--color-precision)] mb-6">
+              <div className="w-14 h-14 flex items-center justify-center bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded-md text-[var(--color-accent)] mb-6">
                 {card.icon}
               </div>
-              <h3 className="font-[family-name:var(--f-body)] text-[1.35rem] text-[var(--color-text)] mb-4">
+              <h3 className="font-body text-[1.35rem] text-[var(--color-ink)] mb-4">
                 {card.title}
               </h3>
-              <p className="font-[family-name:var(--f-body)] text-[0.95rem] text-[var(--color-text-secondary)] leading-relaxed mb-4">
+              <p className="font-body text-[0.95rem] text-[var(--color-ink-secondary)] leading-relaxed mb-4">
                 {card.desc}
               </p>
-              <div className="px-4 py-2 bg-[rgba(59,130,246,0.1)] rounded font-[family-name:var(--f-mono)] text-xs text-[var(--color-text-muted)]">
+              <div className="px-4 py-2 bg-[var(--color-code-bg)] rounded font-mono text-xs text-[var(--color-ink-muted)]">
                 <span>{card.meta}</span>
               </div>
             </Link>

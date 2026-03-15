@@ -20,22 +20,22 @@ export function Hero() {
         }`}
         style={{ transitionTimingFunction: "var(--ease-out)" }}
       >
-        <h1 className="heading-page text-[var(--color-text)] mb-8">
+        <h1 className="heading-page mb-8">
           Encoding the{" "}
-          <span className="text-[var(--color-precision)]">
+          <span className="text-[var(--color-accent)]">
             world&apos;s rules
           </span>
         </h1>
 
-        <p className="font-[family-name:var(--f-body)] text-xl font-light text-[var(--color-text-secondary)] leading-relaxed max-w-[600px] mx-auto mb-12">
-          Rule Atlas builds open, machine-readable encodings of
+        <p className="font-body text-xl text-[var(--color-ink-secondary)] leading-relaxed max-w-[600px] mx-auto mb-12">
+          Rules Atlas builds open, machine-readable encodings of
           statutes, regulations, and policy rules. Ground truth for AI systems.
           Verifiable by design.
         </p>
 
         <div className="flex gap-6 justify-center mb-16 flex-wrap">
           <a href="/atlas" className="btn-primary">
-            Explore the Rule Atlas
+            Explore the Rules Atlas
             <ArrowRightIcon className="w-5 h-5" />
           </a>
         </div>
