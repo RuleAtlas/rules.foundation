@@ -16,13 +16,13 @@ export function Nav() {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-100 py-4 nav-bar">
+    <header className="fixed top-0 left-0 right-0 z-100 py-3 nav-bar">
       <div className="max-w-[1280px] mx-auto px-8 flex items-center justify-between">
         <Link href="/" className="flex items-baseline gap-2 no-underline">
           <img
             src="/logos/rules-atlas.svg"
-            alt="Rules Atlas"
-            className="h-11 w-auto"
+            alt="Axiom"
+            className="h-9 w-auto"
           />
         </Link>
         <nav className="flex items-center gap-8">

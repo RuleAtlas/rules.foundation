@@ -7,7 +7,7 @@ export default function AboutPage() {
       <div className="max-w-[800px] mx-auto">
         <header className="text-center mb-16">
           <h1 className="heading-page mb-6">
-            About Rules Atlas
+            About Axiom
           </h1>
           <p className="font-body text-xl text-[var(--color-ink-secondary)] leading-relaxed max-w-[600px] mx-auto">
             Open infrastructure for encoded law. We build machine-readable
@@ -81,7 +81,7 @@ export default function AboutPage() {
             />
             <div>
               <p className="font-body text-[1rem] text-[var(--color-ink-secondary)] leading-relaxed mb-4">
-                Rules Atlas is led by{" "}
+                Axiom is led by{" "}
                 <a
                   href="https://maxghenis.com"
                   target="_blank"

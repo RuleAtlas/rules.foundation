@@ -11,12 +11,12 @@ import { AgentPhase } from "@/components/lab/agent-phase";
 import { EventRow, type BadgeColors } from "@/components/lab/event-row";
 
 const badgeColors: BadgeColors = {
-  agent_start: { bg: "rgba(26, 122, 109, 0.1)", fg: "#1a7a6d" },
-  agent_end: { bg: "rgba(26, 122, 109, 0.08)", fg: "#15665b" },
-  tool_use: { bg: "rgba(111, 66, 193, 0.1)", fg: "#6f42c1" },
-  tool_result: { bg: "rgba(111, 66, 193, 0.08)", fg: "#5a3a9e" },
-  message: { bg: "rgba(45, 138, 78, 0.1)", fg: "#2d8a4e" },
-  thinking: { bg: "rgba(194, 122, 26, 0.1)", fg: "#c27a1a" },
+  agent_start: { bg: "rgba(0, 212, 170, 0.12)", fg: "#00d4aa" },
+  agent_end: { bg: "rgba(0, 212, 170, 0.08)", fg: "#33e0be" },
+  tool_use: { bg: "rgba(168, 85, 247, 0.12)", fg: "#a855f7" },
+  tool_result: { bg: "rgba(168, 85, 247, 0.08)", fg: "#c084fc" },
+  message: { bg: "rgba(34, 197, 94, 0.12)", fg: "#22c55e" },
+  thinking: { bg: "rgba(245, 158, 11, 0.12)", fg: "#f59e0b" },
 };
 
 /* v8 ignore next 8 -- only used by IterationsList (already ignored) */
@@ -144,8 +144,8 @@ function IterationsList({
           className="bg-[var(--color-code-bg)] border rounded-md p-3"
           style={{
             borderColor: iter.success
-              ? "rgba(45, 138, 78, 0.2)"
-              : "rgba(196, 61, 61, 0.2)",
+              ? "rgba(34, 197, 94, 0.2)"
+              : "rgba(239, 68, 68, 0.2)",
           }}
         >
           <div className="flex items-center justify-between mb-1">
@@ -159,8 +159,8 @@ function IterationsList({
               <span
                 className={`text-xs font-semibold px-2 py-0.5 rounded ${
                   iter.success
-                    ? "bg-[rgba(45,138,78,0.1)] text-[var(--color-success)]"
-                    : "bg-[rgba(196,61,61,0.1)] text-[var(--color-error)]"
+                    ? "bg-[rgba(34,197,94,0.1)] text-[var(--color-success)]"
+                    : "bg-[rgba(239,68,68,0.1)] text-[var(--color-error)]"
                 }`}
               >
                 {iter.success ? "Pass" : "Fail"}
@@ -172,7 +172,7 @@ function IterationsList({
               {iter.errors.map((err, i) => (
                 <div
                   key={i}
-                  className="text-xs text-[var(--color-error)] bg-[rgba(196,61,61,0.06)] rounded px-2 py-1 font-mono"
+                  className="text-xs text-[var(--color-error)] bg-[rgba(239,68,68,0.08)] rounded px-2 py-1 font-mono"
                 >
                   <span className="text-[var(--color-error)] font-semibold">
                     {err.type}:
@@ -236,7 +236,7 @@ function TranscriptCard({ transcript }: { transcript: AgentTranscript }) {
               <div className="text-xs text-[var(--color-ink-muted)] uppercase tracking-wider mb-1">
                 Orchestrator thinking
               </div>
-              <pre className="text-xs text-[var(--color-ink-secondary)] whitespace-pre-wrap bg-[rgba(194,122,26,0.06)] border border-[rgba(194,122,26,0.12)] rounded p-2">
+              <pre className="text-xs text-[var(--color-ink-secondary)] whitespace-pre-wrap bg-[rgba(245,158,11,0.08)] border border-[rgba(245,158,11,0.15)] rounded p-2">
                 {transcript.orchestrator_thinking}
               </pre>
             </div>

@@ -7,7 +7,7 @@ export function Footer() {
         <div className="flex justify-center mb-4">
           <img
             src="/logos/rules-atlas.svg"
-            alt="Rules Atlas"
+            alt="Axiom"
             className="h-9 w-auto"
           />
         </div>

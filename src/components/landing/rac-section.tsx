@@ -38,7 +38,7 @@ of the threshold amount.`;
       <div
         className={`flex-[0_0_340px] max-md:flex-[1_1_100%] max-md:max-w-full bg-[var(--color-paper-elevated)] border rounded-md overflow-hidden transition-all duration-500 ${
           phase === 0
-            ? "opacity-100 scale-100 border-[var(--color-accent)] shadow-[0_0_24px_rgba(26,122,109,0.1)]"
+            ? "opacity-100 scale-100 border-[var(--color-accent)] shadow-[0_0_24px_rgba(0,212,170,0.15)]"
             : "opacity-60 scale-[0.98] border-[var(--color-rule)]"
         }`}
       >
@@ -79,7 +79,7 @@ of the threshold amount.`;
       <div
         className={`flex-[0_0_340px] max-md:flex-[1_1_100%] max-md:max-w-full bg-[var(--color-paper-elevated)] border rounded-md overflow-hidden transition-all duration-500 ${
           phase === 2
-            ? "opacity-100 scale-100 border-[var(--color-accent)] shadow-[0_0_24px_rgba(26,122,109,0.1)]"
+            ? "opacity-100 scale-100 border-[var(--color-accent)] shadow-[0_0_24px_rgba(0,212,170,0.15)]"
             : "opacity-60 scale-[0.98] border-[var(--color-rule)]"
         }`}
       >

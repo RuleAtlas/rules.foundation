@@ -28,14 +28,14 @@ export function Hero() {
         </h1>
 
         <p className="font-body text-xl text-[var(--color-ink-secondary)] leading-relaxed max-w-[600px] mx-auto mb-12">
-          Rules Atlas builds open, machine-readable encodings of
+          Axiom builds open, machine-readable encodings of
           statutes, regulations, and policy rules. Ground truth for AI systems.
           Verifiable by design.
         </p>
 
         <div className="flex gap-6 justify-center mb-16 flex-wrap">
           <a href="/atlas" className="btn-primary">
-            Explore the Rules Atlas
+            Explore the atlas
             <ArrowRightIcon className="w-5 h-5" />
           </a>
         </div>
