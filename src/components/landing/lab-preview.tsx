@@ -52,7 +52,7 @@ export function LabPreview() {
               <p className="font-body text-[0.95rem] text-[var(--color-ink-secondary)] leading-relaxed mb-4">
                 {card.desc}
               </p>
-              <div className="px-4 py-2 bg-[var(--color-code-bg)] rounded font-mono text-xs text-[var(--color-ink-muted)]">
+              <div className="px-4 py-2 bg-[var(--color-code-bg)] rounded font-mono text-xs text-[#78716c]">
                 <span>{card.meta}</span>
               </div>
             </Link>

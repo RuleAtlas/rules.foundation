@@ -435,7 +435,7 @@ export function AutoracSection() {
                   {["RAC Reviewer", "Formula Reviewer", "Parameter Reviewer", "Integration Reviewer"].map((tag) => (
                     <span
                       key={tag}
-                      className="px-2 py-1 bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded font-mono text-[0.75rem] text-[var(--color-ink-secondary)]"
+                      className="px-2 py-1 bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded font-mono text-[0.75rem] text-[var(--color-code-text)]"
                     >
                       {tag}
                     </span>

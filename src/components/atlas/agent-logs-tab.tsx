@@ -66,47 +66,47 @@ function EncodingRunSummary({ encoding }: { encoding: RuleEncodingData }) {
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       {encoding.agent_type && (
         <div className="bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded-lg p-3">
-          <div className="text-xs text-[var(--color-ink-muted)] mb-1">
+          <div className="text-xs text-[#78716c] mb-1">
             Agent
           </div>
-          <div className="text-sm text-[var(--color-ink)]">
+          <div className="text-sm text-[var(--color-code-text)]">
             {encoding.agent_type}
           </div>
         </div>
       )}
       {encoding.agent_model && (
         <div className="bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded-lg p-3">
-          <div className="text-xs text-[var(--color-ink-muted)] mb-1">
+          <div className="text-xs text-[#78716c] mb-1">
             Model
           </div>
-          <div className="text-sm text-[var(--color-ink)] font-mono">
+          <div className="text-sm text-[var(--color-code-text)] font-mono">
             {encoding.agent_model}
           </div>
         </div>
       )}
       {encoding.total_duration_ms != null && (
         <div className="bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded-lg p-3">
-          <div className="text-xs text-[var(--color-ink-muted)] mb-1">
+          <div className="text-xs text-[#78716c] mb-1">
             Duration
           </div>
-          <div className="text-sm text-[var(--color-ink)] font-mono">
+          <div className="text-sm text-[var(--color-code-text)] font-mono">
             {formatDuration(encoding.total_duration_ms)}
           </div>
         </div>
       )}
       {encoding.data_source && (
         <div className="bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded-lg p-3">
-          <div className="text-xs text-[var(--color-ink-muted)] mb-1">
+          <div className="text-xs text-[#78716c] mb-1">
             Source
           </div>
-          <div className="text-sm text-[var(--color-ink)]">
+          <div className="text-sm text-[var(--color-code-text)]">
             {encoding.data_source.replace(/_/g, " ")}
           </div>
         </div>
       )}
       {encoding.has_issues != null && (
         <div className="bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded-lg p-3">
-          <div className="text-xs text-[var(--color-ink-muted)] mb-1">
+          <div className="text-xs text-[#78716c] mb-1">
             Issues
           </div>
           <div
@@ -118,10 +118,10 @@ function EncodingRunSummary({ encoding }: { encoding: RuleEncodingData }) {
       )}
       {encoding.timestamp && (
         <div className="bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded-lg p-3">
-          <div className="text-xs text-[var(--color-ink-muted)] mb-1">
+          <div className="text-xs text-[#78716c] mb-1">
             Run date
           </div>
-          <div className="text-sm text-[var(--color-ink)] font-mono">
+          <div className="text-sm text-[var(--color-code-text)] font-mono">
             {new Date(encoding.timestamp).toLocaleDateString()}
           </div>
         </div>
@@ -149,11 +149,11 @@ function IterationsList({
           }}
         >
           <div className="flex items-center justify-between mb-1">
-            <span className="font-mono text-xs font-semibold text-[var(--color-ink)]">
+            <span className="font-mono text-xs font-semibold text-[var(--color-code-text)]">
               Attempt {iter.attempt}
             </span>
             <div className="flex items-center gap-3">
-              <span className="font-mono text-xs text-[var(--color-ink-muted)]">
+              <span className="font-mono text-xs text-[#78716c]">
                 {formatDuration(iter.duration_ms)}
               </span>
               <span
@@ -211,11 +211,11 @@ function TranscriptCard({ transcript }: { transcript: AgentTranscript }) {
               {transcript.subagent_type}
             </span>
           </div>
-          <span className="font-mono text-xs text-[var(--color-ink-muted)]">
+          <span className="font-mono text-xs text-[#78716c]">
             {transcript.message_count} messages
           </span>
         </div>
-        <div className="text-sm text-[var(--color-ink-secondary)] line-clamp-2">
+        <div className="text-sm text-[var(--color-code-text)] line-clamp-2">
           {messagePreview}
         </div>
       </div>
@@ -223,30 +223,30 @@ function TranscriptCard({ transcript }: { transcript: AgentTranscript }) {
         <div className="border-t border-[var(--color-rule-subtle)] p-3 max-h-[300px] overflow-y-auto">
           {transcript.prompt && (
             <div className="mb-3">
-              <div className="text-xs text-[var(--color-ink-muted)] uppercase tracking-wider mb-1">
+              <div className="text-xs text-[#78716c] uppercase tracking-wider mb-1">
                 Prompt
               </div>
-              <pre className="text-xs text-[var(--color-ink-secondary)] whitespace-pre-wrap bg-[var(--color-code-bg)] rounded p-2">
+              <pre className="text-xs text-[var(--color-code-text)] whitespace-pre-wrap bg-[var(--color-code-bg)] rounded p-2">
                 {transcript.prompt}
               </pre>
             </div>
           )}
           {transcript.orchestrator_thinking && (
             <div className="mb-3">
-              <div className="text-xs text-[var(--color-ink-muted)] uppercase tracking-wider mb-1">
+              <div className="text-xs text-[#78716c] uppercase tracking-wider mb-1">
                 Orchestrator thinking
               </div>
-              <pre className="text-xs text-[var(--color-ink-secondary)] whitespace-pre-wrap bg-[rgba(245,158,11,0.08)] border border-[rgba(245,158,11,0.15)] rounded p-2">
+              <pre className="text-xs text-[var(--color-code-text)] whitespace-pre-wrap bg-[rgba(245,158,11,0.08)] border border-[rgba(245,158,11,0.15)] rounded p-2">
                 {transcript.orchestrator_thinking}
               </pre>
             </div>
           )}
           {transcript.response_summary && (
             <div>
-              <div className="text-xs text-[var(--color-ink-muted)] uppercase tracking-wider mb-1">
+              <div className="text-xs text-[#78716c] uppercase tracking-wider mb-1">
                 Response
               </div>
-              <pre className="text-xs text-[var(--color-ink-secondary)] whitespace-pre-wrap bg-[var(--color-code-bg)] rounded p-2">
+              <pre className="text-xs text-[var(--color-code-text)] whitespace-pre-wrap bg-[var(--color-code-bg)] rounded p-2">
                 {transcript.response_summary}
               </pre>
             </div>
@@ -322,7 +322,7 @@ export function AgentLogsTab({
         <ExpandableSection title="Encoding run" defaultOpen>
           <EncodingRunSummary encoding={encoding} />
           {encoding.note && (
-            <div className="mt-3 text-sm text-[var(--color-ink-secondary)] bg-[var(--color-code-bg)] rounded-md p-3 border border-[var(--color-rule)]">
+            <div className="mt-3 text-sm text-[var(--color-code-text)] bg-[var(--color-code-bg)] rounded-md p-3 border border-[var(--color-rule)]">
               {encoding.note}
             </div>
           )}

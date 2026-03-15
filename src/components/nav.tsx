@@ -25,7 +25,7 @@ export function Nav() {
             className="h-9 w-auto shrink-0"
           />
         </Link>
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-8 uppercase tracking-wider text-[0.8rem]">
           {navLinks.map(({ href, label }) => {
             const isActive = pathname?.startsWith(href) && !href.startsWith("/#");
 
@@ -36,7 +36,7 @@ export function Nav() {
                   <a
                     key={href}
                     href={href.replace("/", "")}
-                    className={`text-[0.9rem] font-medium no-underline transition-colors duration-150 flex items-center ${
+                    className={`text-[0.9rem] font-light no-underline transition-colors duration-150 flex items-center ${
                       /* v8 ignore start -- anchor links never match pathname */
                       isActive
                         ? "text-[var(--color-ink)]"
@@ -52,7 +52,7 @@ export function Nav() {
                 <Link
                   key={href}
                   href={href}
-                  className="text-[0.9rem] font-medium no-underline text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors duration-150 flex items-center"
+                  className="text-[0.9rem] font-light no-underline text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors duration-150 flex items-center"
                 >
                   {label}
                 </Link>
@@ -63,7 +63,7 @@ export function Nav() {
               <Link
                 key={href}
                 href={href}
-                className={`text-[0.9rem] font-medium no-underline transition-colors duration-150 flex items-center ${
+                className={`text-[0.9rem] font-light no-underline transition-colors duration-150 flex items-center ${
                   isActive
                     ? "text-[var(--color-accent)]"
                     : "text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]"
@@ -75,7 +75,7 @@ export function Nav() {
           })}
           <a
             href="https://github.com/RuleAtlas/rac"
-            className="text-[0.9rem] font-medium no-underline text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors duration-150 flex items-center"
+            className="text-[0.9rem] font-light no-underline text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors duration-150 flex items-center"
             target="_blank"
             rel="noopener noreferrer"
           >
