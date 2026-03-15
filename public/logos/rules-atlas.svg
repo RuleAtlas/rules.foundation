@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 40">
     <g transform="translate(2, 2)">
-        <path d="M14 32 L28 0 L24 0 L21 8 L7 8 L4 0 L0 0 Z" fill="#00d4aa"/>
-        <path d="M9 13 L19 13 L17.5 17 L10.5 17 Z" fill="#0c0c0e"/>
+        <path d="M14 32 L28 0 L24 0 L21 8 L7 8 L4 0 L0 0 Z" fill="#b45309"/>
+        <path d="M9 13 L19 13 L17.5 17 L10.5 17 Z" fill="#faf9f6"/>
     </g>
-    <text x="40" y="27" font-family="Geist, Inter, system-ui, sans-serif" font-size="22" font-weight="600" letter-spacing="-0.8" fill="#ebebeb">Axiom</text>
+    <text x="40" y="27" font-family="Geist, Inter, system-ui, sans-serif" font-size="22" font-weight="600" letter-spacing="-0.8" fill="#1c1917">Axiom</text>
 </svg>

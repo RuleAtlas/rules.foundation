@@ -11,12 +11,12 @@ import { AgentPhase } from "@/components/lab/agent-phase";
 import { EventRow, type BadgeColors } from "@/components/lab/event-row";
 
 const badgeColors: BadgeColors = {
-  agent_start: { bg: "rgba(0, 212, 170, 0.12)", fg: "#00d4aa" },
-  agent_end: { bg: "rgba(0, 212, 170, 0.08)", fg: "#33e0be" },
-  tool_use: { bg: "rgba(168, 85, 247, 0.12)", fg: "#a855f7" },
-  tool_result: { bg: "rgba(168, 85, 247, 0.08)", fg: "#c084fc" },
-  message: { bg: "rgba(34, 197, 94, 0.12)", fg: "#22c55e" },
-  thinking: { bg: "rgba(245, 158, 11, 0.12)", fg: "#f59e0b" },
+  agent_start: { bg: "rgba(180, 83, 9, 0.1)", fg: "#b45309" },
+  agent_end: { bg: "rgba(180, 83, 9, 0.07)", fg: "#92400e" },
+  tool_use: { bg: "rgba(124, 58, 237, 0.1)", fg: "#7c3aed" },
+  tool_result: { bg: "rgba(124, 58, 237, 0.07)", fg: "#8b5cf6" },
+  message: { bg: "rgba(22, 101, 52, 0.1)", fg: "#166534" },
+  thinking: { bg: "rgba(180, 83, 9, 0.1)", fg: "#b45309" },
 };
 
 /* v8 ignore next 8 -- only used by IterationsList (already ignored) */

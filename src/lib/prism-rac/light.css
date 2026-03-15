@@ -1,12 +1,12 @@
 /**
- * RAC Dark Theme for Prism.js
- * Axiom dark palette
+ * RAC Theme for Prism.js
+ * Axiom — dark code blocks on light paper
  * https://ruleatlas.org
  */
 
 code[class*="language-rac"],
 pre[class*="language-rac"] {
-  color: #ebebeb;
+  color: #e7e5e4;
   background: none;
   font-family: "JetBrains Mono", "Fira Code", "Consolas", "Monaco", "Andale Mono", monospace;
   font-size: 0.9em;
@@ -25,93 +25,93 @@ pre[class*="language-rac"] {
   margin: 0.5em 0;
   overflow: auto;
   border-radius: 4px;
-  background: #121214;
+  background: #1c1917;
 }
 
 :not(pre) > code[class*="language-rac"] {
   padding: 0.2em 0.4em;
   border-radius: 0.25em;
   white-space: normal;
-  background: #1e1e20;
+  background: #292524;
 }
 
 /* ─── Comments ──────────────────────────────────────────────────────────────── */
 .token.comment {
-  color: #606060;
+  color: #78716c;
   font-style: italic;
 }
 
 /* ─── Section keywords (parameter, variable, text, etc.) ───────────────────── */
 .token.section-keyword {
-  color: #00d4aa;
+  color: #fbbf24;
   font-weight: 500;
 }
 
 /* ─── Declaration names (niit_rate, earned_income_credit, etc.) ─────────────── */
 .token.declaration-name {
-  color: #f59e0b;
+  color: #fb923c;
 }
 
 /* ─── Attribute names (description:, formula:, entity:, etc.) ──────────────── */
 .token.attr-name {
-  color: #a0a0a0;
+  color: #a8a29e;
   font-weight: 500;
 }
 
 /* ─── Keywords (if, else, return, True, False, etc.) ───────────────────────── */
 .token.keyword {
-  color: #00d4aa;
+  color: #fbbf24;
   font-weight: 500;
 }
 
 /* ─── Builtins (max, min, sum, interpolate, etc.) ──────────────────────────── */
 .token.builtin {
-  color: #a78bfa;
+  color: #c4b5fd;
 }
 
 /* ─── Type keywords (Person, TaxUnit, Year, Money, etc.) ───────────────────── */
 .token.type-keyword {
-  color: #38bdf8;
+  color: #7dd3fc;
 }
 
 /* ─── Strings ──────────────────────────────────────────────────────────────── */
 .token.string {
-  color: #f59e0b;
+  color: #fb923c;
 }
 
 /* ─── Import paths ─────────────────────────────────────────────────────────── */
 .token.import-path {
-  color: #f59e0b;
+  color: #fb923c;
 }
 
 /* ─── Numbers and dates ────────────────────────────────────────────────────── */
 .token.number {
-  color: #38bdf8;
+  color: #7dd3fc;
 }
 
 .token.date {
-  color: #38bdf8;
+  color: #7dd3fc;
 }
 
 /* ─── Booleans (YAML true/false) ───────────────────────────────────────────── */
 .token.boolean {
-  color: #00d4aa;
+  color: #fbbf24;
 }
 
 /* ─── Block scalar indicators (| and >) ────────────────────────────────────── */
 .token.block-scalar {
-  color: #a0a0a0;
+  color: #a8a29e;
   font-weight: 500;
 }
 
 /* ─── Operators ────────────────────────────────────────────────────────────── */
 .token.operator {
-  color: #a0a0a0;
+  color: #a8a29e;
 }
 
 /* ─── Punctuation ──────────────────────────────────────────────────────────── */
 .token.punctuation {
-  color: #606060;
+  color: #78716c;
 }
 
 /* ─── Selection ────────────────────────────────────────────────────────────── */
@@ -119,7 +119,7 @@ code[class*="language-rac"]::selection,
 code[class*="language-rac"] *::selection,
 pre[class*="language-rac"]::selection,
 pre[class*="language-rac"] *::selection {
-  background: rgba(0, 212, 170, 0.2);
+  background: rgba(180, 83, 9, 0.25);
 }
 
 /* ─── Line numbers (if using line-numbers plugin) ──────────────────────────── */
@@ -135,9 +135,9 @@ pre[class*="language-rac"].line-numbers > code {
 }
 
 .line-numbers .line-numbers-rows {
-  border-right-color: #2a2a2c;
+  border-right-color: #2a2826;
 }
 
 .line-numbers-rows > span::before {
-  color: #606060;
+  color: #78716c;
 }
