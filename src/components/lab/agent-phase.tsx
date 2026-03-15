@@ -88,10 +88,10 @@ export function AgentPhase({
 
   return (
     <div
-      className="bg-[rgba(0,0,0,0.2)] rounded-md overflow-hidden"
+      className="bg-[var(--color-code-bg)] rounded-md overflow-hidden"
       style={{
         border: isPhaseExpanded
-          ? "1px solid rgba(59, 130, 246, 0.3)"
+          ? "1px solid rgba(26, 122, 109, 0.3)"
           : "1px solid rgba(255,255,255,0.08)",
       }}
     >
@@ -109,13 +109,13 @@ export function AgentPhase({
       >
         <div className="flex justify-between items-center mb-1.5">
           <div className="flex items-center gap-2">
-            <span className="text-[var(--color-precision)] text-xs">
+            <span className="text-[var(--color-accent)] text-xs">
               {isPhaseExpanded ? "\u25BC" : "\u25B6"}
             </span>
-            <span className="text-[var(--color-precision)] font-semibold text-[0.85rem]">
+            <span className="text-[var(--color-accent)] font-semibold text-[0.85rem]">
               {phaseLabel}
             </span>
-            <span className="font-mono text-[0.7rem] text-[var(--color-text-muted)]">
+            <span className="font-mono text-[0.7rem] text-[var(--color-ink-muted)]">
               Phase {phaseIndex + 1}
             </span>
           </div>

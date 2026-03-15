@@ -17,7 +17,7 @@ export function TreeNodeList({
 }: TreeNodeListProps) {
   if (loading && nodes.length === 0) {
     return (
-      <div className="flex items-center justify-center py-20 text-[var(--color-text-muted)]">
+      <div className="flex items-center justify-center py-20 text-[var(--color-ink-muted)]">
         Loading...
       </div>
     );
@@ -25,7 +25,7 @@ export function TreeNodeList({
 
   if (error) {
     return (
-      <div className="p-4 bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.3)] rounded-lg text-sm text-[#ef4444]">
+      <div className="p-4 bg-[rgba(196,61,61,0.08)] border border-[rgba(196,61,61,0.2)] rounded-md text-sm text-[var(--color-error)]">
         {error}
       </div>
     );
@@ -33,14 +33,14 @@ export function TreeNodeList({
 
   if (nodes.length === 0) {
     return (
-      <div className="flex items-center justify-center py-20 text-[var(--color-text-muted)]">
+      <div className="flex items-center justify-center py-20 text-[var(--color-ink-muted)]">
         No items found.
       </div>
     );
   }
 
   return (
-    <div className="divide-y divide-[var(--color-border-subtle)]">
+    <div className="divide-y divide-[var(--color-rule-subtle)]">
       {nodes.map((node) => (
         <div
           key={node.segment}
@@ -53,21 +53,21 @@ export function TreeNodeList({
               onNavigate(node);
             }
           }}
-          className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-[rgba(59,130,246,0.05)] transition-colors"
+          className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-[var(--color-accent-light)] transition-colors"
         >
-          <span className="w-5 text-center text-[var(--color-text-muted)] text-xs shrink-0">
+          <span className="w-5 text-center text-[var(--color-ink-muted)] text-xs shrink-0">
             {node.hasChildren ? "\u25B8" : "\u00B7"}
           </span>
-          <span className="flex-1 text-sm text-[var(--color-text-secondary)] truncate">
+          <span className="flex-1 text-sm text-[var(--color-ink-secondary)] truncate">
             {node.label}
           </span>
           {node.hasRac && (
-            <span className="font-[family-name:var(--f-mono)] text-[10px] text-[var(--color-precision)] border border-[var(--color-precision)] rounded px-1.5 py-0.5 uppercase tracking-wider shrink-0">
+            <span className="font-mono text-[10px] text-[var(--color-accent)] border border-[var(--color-accent)] rounded px-1.5 py-0.5 uppercase tracking-wider shrink-0">
               RAC
             </span>
           )}
           {node.childCount !== undefined && node.childCount > 0 && (
-            <span className="font-[family-name:var(--f-mono)] text-xs text-[var(--color-text-muted)] shrink-0">
+            <span className="font-mono text-xs text-[var(--color-ink-muted)] shrink-0">
               {node.childCount.toLocaleString()}
             </span>
           )}

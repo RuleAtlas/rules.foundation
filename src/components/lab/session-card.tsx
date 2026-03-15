@@ -58,48 +58,48 @@ export function SessionCard({
 
   return (
     <div
-      className="bg-[var(--color-bg)] border border-[var(--color-border-subtle)] rounded-xl overflow-hidden transition-all duration-200"
+      className="bg-[var(--color-paper-elevated)] border border-[var(--color-rule)] rounded-md overflow-hidden transition-all duration-200"
       style={{
         borderColor: expanded
-          ? "rgba(59, 130, 246, 0.3)"
+          ? "rgba(26, 122, 109, 0.3)"
           : undefined,
       }}
     >
       <div
-        className="p-5 cursor-pointer hover:bg-[rgba(255,255,255,0.02)] transition-colors"
+        className="p-5 cursor-pointer hover:bg-[var(--color-code-bg)] transition-colors"
         onClick={handleToggle}
       >
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="text-[var(--color-precision)] text-xs shrink-0">
+            <span className="text-[var(--color-accent)] text-xs shrink-0">
               {expanded ? "\u25BC" : "\u25B6"}
             </span>
             <div className="min-w-0">
-              <h3 className="font-[family-name:var(--f-body)] text-[1rem] text-[var(--color-text)] truncate">
+              <h3 className="font-body text-[1rem] text-[var(--color-ink)] truncate">
                 {displayTitle}
               </h3>
-              <p className="font-[family-name:var(--f-mono)] text-xs text-[var(--color-text-muted)] mt-0.5">
+              <p className="font-mono text-xs text-[var(--color-ink-muted)] mt-0.5">
                 {date}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-4 shrink-0">
             <div className="text-right">
-              <div className="font-[family-name:var(--f-mono)] text-xs text-[var(--color-text-muted)]">
+              <div className="font-mono text-xs text-[var(--color-ink-muted)]">
                 {session.event_count} events
               </div>
-              <div className="font-[family-name:var(--f-mono)] text-xs text-[var(--color-text-muted)]">
+              <div className="font-mono text-xs text-[var(--color-ink-muted)]">
                 {formatDuration(session.started_at, session.ended_at)}
               </div>
             </div>
             <div className="text-right">
               {session.model && (
-                <div className="font-[family-name:var(--f-mono)] text-xs text-[var(--color-precision)]">
+                <div className="font-mono text-xs text-[var(--color-accent)]">
                   {session.model}
                 </div>
               )}
               {session.estimated_cost_usd > 0 && (
-                <div className="font-[family-name:var(--f-mono)] text-xs text-[var(--color-text-muted)]">
+                <div className="font-mono text-xs text-[var(--color-ink-muted)]">
                   {formatCost(session.estimated_cost_usd)}
                 </div>
               )}

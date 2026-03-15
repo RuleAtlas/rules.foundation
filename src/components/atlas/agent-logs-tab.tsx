@@ -11,12 +11,12 @@ import { AgentPhase } from "@/components/lab/agent-phase";
 import { EventRow, type BadgeColors } from "@/components/lab/event-row";
 
 const badgeColors: BadgeColors = {
-  agent_start: { bg: "rgba(59, 130, 246, 0.15)", fg: "#3b82f6" },
-  agent_end: { bg: "rgba(59, 130, 246, 0.1)", fg: "#2563eb" },
-  tool_use: { bg: "rgba(167, 139, 250, 0.15)", fg: "#a78bfa" },
-  tool_result: { bg: "rgba(167, 139, 250, 0.1)", fg: "#8b6fd4" },
-  message: { bg: "rgba(16, 185, 129, 0.12)", fg: "#10b981" },
-  thinking: { bg: "rgba(245, 158, 11, 0.12)", fg: "#f59e0b" },
+  agent_start: { bg: "rgba(26, 122, 109, 0.1)", fg: "#1a7a6d" },
+  agent_end: { bg: "rgba(26, 122, 109, 0.08)", fg: "#15665b" },
+  tool_use: { bg: "rgba(111, 66, 193, 0.1)", fg: "#6f42c1" },
+  tool_result: { bg: "rgba(111, 66, 193, 0.08)", fg: "#5a3a9e" },
+  message: { bg: "rgba(45, 138, 78, 0.1)", fg: "#2d8a4e" },
+  thinking: { bg: "rgba(194, 122, 26, 0.1)", fg: "#c27a1a" },
 };
 
 /* v8 ignore next 8 -- only used by IterationsList (already ignored) */
@@ -47,10 +47,10 @@ function ExpandableSection({
         className="flex items-center gap-2 bg-transparent cursor-pointer w-full text-left"
         onClick={() => setOpen((p) => !p)}
       >
-        <span className="text-[var(--color-precision)] text-xs">
+        <span className="text-[var(--color-accent)] text-xs">
           {open ? "\u25BC" : "\u25B6"}
         </span>
-        <span className="font-mono text-xs text-[var(--color-text-muted)] uppercase tracking-wider">
+        <span className="font-mono text-xs text-[var(--color-ink-muted)] uppercase tracking-wider">
           {title}
           {count != null && ` (${count})`}
         </span>
@@ -65,63 +65,63 @@ function EncodingRunSummary({ encoding }: { encoding: RuleEncodingData }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       {encoding.agent_type && (
-        <div className="bg-[rgba(0,0,0,0.2)] border border-[var(--color-border-subtle)] rounded-lg p-3">
-          <div className="text-xs text-[var(--color-text-muted)] mb-1">
+        <div className="bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded-lg p-3">
+          <div className="text-xs text-[var(--color-ink-muted)] mb-1">
             Agent
           </div>
-          <div className="text-sm text-[var(--color-text)]">
+          <div className="text-sm text-[var(--color-ink)]">
             {encoding.agent_type}
           </div>
         </div>
       )}
       {encoding.agent_model && (
-        <div className="bg-[rgba(0,0,0,0.2)] border border-[var(--color-border-subtle)] rounded-lg p-3">
-          <div className="text-xs text-[var(--color-text-muted)] mb-1">
+        <div className="bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded-lg p-3">
+          <div className="text-xs text-[var(--color-ink-muted)] mb-1">
             Model
           </div>
-          <div className="text-sm text-[var(--color-text)] font-mono">
+          <div className="text-sm text-[var(--color-ink)] font-mono">
             {encoding.agent_model}
           </div>
         </div>
       )}
       {encoding.total_duration_ms != null && (
-        <div className="bg-[rgba(0,0,0,0.2)] border border-[var(--color-border-subtle)] rounded-lg p-3">
-          <div className="text-xs text-[var(--color-text-muted)] mb-1">
+        <div className="bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded-lg p-3">
+          <div className="text-xs text-[var(--color-ink-muted)] mb-1">
             Duration
           </div>
-          <div className="text-sm text-[var(--color-text)] font-mono">
+          <div className="text-sm text-[var(--color-ink)] font-mono">
             {formatDuration(encoding.total_duration_ms)}
           </div>
         </div>
       )}
       {encoding.data_source && (
-        <div className="bg-[rgba(0,0,0,0.2)] border border-[var(--color-border-subtle)] rounded-lg p-3">
-          <div className="text-xs text-[var(--color-text-muted)] mb-1">
+        <div className="bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded-lg p-3">
+          <div className="text-xs text-[var(--color-ink-muted)] mb-1">
             Source
           </div>
-          <div className="text-sm text-[var(--color-text)]">
+          <div className="text-sm text-[var(--color-ink)]">
             {encoding.data_source.replace(/_/g, " ")}
           </div>
         </div>
       )}
       {encoding.has_issues != null && (
-        <div className="bg-[rgba(0,0,0,0.2)] border border-[var(--color-border-subtle)] rounded-lg p-3">
-          <div className="text-xs text-[var(--color-text-muted)] mb-1">
+        <div className="bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded-lg p-3">
+          <div className="text-xs text-[var(--color-ink-muted)] mb-1">
             Issues
           </div>
           <div
-            className={`text-sm font-semibold ${encoding.has_issues ? "text-red-400" : "text-green-400"}`}
+            className={`text-sm font-semibold ${encoding.has_issues ? "text-[var(--color-error)]" : "text-[var(--color-success)]"}`}
           >
             {encoding.has_issues ? "Yes" : "None"}
           </div>
         </div>
       )}
       {encoding.timestamp && (
-        <div className="bg-[rgba(0,0,0,0.2)] border border-[var(--color-border-subtle)] rounded-lg p-3">
-          <div className="text-xs text-[var(--color-text-muted)] mb-1">
+        <div className="bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded-lg p-3">
+          <div className="text-xs text-[var(--color-ink-muted)] mb-1">
             Run date
           </div>
-          <div className="text-sm text-[var(--color-text)] font-mono">
+          <div className="text-sm text-[var(--color-ink)] font-mono">
             {new Date(encoding.timestamp).toLocaleDateString()}
           </div>
         </div>
@@ -141,26 +141,26 @@ function IterationsList({
       {iterations.map((iter) => (
         <div
           key={iter.attempt}
-          className="bg-[rgba(0,0,0,0.2)] border rounded-md p-3"
+          className="bg-[var(--color-code-bg)] border rounded-md p-3"
           style={{
             borderColor: iter.success
-              ? "rgba(16, 185, 129, 0.3)"
-              : "rgba(239, 68, 68, 0.3)",
+              ? "rgba(45, 138, 78, 0.2)"
+              : "rgba(196, 61, 61, 0.2)",
           }}
         >
           <div className="flex items-center justify-between mb-1">
-            <span className="font-mono text-xs font-semibold text-[var(--color-text)]">
+            <span className="font-mono text-xs font-semibold text-[var(--color-ink)]">
               Attempt {iter.attempt}
             </span>
             <div className="flex items-center gap-3">
-              <span className="font-mono text-xs text-[var(--color-text-muted)]">
+              <span className="font-mono text-xs text-[var(--color-ink-muted)]">
                 {formatDuration(iter.duration_ms)}
               </span>
               <span
                 className={`text-xs font-semibold px-2 py-0.5 rounded ${
                   iter.success
-                    ? "bg-[rgba(16,185,129,0.15)] text-green-400"
-                    : "bg-[rgba(239,68,68,0.15)] text-red-400"
+                    ? "bg-[rgba(45,138,78,0.1)] text-[var(--color-success)]"
+                    : "bg-[rgba(196,61,61,0.1)] text-[var(--color-error)]"
                 }`}
               >
                 {iter.success ? "Pass" : "Fail"}
@@ -172,9 +172,9 @@ function IterationsList({
               {iter.errors.map((err, i) => (
                 <div
                   key={i}
-                  className="text-xs text-red-400 bg-[rgba(239,68,68,0.08)] rounded px-2 py-1 font-mono"
+                  className="text-xs text-[var(--color-error)] bg-[rgba(196,61,61,0.06)] rounded px-2 py-1 font-mono"
                 >
-                  <span className="text-red-500 font-semibold">
+                  <span className="text-[var(--color-error)] font-semibold">
                     {err.type}:
                   </span>{" "}
                   {err.message}
@@ -197,56 +197,56 @@ function TranscriptCard({ transcript }: { transcript: AgentTranscript }) {
     "No summary";
 
   return (
-    <div className="bg-[rgba(0,0,0,0.2)] border border-[var(--color-border-subtle)] rounded-md overflow-hidden">
+    <div className="bg-[var(--color-code-bg)] border border-[var(--color-rule)] rounded-md overflow-hidden">
       <div
-        className="p-3 cursor-pointer hover:bg-[rgba(255,255,255,0.02)] transition-colors"
+        className="p-3 cursor-pointer hover:bg-[var(--color-code-bg)] transition-colors"
         onClick={() => setExpanded((p) => !p)}
       >
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
-            <span className="text-[var(--color-precision)] text-xs">
+            <span className="text-[var(--color-accent)] text-xs">
               {expanded ? "\u25BC" : "\u25B6"}
             </span>
-            <span className="font-mono text-xs font-semibold text-[var(--color-precision)]">
+            <span className="font-mono text-xs font-semibold text-[var(--color-accent)]">
               {transcript.subagent_type}
             </span>
           </div>
-          <span className="font-mono text-xs text-[var(--color-text-muted)]">
+          <span className="font-mono text-xs text-[var(--color-ink-muted)]">
             {transcript.message_count} messages
           </span>
         </div>
-        <div className="text-sm text-[var(--color-text-secondary)] line-clamp-2">
+        <div className="text-sm text-[var(--color-ink-secondary)] line-clamp-2">
           {messagePreview}
         </div>
       </div>
       {expanded && (
-        <div className="border-t border-[rgba(255,255,255,0.06)] p-3 max-h-[300px] overflow-y-auto">
+        <div className="border-t border-[var(--color-rule-subtle)] p-3 max-h-[300px] overflow-y-auto">
           {transcript.prompt && (
             <div className="mb-3">
-              <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-wider mb-1">
+              <div className="text-xs text-[var(--color-ink-muted)] uppercase tracking-wider mb-1">
                 Prompt
               </div>
-              <pre className="text-xs text-[var(--color-text-secondary)] whitespace-pre-wrap bg-[rgba(0,0,0,0.2)] rounded p-2">
+              <pre className="text-xs text-[var(--color-ink-secondary)] whitespace-pre-wrap bg-[var(--color-code-bg)] rounded p-2">
                 {transcript.prompt}
               </pre>
             </div>
           )}
           {transcript.orchestrator_thinking && (
             <div className="mb-3">
-              <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-wider mb-1">
+              <div className="text-xs text-[var(--color-ink-muted)] uppercase tracking-wider mb-1">
                 Orchestrator thinking
               </div>
-              <pre className="text-xs text-[var(--color-text-secondary)] whitespace-pre-wrap bg-[rgba(245,158,11,0.05)] border border-[rgba(245,158,11,0.15)] rounded p-2">
+              <pre className="text-xs text-[var(--color-ink-secondary)] whitespace-pre-wrap bg-[rgba(194,122,26,0.06)] border border-[rgba(194,122,26,0.12)] rounded p-2">
                 {transcript.orchestrator_thinking}
               </pre>
             </div>
           )}
           {transcript.response_summary && (
             <div>
-              <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-wider mb-1">
+              <div className="text-xs text-[var(--color-ink-muted)] uppercase tracking-wider mb-1">
                 Response
               </div>
-              <pre className="text-xs text-[var(--color-text-secondary)] whitespace-pre-wrap bg-[rgba(0,0,0,0.2)] rounded p-2">
+              <pre className="text-xs text-[var(--color-ink-secondary)] whitespace-pre-wrap bg-[var(--color-code-bg)] rounded p-2">
                 {transcript.response_summary}
               </pre>
             </div>
@@ -281,7 +281,7 @@ export function AgentLogsTab({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20 text-[var(--color-text-muted)]">
+      <div className="flex items-center justify-center py-20 text-[var(--color-ink-muted)]">
         Loading agent logs...
       </div>
     );
@@ -297,10 +297,10 @@ export function AgentLogsTab({
   if (!hasEncodingMeta && !hasSessionEvents) {
     return (
       <div className="py-20 text-center">
-        <div className="font-heading text-lg text-[var(--color-text-muted)] mb-2">
+        <div className="font-heading text-lg text-[var(--color-ink-muted)] mb-2">
           No sessions
         </div>
-        <p className="text-sm text-[var(--color-text-muted)]">
+        <p className="text-sm text-[var(--color-ink-muted)]">
           No agent sessions are linked to this rule.
         </p>
       </div>
@@ -322,7 +322,7 @@ export function AgentLogsTab({
         <ExpandableSection title="Encoding run" defaultOpen>
           <EncodingRunSummary encoding={encoding} />
           {encoding.note && (
-            <div className="mt-3 text-sm text-[var(--color-text-secondary)] bg-[rgba(0,0,0,0.15)] rounded-md p-3 border border-[var(--color-border-subtle)]">
+            <div className="mt-3 text-sm text-[var(--color-ink-secondary)] bg-[var(--color-code-bg)] rounded-md p-3 border border-[var(--color-rule)]">
               {encoding.note}
             </div>
           )}
@@ -376,7 +376,7 @@ export function AgentLogsTab({
               />
             ))}
             {agentPhases.length === 0 && (
-              <div className="text-[var(--color-text-muted)] italic text-sm">
+              <div className="text-[var(--color-ink-muted)] italic text-sm">
                 No agent phases found in {sessionEvents.length} events
               </div>
             )}
@@ -413,7 +413,7 @@ export function AgentLogsTab({
           </div>
           {sessionEvents.length > timelineLimit && (
             <div
-              className="p-4 text-center text-[var(--color-precision)] font-mono text-sm cursor-pointer rounded-lg transition-colors duration-150 hover:bg-[rgba(59,130,246,0.1)]"
+              className="p-4 text-center text-[var(--color-accent)] font-mono text-sm cursor-pointer rounded-lg transition-colors duration-150 hover:bg-[var(--color-accent-light)]"
               onClick={() => setTimelineLimit((prev) => prev + 50)}
             >
               Show more ({sessionEvents.length - timelineLimit} remaining)

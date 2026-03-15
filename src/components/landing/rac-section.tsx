@@ -36,22 +36,22 @@ of the threshold amount.`;
     >
       {/* Statute panel */}
       <div
-        className={`flex-[0_0_340px] max-md:flex-[1_1_100%] max-md:max-w-full bg-[var(--color-bg)] border rounded-xl overflow-hidden transition-all duration-500 ${
+        className={`flex-[0_0_340px] max-md:flex-[1_1_100%] max-md:max-w-full bg-[var(--color-paper-elevated)] border rounded-md overflow-hidden transition-all duration-500 ${
           phase === 0
-            ? "opacity-100 scale-100 border-[var(--color-precision)] shadow-[0_0_40px_rgba(59,130,246,0.15)]"
-            : "opacity-60 scale-[0.98] border-[var(--color-border-subtle)]"
+            ? "opacity-100 scale-100 border-[var(--color-accent)] shadow-[0_0_24px_rgba(26,122,109,0.1)]"
+            : "opacity-60 scale-[0.98] border-[var(--color-rule)]"
         }`}
       >
-        <div className="flex items-center gap-2 px-4 py-2 bg-[rgba(255,255,255,0.02)] border-b border-[var(--color-border-subtle)]">
-          <span className="w-2 h-2 bg-[var(--color-warmth)] rounded-full" />
-          <span className="font-[family-name:var(--f-mono)] text-xs text-[var(--color-text-muted)]">
+        <div className="flex items-center gap-2 px-4 py-2 bg-[var(--color-code-bg)] border-b border-[var(--color-rule)]">
+          <span className="w-2 h-2 bg-[var(--color-warning)] rounded-full" />
+          <span className="font-mono text-xs text-[var(--color-ink-muted)]">
             26 USC &sect; 1411(a)
           </span>
         </div>
         <CodeBlock
           code={statuteText}
           language="plain"
-          className="p-6 font-[family-name:var(--f-mono)] text-[0.8rem] text-[var(--color-text-secondary)] leading-relaxed whitespace-pre-wrap m-0 min-h-[180px]"
+          className="p-6 font-mono text-[0.8rem] text-[var(--color-ink-secondary)] leading-relaxed whitespace-pre-wrap m-0 min-h-[180px]"
         />
       </div>
 
@@ -60,15 +60,15 @@ of the threshold amount.`;
         <div
           className={`w-15 h-0.5 relative transition-colors duration-200 after:content-[''] after:absolute after:right-0 after:top-1/2 after:-translate-y-1/2 after:border-[5px] after:border-transparent after:border-l-current after:bg-transparent ${
             phase === 1
-              ? "bg-[var(--color-precision)] after:border-l-[var(--color-precision)]"
-              : "bg-[var(--color-border)] after:border-l-[var(--color-border)]"
+              ? "bg-[var(--color-accent)] after:border-l-[var(--color-accent)]"
+              : "bg-[var(--color-rule)] after:border-l-[var(--color-rule)]"
           }`}
         />
         <span
-          className={`font-[family-name:var(--f-mono)] text-[0.7rem] uppercase tracking-[0.1em] transition-colors duration-200 ${
+          className={`font-mono text-[0.7rem] uppercase tracking-[0.1em] transition-colors duration-200 ${
             phase === 1
-              ? "text-[var(--color-precision)]"
-              : "text-[var(--color-text-muted)]"
+              ? "text-[var(--color-accent)]"
+              : "text-[var(--color-ink-muted)]"
           }`}
         >
           AutoRAC
@@ -77,22 +77,22 @@ of the threshold amount.`;
 
       {/* RAC panel */}
       <div
-        className={`flex-[0_0_340px] max-md:flex-[1_1_100%] max-md:max-w-full bg-[var(--color-bg)] border rounded-xl overflow-hidden transition-all duration-500 ${
+        className={`flex-[0_0_340px] max-md:flex-[1_1_100%] max-md:max-w-full bg-[var(--color-paper-elevated)] border rounded-md overflow-hidden transition-all duration-500 ${
           phase === 2
-            ? "opacity-100 scale-100 border-[var(--color-precision)] shadow-[0_0_40px_rgba(59,130,246,0.15)]"
-            : "opacity-60 scale-[0.98] border-[var(--color-border-subtle)]"
+            ? "opacity-100 scale-100 border-[var(--color-accent)] shadow-[0_0_24px_rgba(26,122,109,0.1)]"
+            : "opacity-60 scale-[0.98] border-[var(--color-rule)]"
         }`}
       >
-        <div className="flex items-center gap-2 px-4 py-2 bg-[rgba(59,130,246,0.1)] border-b border-[var(--color-border-subtle)]">
-          <span className="w-2 h-2 bg-[var(--color-precision)] rounded-full" />
-          <span className="font-[family-name:var(--f-mono)] text-xs text-[var(--color-text-muted)]">
+        <div className="flex items-center gap-2 px-4 py-2 bg-[var(--color-accent-light)] border-b border-[var(--color-rule)]">
+          <span className="w-2 h-2 bg-[var(--color-accent)] rounded-full" />
+          <span className="font-mono text-xs text-[var(--color-ink-muted)]">
             statute/26/1411/a.rac
           </span>
         </div>
         <CodeBlock
           code={heroRacCode}
           language="rac"
-          className="p-6 font-[family-name:var(--f-mono)] text-[0.8rem] text-[var(--color-text-secondary)] leading-relaxed whitespace-pre-wrap m-0 min-h-[180px]"
+          className="p-6 font-mono text-[0.8rem] text-[var(--color-ink-secondary)] leading-relaxed whitespace-pre-wrap m-0 min-h-[180px]"
         />
       </div>
     </div>
@@ -105,10 +105,10 @@ export function RacSection() {
       <div className="max-w-[1280px] mx-auto">
         <div className="text-center mb-20">
           <span className="eyebrow block mb-4">What is RAC</span>
-          <h2 className="heading-section text-[var(--color-text)] mb-6">
+          <h2 className="heading-section mb-6">
             Rules as Code
           </h2>
-          <p className="font-[family-name:var(--f-body)] text-lg font-light text-[var(--color-text-secondary)] max-w-[600px] mx-auto leading-relaxed">
+          <p className="font-body text-lg text-[var(--color-ink-secondary)] max-w-[600px] mx-auto leading-relaxed">
             A domain-specific language for encoding rules with auditability,
             temporal versioning, and legal citations built in.
           </p>
@@ -134,7 +134,7 @@ export function RacSection() {
               desc: (
                 <>
                   Track how law changes over time. Every definition uses{" "}
-                  <code className="font-[family-name:var(--f-mono)] text-[0.8rem] px-1.5 py-0.5 bg-[rgba(59,130,246,0.1)] rounded text-[var(--color-precision)]">
+                  <code className="font-mono text-[0.8rem] px-1.5 py-0.5 bg-[var(--color-accent-light)] rounded text-[var(--color-accent)]">
                     from
                   </code>{" "}
                   clauses with effective dates.
@@ -144,15 +144,15 @@ export function RacSection() {
           ].map((f) => (
             <div
               key={f.title}
-              className="card p-8 transition-all duration-200 hover:bg-[rgba(59,130,246,0.05)] hover:border-[var(--color-border)] hover:-translate-y-1"
+              className="card p-8 transition-all duration-200"
             >
-              <div className="w-12 h-12 flex items-center justify-center bg-[rgba(59,130,246,0.1)] rounded-[10px] text-[var(--color-precision)] mb-6">
+              <div className="w-12 h-12 flex items-center justify-center bg-[var(--color-accent-light)] rounded-md text-[var(--color-accent)] mb-6">
                 {f.icon}
               </div>
-              <h3 className="font-[family-name:var(--f-body)] text-xl text-[var(--color-text)] mb-2">
+              <h3 className="font-body text-xl text-[var(--color-ink)] mb-2">
                 {f.title}
               </h3>
-              <p className="font-[family-name:var(--f-body)] text-[0.95rem] text-[var(--color-text-secondary)] leading-relaxed">
+              <p className="font-body text-[0.95rem] text-[var(--color-ink-secondary)] leading-relaxed">
                 {f.desc}
               </p>
             </div>

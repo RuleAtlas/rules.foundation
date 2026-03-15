@@ -11,9 +11,9 @@ import { Footer } from './footer'
 describe('Footer', () => {
   it('renders the footer with wordmark', () => {
     render(<Footer />)
-    const logo = screen.getByAltText('Rule Atlas')
+    const logo = screen.getByAltText('Rules Atlas')
     expect(logo).toBeInTheDocument()
-    expect(logo).toHaveAttribute('src', '/logos/rule-atlas.svg')
+    expect(logo).toHaveAttribute('src', '/logos/rules-atlas.svg')
   })
 
   it('renders tagline', () => {

@@ -11,17 +11,17 @@ export default function LabPage() {
       <div className="max-w-[900px] mx-auto">
         <header className="text-center mb-16">
           <span className="eyebrow block mb-4">Development</span>
-          <h1 className="heading-page text-[var(--color-text)] mb-6">
+          <h1 className="heading-page text-[var(--color-ink)] mb-6">
             Experiment lab
           </h1>
-          <p className="font-[family-name:var(--f-body)] text-lg font-light text-[var(--color-text-secondary)] max-w-[600px] mx-auto leading-relaxed">
+          <p className="font-body text-lg font-light text-[var(--color-ink-secondary)] max-w-[600px] mx-auto leading-relaxed">
             SDK sessions from the AutoRAC encoding pipeline. Click a session to
             explore agent phases, tool calls, and event timelines.
           </p>
         </header>
 
         {loading && (
-          <div className="flex items-center justify-center py-20 text-[var(--color-text-muted)]">
+          <div className="flex items-center justify-center py-20 text-[var(--color-ink-muted)]">
             Loading sessions...
           </div>
         )}
@@ -29,7 +29,7 @@ export default function LabPage() {
         {error && (
           <div className="text-center py-20">
             <div className="text-red-400 mb-2">{error}</div>
-            <p className="text-sm text-[var(--color-text-muted)]">
+            <p className="text-sm text-[var(--color-ink-muted)]">
               Check that Supabase is configured correctly.
             </p>
           </div>
@@ -37,10 +37,10 @@ export default function LabPage() {
 
         {!loading && !error && sessions.length === 0 && (
           <div className="text-center py-20">
-            <div className="font-heading text-lg text-[var(--color-text-muted)] mb-2">
+            <div className="font-heading text-lg text-[var(--color-ink-muted)] mb-2">
               No sessions yet
             </div>
-            <p className="text-sm text-[var(--color-text-muted)]">
+            <p className="text-sm text-[var(--color-ink-muted)]">
               Sessions will appear here once AutoRAC encoding runs are uploaded.
             </p>
           </div>

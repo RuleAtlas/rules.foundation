@@ -7,10 +7,10 @@ export function AtlasSection() {
       <div className="max-w-[1280px] mx-auto">
         <div className="text-center mb-20">
           <span className="eyebrow block mb-4">Platform</span>
-          <h2 className="heading-section text-[var(--color-text)] mb-6">
+          <h2 className="heading-section text-[var(--color-ink)] mb-6">
             Atlas
           </h2>
-          <p className="font-[family-name:var(--f-body)] text-lg font-light text-[var(--color-text-secondary)] max-w-[600px] mx-auto leading-relaxed">
+          <p className="font-body text-lg font-light text-[var(--color-ink-secondary)] max-w-[600px] mx-auto leading-relaxed">
             The open platform for exploring encoded law. Browse the Archive
             of source documents, RAC encodings, and validation results
             across jurisdictions.
@@ -38,13 +38,13 @@ export function AtlasSection() {
           ].map((item) => (
             <div
               key={item.title}
-              className="bg-gradient-to-br from-[var(--color-bg)] to-[var(--color-void)] border border-[var(--color-border)] rounded-xl p-8 transition-all duration-200 hover:border-[var(--color-precision)] hover:-translate-y-0.5"
+              className="bg-[var(--color-paper-elevated)] border border-[var(--color-rule)] rounded-md p-8 transition-all duration-200 hover:border-[var(--color-accent)] hover:-translate-y-0.5"
               style={{ transitionTimingFunction: "var(--ease-out)" }}
             >
-              <h4 className="font-[family-name:var(--f-body)] text-lg text-[var(--color-text)] mb-2">
+              <h4 className="font-body text-lg text-[var(--color-ink)] mb-2">
                 {item.title}
               </h4>
-              <p className="font-[family-name:var(--f-body)] text-sm text-[var(--color-text-secondary)] leading-normal m-0">
+              <p className="font-body text-sm text-[var(--color-ink-secondary)] leading-normal m-0">
                 {item.desc}
               </p>
             </div>
@@ -59,7 +59,7 @@ export function AtlasSection() {
           ].map((text) => (
             <div
               key={text}
-              className="flex items-center gap-2 font-[family-name:var(--f-body)] text-sm text-[var(--color-text-secondary)]"
+              className="flex items-center gap-2 font-body text-sm text-[var(--color-ink-secondary)]"
             >
               <CheckIcon className="w-4 h-4 text-[var(--color-success)]" />
               <span>{text}</span>

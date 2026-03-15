@@ -55,7 +55,7 @@ function RichText({ text }: { text: string }) {
   }
 
   return (
-    <div className="text-[0.95rem] text-[var(--color-text-secondary)] leading-relaxed">
+    <div className="text-[0.95rem] text-[var(--color-ink-secondary)] leading-relaxed">
       {segments.map((seg, idx) => {
         if (seg.type === "text") {
           return (
@@ -68,11 +68,11 @@ function RichText({ text }: { text: string }) {
           <div key={idx} className="my-3 overflow-x-auto">
             <table className="border-collapse text-sm w-full">
               <thead>
-                <tr className="border-b border-[var(--color-border-subtle)]">
+                <tr className="border-b border-[var(--color-rule)]">
                   {seg.headers.map((h, hi) => (
                     <th
                       key={hi}
-                      className="text-left px-3 py-2 text-[var(--color-text-muted)] font-medium text-xs uppercase tracking-wide"
+                      className="text-left px-3 py-2 text-[var(--color-ink-muted)] font-medium text-xs uppercase tracking-wide"
                     >
                       {h}
                     </th>
@@ -83,12 +83,12 @@ function RichText({ text }: { text: string }) {
                 {seg.rows.map((row, ri) => (
                   <tr
                     key={ri}
-                    className="border-b border-[var(--color-border-subtle)] last:border-0"
+                    className="border-b border-[var(--color-rule)] last:border-0"
                   >
                     {row.map((cell, ci) => (
                       <td
                         key={ci}
-                        className="px-3 py-2 text-[var(--color-text-secondary)]"
+                        className="px-3 py-2 text-[var(--color-ink-secondary)]"
                       >
                         {cell}
                       </td>
@@ -115,7 +115,7 @@ export function SourceTab({ document }: { document: ViewerDocument }) {
       {document.contextText && (
         <div
           data-testid="context-intro"
-          className="px-4 py-3 mb-4 text-[0.95rem] text-[var(--color-text-secondary)] leading-relaxed italic border-l-2 border-[var(--color-border-subtle)]"
+          className="px-4 py-3 mb-4 text-[0.95rem] text-[var(--color-ink-secondary)] leading-relaxed italic border-l-2 border-[var(--color-rule)]"
         >
           <RichText text={document.contextText} />
         </div>
@@ -129,15 +129,15 @@ export function SourceTab({ document }: { document: ViewerDocument }) {
           data-subsection-id={subsection.id}
           className={`flex gap-4 p-4 rounded-lg mb-3 transition-colors duration-150 cursor-default ${
             isHighlighted
-              ? "border-l-2 border-[var(--color-precision)] bg-[rgba(59,130,246,0.08)]"
+              ? "border-l-2 border-[var(--color-accent)] bg-[var(--color-accent-light)]"
               : highlightedSection === subsection.id
-                ? "bg-[rgba(59,130,246,0.08)]"
-                : "hover:bg-[rgba(255,255,255,0.02)]"
+                ? "bg-[var(--color-accent-light)]"
+                : "hover:bg-[var(--color-code-bg)]"
           }`}
           onMouseEnter={() => setHighlightedSection(subsection.id)}
           onMouseLeave={() => setHighlightedSection(null)}
         >
-          <span className="font-mono text-xs text-[var(--color-precision)] pt-1 shrink-0">
+          <span className="font-mono text-xs text-[var(--color-accent)] pt-1 shrink-0">
             ({subsection.id})
           </span>
           <RichText text={subsection.text} />
@@ -146,11 +146,11 @@ export function SourceTab({ document }: { document: ViewerDocument }) {
       })}
 
       {document.archPath && (
-        <div className="mt-8 pt-4 border-t border-[var(--color-border-subtle)]">
-          <span className="font-mono text-xs text-[var(--color-text-muted)]">
+        <div className="mt-8 pt-4 border-t border-[var(--color-rule)]">
+          <span className="font-mono text-xs text-[var(--color-ink-muted)]">
             Source:{" "}
           </span>
-          <code className="font-mono text-xs text-[var(--color-precision)]">
+          <code className="font-mono text-xs text-[var(--color-accent)]">
             {document.archPath}
           </code>
         </div>

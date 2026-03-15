@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
@@ -12,19 +12,19 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
-const body = IBM_Plex_Sans({
+const body = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-body",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Rule Atlas — Open infrastructure for encoded law",
+  title: "Rules Atlas — Open infrastructure for encoded law",
   description:
     "Machine-readable encodings of statutes, regulations, and policy rules. Ground truth for AI systems. Verifiable by design.",
   openGraph: {
-    title: "Rule Atlas",
+    title: "Rules Atlas",
     description: "Open infrastructure for encoded law.",
     images: ["/og-image.png"],
   },
@@ -45,7 +45,6 @@ export default function RootLayout({
       </head>
       <body>
         <PostHogProvider />
-        <div className="grid-bg" />
         <Nav />
         <main className="relative z-10">{children}</main>
         <Footer />
